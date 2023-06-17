@@ -31,7 +31,6 @@ namespace Belzont.Interfaces
             Instance = this;
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
             LoadModData();
-
             Redirector.PatchAll();
             DoOnLoad();
         }
@@ -63,7 +62,6 @@ namespace Belzont.Interfaces
         public abstract string SafeName { get; }
         public virtual string GitHubRepoPath { get; } = "";
         public abstract string Acronym { get; }
-        public abstract Color ModColor { get; }
         public virtual string[] AssetExtraDirectoryNames { get; } = new string[0];
         public virtual string[] AssetExtraFileNames { get; } = new string[] { };
         public virtual string ModRootFolder => KFileUtils.BASE_FOLDER_PATH + SafeName;
@@ -192,7 +190,7 @@ namespace Belzont.Interfaces
                 if (File.Exists(file))
                 {
                     var i18nFile = new MemorySource(File.ReadAllLines(file).Select(x => x.Split('\t')).ToDictionary(x => x[0], x => x.ElementAtOrDefault(1)));
-                    GameManager.instance.localizationManager.AddSource(lang, i18nFile);             
+                    GameManager.instance.localizationManager.AddSource(lang, i18nFile);
                 }
 
                 GameManager.instance.localizationManager.AddSource(lang, new ModGenI18n());
