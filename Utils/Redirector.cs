@@ -79,12 +79,15 @@ namespace Belzont.Utils
             }
             m_onUnpatchActions.Clear();
             m_patches.Clear();
-
+            var objName = $"k45_Redirectors_{Harmony.Id}";
+            DestroyImmediate(GameObject.Find(objName));
         }
         public static void PatchAll()
         {
             LogUtils.DoWarnLog($"Patching all: {Harmony.Id}");
-            GameObject m_topObj = GameObject.Find("k45_Redirectors") ?? new GameObject("k45_Redirectors");
+            var objName = $"k45_Redirectors_{Harmony.Id}";
+            GameObject m_topObj = GameObject.Find(objName) ?? new GameObject(objName);
+            DontDestroyOnLoad(m_topObj);
             Type typeTarg = typeof(IRedirectable);
             List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, new List<Assembly> { BasicIMod.Instance.GetType().Assembly });
             LogUtils.DoLog($"Found Redirectors: {instances.Count}");
@@ -95,7 +98,6 @@ namespace Belzont.Utils
                 {
                     LogUtils.DoLog($"Redirector: {t}");
                     m_topObj.AddComponent(t);
-
                 }
             }
             finally

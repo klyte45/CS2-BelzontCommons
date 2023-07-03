@@ -426,6 +426,30 @@ namespace Belzont.Utils
                 return classes.ToList();
             }
         }
+        public static List<Type> GetStructForInterfaceImplementations(Type interfaceType, IEnumerable<Assembly> assembly = null)
+        {
+            if (BasicIMod.DebugMode) LogUtils.DoLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
+
+            if (assembly == null)
+            {
+                throw new NotSupportedException("Aguardando ModsMan Impl");
+            }
+            else
+            {
+                IEnumerable<Type> classes = (from t in assembly.SelectMany(x =>
+                {
+                    try
+                    { return x?.GetTypes(); }
+                    catch { return new Type[0]; }
+                })
+                                             let y = t.GetInterfaces()
+                                             where t.IsValueType && (y.Contains(interfaceType) || interfaceType.IsAssignableFrom(t))
+                                             select t);
+
+                LogUtils.DoLog($"classes:\r\n\t {string.Join("\r\n\t", classes.Select(x => x.ToString()).ToArray())} ");
+                return classes.ToList();
+            }
+        }
         public static Type GetImplementationForGenericType(Type typeOr, params Type[] typeArgs)
         {
             Type typeTarg = typeOr.MakeGenericType(typeArgs);
