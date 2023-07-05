@@ -142,7 +142,7 @@ namespace Belzont.Interfaces
         public static string Version => Instance.Version_;
         #endregion
 
-        #region Old CommonProperties Fixed
+        #region CommonProperties Fixed
         public string Name => $"{SimpleName} {Version}";
         public string GeneralName => $"{SimpleName} (v{Version})";
 
@@ -157,6 +157,8 @@ namespace Belzont.Interfaces
                         ? MinorVersion
                         : MajorVersion;
 
+        public string CouiHost => $"{Acronym.ToLower()}.k45";
+
         #endregion
 
         internal OptionsUISystem.Page BuildModPage()
@@ -167,7 +169,7 @@ namespace Belzont.Interfaces
             };
             List<OptionsUISystem.Section> sections = page.sections;
             sections.AddRange(GenerateModOptionsSections());
-            OptionsUISystem.Section section = new OptionsUISystem.Section
+            OptionsUISystem.Section section = new()
             {
                 id = $"K45.{Instance.Acronym}.About",
                 items = new List<IWidget>
