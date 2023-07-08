@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Unity.Entities;
 using UnityEngine;
 using FileInfo = Colossal.IO.AssetDatabase.Internal.FileInfo;
 
@@ -32,6 +33,26 @@ namespace Belzont.Interfaces
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
             LoadModData();
             Redirector.PatchAll();
+
+            Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly }).ToArray();
+
+            if (newComponents.Length > 0)
+            {
+                LogUtils.DoInfoLog($"Registering {newComponents.Length} components found at mod {SimpleName}");
+                LogUtils.DoLog("Loaded component count: " + TypeManager.GetTypeCount());
+                var AddAllComponents = typeof(TypeManager).GetMethod("AddAllComponentTypes", RedirectorUtils.allFlags);
+                int startTypeIndex = TypeManager.GetTypeCount();
+                Dictionary<int, HashSet<TypeIndex>> writeGroupByType = new();
+                Dictionary<Type, int> descendantCountByType = newComponents.Select(x => (x, 0)).ToDictionary(x => x.x, x => x.Item2);
+
+                AddAllComponents.Invoke(null, new object[] { newComponents, startTypeIndex, writeGroupByType, descendantCountByType });
+
+                LogUtils.DoLog("Post loaded component count: " + TypeManager.GetTypeCount());
+            }
+            else
+            {
+                LogUtils.DoInfoLog($"No components found at mod {SimpleName}");
+            }
             DoOnLoad();
         }
 

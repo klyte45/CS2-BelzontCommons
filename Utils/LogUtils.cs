@@ -12,7 +12,9 @@ namespace Belzont.Utils
     {
         #region Log Utils
 
-        private static readonly ILog logOutput = LogManager.GetLogger("Mods_K45");
+        private static ILog logOutput;
+
+        private static ILog LogOutput => logOutput ??= LogManager.GetLogger("Mods_K45");
 
         private static string LogLineStart(string level) => $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
 
@@ -22,25 +24,23 @@ namespace Belzont.Utils
             {
                 if (BasicIMod.DebugMode)
                 {
-                    logOutput.effectivenessLevel = Level.Debug;
-                    logOutput.Log(Level.Debug, string.Format(LogLineStart("DEBUG") + format, args), null);
-                }
-                else
-                {
-                    logOutput.effectivenessLevel = Level.Info;
+                    LogOutput.effectivenessLevel = Level.Debug;
+                    LogOutput.Log(Level.Debug, string.Format(LogLineStart("DEBUG") + format, args), null);
+                    LogOutput.effectivenessLevel = Level.Info;
                 }
 
             }
             catch (Exception e)
             {
                 LogCaughtLogException(format, args, e);
+                LogOutput.effectivenessLevel = Level.Info;
             }
         }
         public static void DoWarnLog(string format, params object[] args)
         {
             try
             {
-                logOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
+                LogOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
             }
             catch (Exception e)
             {
@@ -50,14 +50,14 @@ namespace Belzont.Utils
 
         private static void LogCaughtLogException(string format, object[] args, Exception e)
         {
-            logOutput.Log(Level.Warn, string.Format($"{LogLineStart("SEVERE")} Erro ao fazer warn log: {{0}} (args = {{1}})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())), e);
+            LogOutput.Log(Level.Warn, string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())), e);
         }
 
         public static void DoInfoLog(string format, params object[] args)
         {
             try
             {
-                logOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
+                LogOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
             }
             catch (Exception e)
             {
@@ -68,13 +68,13 @@ namespace Belzont.Utils
         {
             try
             {
-                logOutput.Log(Level.Error, string.Format(LogLineStart("ERROR") + format, args), e);
+                LogOutput.Log(Level.Error, string.Format(LogLineStart("ERROR") + format, args), e);
             }
             catch (Exception e2)
             {
                 if (e != null)
                 {
-                    logOutput.Log(Level.Error, LogLineStart("ERROR") + "An exception has occurred.", e);
+                    LogOutput.Log(Level.Error, LogLineStart("ERROR") + "An exception has occurred.", e);
                 }
                 LogCaughtLogException(format, args, e2);
             }
@@ -85,7 +85,7 @@ namespace Belzont.Utils
             if (force || BasicIMod.DebugMode)
             {
                 int j = 0;
-                logOutput.Log(Level.Info, $"{LogLineStart("TRANSPILLED")}\n\t{string.Join("\n\t", inst.Select(x => $"{j++:D8} {x.opcode,-10} {ParseOperand(inst, x.operand)}").ToArray())}", null);
+                LogOutput.Log(Level.Info, $"{LogLineStart("TRANSPILLED")}\n\t{string.Join("\n\t", inst.Select(x => $"{j++:D8} {x.opcode,-10} {ParseOperand(inst, x.operand)}").ToArray())}", null);
             }
         }
 
