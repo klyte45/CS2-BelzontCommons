@@ -207,16 +207,27 @@ namespace Belzont.Interfaces
 
         private void LoadLocales()
         {
-            foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
+            var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
+            if (File.Exists(file))
             {
-                var file = Path.Combine(ModInstallFolder, $"i18n/{lang}.csv");
-                if (File.Exists(file))
+                var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
+                var enColumn = Array.IndexOf(fileLines.First(), "en-US");
+                var enMemoryFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => x.ElementAtOrDefault(enColumn)));
+                foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
-                    var i18nFile = new MemorySource(File.ReadAllLines(file).Select(x => x.Split('\t')).ToDictionary(x => x[0], x => x.ElementAtOrDefault(1)));
-                    GameManager.instance.localizationManager.AddSource(lang, i18nFile);
+                    GameManager.instance.localizationManager.AddSource(lang, enMemoryFile);
+                    if (lang != "en-US")
+                    {
+                        var valueColumn = Array.IndexOf(fileLines.First(), lang);
+                        if (valueColumn > 0)
+                        {
+                            var i18nFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => x.ElementAtOrDefault(valueColumn)));
+                            GameManager.instance.localizationManager.AddSource(lang, i18nFile);
+                        }
+                    }
+                    GameManager.instance.localizationManager.AddSource(lang, new ModGenI18n());
                 }
 
-                GameManager.instance.localizationManager.AddSource(lang, new ModGenI18n());
             }
         }
 
