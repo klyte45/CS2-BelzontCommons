@@ -1,6 +1,7 @@
 ﻿using Belzont.Utils;
 using Colossal;
 using Colossal.Localization;
+using Colossal.UI.Binding;
 using Game;
 using Game.Modding;
 using Game.Reflection;
@@ -21,8 +22,10 @@ namespace Belzont.Interfaces
 {
     public abstract class BasicIMod
     {
+        protected UpdateSystem m_updateSystem;
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
+            m_updateSystem = updateSystem;
             LoadLocales();
             DoOnCreateWorld(updateSystem);
         }
@@ -182,6 +185,7 @@ namespace Belzont.Interfaces
 
         #endregion
 
+        #region UI
         internal OptionsUISystem.Page BuildModPage()
         {
             OptionsUISystem.Page page = new OptionsUISystem.Page
@@ -291,6 +295,55 @@ namespace Belzont.Interfaces
                 accessor = new DelegateAccessor<string>(getter, (x) => { })
             };
         }
+
+        #endregion
+
+        #region UI Event binding register
+
+
+        public T GetManagedSystem<T>() where T : ComponentSystemBase
+        {
+            return m_updateSystem.World.GetOrCreateSystemManaged<T>();
+        }
+        public ComponentSystemBase GetManagedSystem(Type t)
+        {
+            return m_updateSystem.World.GetOrCreateSystemManaged(t);
+        }
+
+        public void SetupCaller(Action<string, object[]> eventCaller)
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                (GetManagedSystem(type) as IBelzontBindable).SetupCaller(eventCaller);
+            }
+        }
+        public void SetupEventBinder(Action<string, Delegate> eventCaller)
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                (GetManagedSystem(type) as IBelzontBindable).SetupEventBinder(eventCaller);
+            }
+        }
+        public void SetupCallBinder(Action<string, Delegate> eventCaller)
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                (GetManagedSystem(type) as IBelzontBindable).SetupCallBinder(eventCaller);
+            }
+        }
+
+        public void SetupRawBindings(Func<string, Action<IJsonWriter>, RawValueBinding> eventCaller)
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                (GetManagedSystem(type) as IBelzontBindable).SetupRawBindings(eventCaller);
+            }
+        }
+        #endregion
 
         private class ModGenI18n : IDictionarySource
         {
