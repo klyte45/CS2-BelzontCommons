@@ -5,8 +5,8 @@ namespace Belzont.Utils
 {
     public static class ColorExtensions
     {
-        public static string ToRGBA(this Color32 color) => color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2") + color.a.ToString("X2");
-        public static string ToRGB(this Color32 color) => color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
+        public static string ToRGBA(this Color32 color) => $"{color.r:X2}{color.g:X2}{color.b:X2}{color.a:X2}";
+        public static string ToRGB(this Color32 color, bool withHashtag = false) => $"{(withHashtag ? "#" : "")}{color.r:X2}{color.g:X2}{color.b:X2}";
         public static string ToRGBA(this Color color) => ToRGBA((Color32)color);
         public static string ToRGB(this Color color) => ToRGB((Color32)color);
         public static Color SetBrightness(this Color color, float brightness)

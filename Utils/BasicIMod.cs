@@ -70,7 +70,7 @@ namespace Belzont.Interfaces
         #region Saved shared config
         public static bool DebugMode
         {
-            get => Instance.BasicModData.DebugMode;
+            get => Instance.BasicModData?.DebugMode ?? false;
             set
             {
                 Instance.BasicModData.DebugMode = value;

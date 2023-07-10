@@ -29,7 +29,7 @@ namespace Belzont.Utils
             return executingAssembly
                 .GetManifestResourceNames()
                 .Where(r => r.StartsWith(folderName) && r.EndsWith(extension))
-                .Select(r => r.Substring(folderName.Length + 1))
+                .Select(r => r[(folderName.Length + 1)..])
                 .ToArray();
         }
         #endregion
