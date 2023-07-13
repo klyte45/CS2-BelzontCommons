@@ -40,7 +40,10 @@ namespace Belzont.Utils
         {
             try
             {
+                var old = LogOutput.effectivenessLevel;
+                LogOutput.effectivenessLevel = Level.Info;
                 LogOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
+                LogOutput.effectivenessLevel = old;
             }
             catch (Exception e)
             {
@@ -57,7 +60,10 @@ namespace Belzont.Utils
         {
             try
             {
+                var old = LogOutput.effectivenessLevel;
+                LogOutput.effectivenessLevel = Level.Info;
                 LogOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
+                LogOutput.effectivenessLevel = old;
             }
             catch (Exception e)
             {

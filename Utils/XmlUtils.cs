@@ -56,14 +56,12 @@ namespace Belzont.Utils
         {
             var xmlser = new XmlSerializer(targetObj?.GetType() ?? typeof(T));
             var settings = new XmlWriterSettings { Indent = indent, OmitXmlDeclaration = true };
-            using (var textWriter = new StringWriter())
-            using (var xw = XmlWriter.Create(textWriter, settings))
-            {
-                var ns = new XmlSerializerNamespaces();
-                ns.Add("", "");
-                xmlser.Serialize(xw, targetObj, ns);
-                return textWriter.ToString();
-            }
+            using var textWriter = new StringWriter();
+            using var xw = XmlWriter.Create(textWriter, settings);
+            var ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            xmlser.Serialize(xw, targetObj, ns);
+            return textWriter.ToString();
         }
 
         public class ListWrapper<T>
