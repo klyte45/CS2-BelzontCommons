@@ -28,8 +28,12 @@ namespace Belzont.Utils
 
         public static Color32 FromRGBA(long value) => new Color32((byte)((value & 0xFF000000) >> 24), (byte)((value & 0xFF0000) >> 16), (byte)((value & 0xFF00) >> 8), (byte)((value & 0xFF)));
 
-        public static Color32 FromRGB(string rgb)
+        public static Color32 FromRGB(string rgb, bool withHashtag = false)
         {
+            if (withHashtag)
+            {
+                rgb = rgb[1..];
+            }
             int value = Convert.ToInt32(rgb, 16);
             return FromRGB(value);
         }
