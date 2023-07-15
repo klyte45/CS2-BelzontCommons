@@ -216,7 +216,7 @@ namespace Belzont.Interfaces
             {
                 var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
                 var enColumn = Array.IndexOf(fileLines.First(), "en-US");
-                var enMemoryFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => x.ElementAtOrDefault(enColumn)));
+                var enMemoryFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => RemoveQuotes(x.ElementAtOrDefault(enColumn))));
                 foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
                     GameManager.instance.localizationManager.AddSource(lang, enMemoryFile);
@@ -225,7 +225,7 @@ namespace Belzont.Interfaces
                         var valueColumn = Array.IndexOf(fileLines.First(), lang);
                         if (valueColumn > 0)
                         {
-                            var i18nFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => x.ElementAtOrDefault(valueColumn)));
+                            var i18nFile = new MemorySource(fileLines.Skip(1).ToDictionary(x => x[0], x => RemoveQuotes(x.ElementAtOrDefault(valueColumn))));
                             GameManager.instance.localizationManager.AddSource(lang, i18nFile);
                         }
                     }
@@ -234,6 +234,8 @@ namespace Belzont.Interfaces
 
             }
         }
+
+        private string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
 
         private static bool GetButtonsGroup(string groupName, out ButtonRow buttons, Button item)
         {
