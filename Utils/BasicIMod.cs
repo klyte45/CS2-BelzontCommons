@@ -70,7 +70,7 @@ namespace Belzont.Interfaces
         #region Saved shared config
         public static bool DebugMode
         {
-            get => Instance.BasicModData.DebugMode;
+            get => Instance.BasicModData?.DebugMode ?? false;
             set
             {
                 Instance.BasicModData.DebugMode = value;
@@ -237,8 +237,10 @@ namespace Belzont.Interfaces
 
         private static Dictionary<string, string> LocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn)
         {
-            return fileLines.Skip(1).Where(x => x.ElementAtOrDefault(valueColumn) != default).GroupBy(x => x[0]).ToDictionary(x => x.Key, x => x.First().ElementAtOrDefault(valueColumn));
+            return fileLines.Skip(1).Where(x => x.ElementAtOrDefault(valueColumn) != default).GroupBy(x => x[0]).ToDictionary(x => x.Key, x => RemoveQuotes(x.First().ElementAtOrDefault(valueColumn)));
         }
+
+        private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
 
         private static bool GetButtonsGroup(string groupName, out ButtonRow buttons, Button item)
         {
