@@ -342,14 +342,6 @@ namespace Belzont.Interfaces
             }
         }
 
-        public void SetupRawBindings(Func<string, Action<IJsonWriter>, RawValueBinding> eventCaller)
-        {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
-            foreach (var type in targetTypes)
-            {
-                (GetManagedSystem(type) as IBelzontBindable).SetupRawBindings(eventCaller);
-            }
-        }
         #endregion
 
         private class ModGenI18n : IDictionarySource
