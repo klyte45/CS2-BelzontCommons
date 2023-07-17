@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Unity.Entities;
 using UnityEngine;
 
 namespace Belzont.Utils
@@ -13,8 +14,12 @@ namespace Belzont.Utils
         public static readonly BindingFlags allFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.GetField | BindingFlags.GetProperty;
     }
 
+    public interface IRedirectableWorldless
+    {
+    }
     public interface IRedirectable
     {
+        void DoPatches(World world);
     }
 
     public class Redirector : MonoBehaviour
@@ -91,18 +96,36 @@ namespace Belzont.Utils
             Type typeTarg = typeof(IRedirectable);
             List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, new List<Assembly> { BasicIMod.Instance.GetType().Assembly });
             LogUtils.DoLog($"Found Redirectors: {instances.Count}");
+            Type typeTargWorldless = typeof(IRedirectableWorldless);
+            List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, new List<Assembly> { BasicIMod.Instance.GetType().Assembly });
+            LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
             Application.logMessageReceived += ErrorPatchingHandler;
             try
             {
                 foreach (Type t in instances)
                 {
                     LogUtils.DoLog($"Redirector: {t}");
+                    worldDependantRedirectors.Add(m_topObj.AddComponent(t) as IRedirectable);
+                }
+                foreach (Type t in instancesWorldless)
+                {
+                    LogUtils.DoLog($"Redirector Worldless: {t}");
                     m_topObj.AddComponent(t);
                 }
             }
             finally
             {
                 Application.logMessageReceived -= ErrorPatchingHandler;
+            }
+        }
+
+        private static readonly List<IRedirectable> worldDependantRedirectors = new();
+
+        public static void OnWorldCreated(World world)
+        {
+            foreach (var redirector in worldDependantRedirectors)
+            {
+                redirector.DoPatches(world);
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿using Belzont.Utils;
 using Colossal;
 using Colossal.Localization;
-using Colossal.UI.Binding;
+using Colossal.UI;
 using Game;
 using Game.Modding;
 using Game.Reflection;
@@ -26,8 +26,17 @@ namespace Belzont.Interfaces
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
             m_updateSystem = updateSystem;
+            Redirector.OnWorldCreated(m_updateSystem.World);
             LoadLocales();
+
+            var optionsList = ((List<OptionsUISystem.Page>)typeof(OptionsUISystem).GetProperty("options", RedirectorUtils.allFlags).GetValue(updateSystem.World.GetOrCreateSystemManaged<OptionsUISystem>()));
+            optionsList.Add(Instance.BuildModPage());
+
+            var uiSys = GameManager.instance.userInterface.view.uiSystem;
+            ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(CouiHost, new List<string> { ModInstallFolder });
+
             DoOnCreateWorld(updateSystem);
+
         }
         public abstract void OnDispose();
         public void OnLoad()
