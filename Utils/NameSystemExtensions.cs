@@ -14,7 +14,7 @@ namespace Belzont.Utils
 
         internal static ValuableName ToValueableName(this NameSystem.Name name) => new(name);
 
-        internal struct ValuableName
+        public struct ValuableName
         {
             public readonly string __Type;
             public readonly string name;
