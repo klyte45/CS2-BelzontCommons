@@ -133,33 +133,6 @@ namespace Belzont.Utils
         {
             if (type == LogType.Exception)
             {
-                //K45DialogControl.ShowModal(new K45DialogControl.BindProperties
-                //{
-                //    title = "AN ERROR HAS OCCURRED!",
-                //    message = $"An error happened while trying to patch all code needed to make the <color yellow>{BasicIMod.Instance.ModName}</color> work properly. Check output_log.txt file to see details." +
-                //    (BasicIMod.Instance.GitHubRepoPath.IsNullOrWhiteSpace() ? "" : "\nPlease open a issue in GitHub with the output file attached on it to help to fix this problem. Thanks!") +
-                //    $"\n\n<color #FF00FF>{logString}</color>\n{stackTrace}",
-                //    showButton1 = true,
-                //    showButton2 = true,
-                //    showButton3 = !BasicIMod.Instance.GitHubRepoPath.IsNullOrWhiteSpace(),
-                //    textButton1 = "OK",
-                //    textButton2 = "Go to output_log.txt file (WIN)",
-                //    textButton3 = "GitHub: open an issue to fix this",
-                //    useFullWindowWidth = true
-                //}, (x) =>
-                //{
-                //    if (x == 2)
-                //    {
-                //        ColossalFramework.Utils.OpenInFileBrowser("Cities_Data/output_log.txt");
-                //        return false;
-                //    }
-                //    if (x == 3)
-                //    {
-                //        FileSystemUtils.OpenURLInOverlayOrBrowser($"https://github.com/{BasicIMod.Instance.GitHubRepoPath}/issues/new");
-                //        return false;
-                //    }
-                //    return true;
-                //});
                 LogUtils.DoErrorLog($"{logString}\n{stackTrace}");
             }
         }
