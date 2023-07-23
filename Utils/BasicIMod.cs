@@ -46,12 +46,14 @@ namespace Belzont.Interfaces
             LoadModData();
             Redirector.PatchAll();
 
-            Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly }).ToArray();
+            Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
+                .Union(ReflectionUtils.GetStructForInterfaceImplementations(typeof(IBufferElementData), new[] { GetType().Assembly })).ToArray();
 
             if (newComponents.Length > 0)
             {
                 LogUtils.DoInfoLog($"Registering {newComponents.Length} components found at mod {SimpleName}");
                 LogUtils.DoLog("Loaded component count: " + TypeManager.GetTypeCount());
+                LogUtils.DoLog("Loading found components:\n\t" + string.Join("\n\t", newComponents.Select(x => x.ToString())));
                 var AddAllComponents = typeof(TypeManager).GetMethod("AddAllComponentTypes", RedirectorUtils.allFlags);
                 int startTypeIndex = TypeManager.GetTypeCount();
                 Dictionary<int, HashSet<TypeIndex>> writeGroupByType = new();
