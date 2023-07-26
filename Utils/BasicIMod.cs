@@ -393,7 +393,7 @@ namespace Belzont.Interfaces
             {
                 try
                 {
-                    ModData = XmlUtils.DefaultXmlDeserialize<D>(File.ReadAllText(ModDataFilePath));
+                    ModData = XmlUtils.DefaultXmlDeserialize<D>(File.ReadAllText(ModDataFilePath)) ?? CreateNewModData();
                 }
                 catch
                 {
