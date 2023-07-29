@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Belzont.Utils
 {
     public static class BridgeUtils
     {
-        public static object[] GetAllLoadableClassesInAppDomain(Type t)
+        public static object[] GetAllLoadableClassesInAssemblyList(Type t, IEnumerable<Assembly> assemblies = null)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            assemblies ??= AppDomain.CurrentDomain.GetAssemblies();
             return assemblies.SelectMany(s =>
             {
                 try
@@ -42,10 +44,10 @@ namespace Belzont.Utils
         }
         public static T[] GetAllLoadableClassesInAppDomain<T>() where T : class
         {
-            return GetAllLoadableClassesInAppDomain(typeof(T)).Cast<T>().ToArray();
+            return GetAllLoadableClassesInAssemblyList(typeof(T)).Cast<T>().ToArray();
         }
 
-        public static T[] GetAllLoadableClassesByTypeName<T, U>(Func<U> destinationGenerator) where T : class where U : T
+        public static T[] GetAllLoadableClassesByTypeName<T, U>(Func<U> destinationGenerator, Assembly targetAssembly = null) where T : class where U : T
         {
             var classNameBase = typeof(T).FullName;
             var allTypes = GetAllInterfacesWithTypeName(classNameBase);
@@ -53,7 +55,7 @@ namespace Belzont.Utils
             return allTypes
                    .SelectMany(x =>
                    {
-                       var res = GetAllLoadableClassesInAppDomain(x);
+                       var res = GetAllLoadableClassesInAssemblyList(x, new[] { targetAssembly });
                        LogUtils.DoLog("Objects loaded: {0}", res.Length);
                        return res;
                    })
