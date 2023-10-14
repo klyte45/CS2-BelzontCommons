@@ -1,9 +1,9 @@
 ﻿using Belzont.Utils;
 using Colossal;
+using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.UI;
 using Game;
-using Game.Modding;
 using Game.Reflection;
 using Game.SceneFlow;
 using Game.UI.Localization;
@@ -13,10 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
-using FileInfo = Colossal.IO.AssetDatabase.Internal.FileInfo;
 
 namespace Belzont.Interfaces
 {
@@ -33,6 +31,7 @@ namespace Belzont.Interfaces
             optionsList.Add(Instance.BuildModPage());
 
             var uiSys = GameManager.instance.userInterface.view.uiSystem;
+            LogUtils.DoLog($"CouiHost => {CouiHost}");
             ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(CouiHost, new List<string> { ModInstallFolder });
 
             DoOnCreateWorld(updateSystem);
@@ -143,30 +142,13 @@ namespace Belzont.Interfaces
             {
                 if (m_modInstallFolder is null)
                 {
-                    var modsInfo = (List<ModManager.ModInfo>)(typeof(ModManager).GetField("m_ModsInfo", RedirectorUtils.allFlags).GetValue(GameManager.instance.m_ModManager));
-
-                    var fieldAssemblyInfo = typeof(ModManager.ModInfo).GetField("m_Assembly", RedirectorUtils.allFlags);
-                    var fieldFileInfo = typeof(ModManager.ModInfo).GetField("fileInfo", RedirectorUtils.allFlags);
-
-                    ModManager.ModInfo thisInfo = null;
-
-                    foreach (var info in modsInfo)
-                    {
-                        var infoAssembly = (Assembly)fieldAssemblyInfo.GetValue(info);
-                        if (infoAssembly == Instance.GetType().Assembly)
-                        {
-                            thisInfo = info;
-                            break;
-                        }
-                    }
-
+                    var thisFullName = Instance.GetType().Assembly.FullName;
+                    ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition.FullName == thisFullName));
                     if (thisInfo is null)
                     {
                         throw new Exception("This mod info was not found!!!!");
                     }
-
-                    FileInfo fileInfo = (FileInfo)fieldFileInfo.GetValue(thisInfo);
-                    m_modInstallFolder = Path.GetDirectoryName(fileInfo.fullPath);
+                    m_modInstallFolder = Path.GetDirectoryName(thisInfo.GetMeta().path);
                 }
                 return m_modInstallFolder;
             }

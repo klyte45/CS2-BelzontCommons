@@ -14,7 +14,18 @@ namespace Belzont.Utils
 
         private static ILog logOutput;
 
-        private static ILog LogOutput => logOutput ??= LogManager.GetLogger("Mods_K45");
+        private static ILog LogOutput
+        {
+            get
+            {
+                if (logOutput is null)
+                {
+                    logOutput = LogManager.GetLogger("Mods_K45");
+                    logOutput.effectivenessLevel = Level.Info;
+                }
+                return logOutput;
+            }
+        }
 
         private static string LogLineStart(string level) => $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
 
@@ -24,26 +35,23 @@ namespace Belzont.Utils
             {
                 if (BasicIMod.DebugMode)
                 {
+                    var oldEffectivenessLevel = LogOutput.effectivenessLevel;
                     LogOutput.effectivenessLevel = Level.Debug;
                     LogOutput.Log(Level.Debug, string.Format(LogLineStart("DEBUG") + format, args), null);
-                    LogOutput.effectivenessLevel = Level.Info;
+                    LogOutput.effectivenessLevel = oldEffectivenessLevel;
                 }
 
             }
             catch (Exception e)
             {
                 LogCaughtLogException(format, args, e);
-                LogOutput.effectivenessLevel = Level.Info;
             }
         }
         public static void DoWarnLog(string format, params object[] args)
         {
             try
             {
-                var old = LogOutput.effectivenessLevel;
-                LogOutput.effectivenessLevel = Level.Info;
                 LogOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
-                LogOutput.effectivenessLevel = old;
             }
             catch (Exception e)
             {
@@ -60,10 +68,7 @@ namespace Belzont.Utils
         {
             try
             {
-                var old = LogOutput.effectivenessLevel;
-                LogOutput.effectivenessLevel = Level.Info;
                 LogOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
-                LogOutput.effectivenessLevel = old;
             }
             catch (Exception e)
             {
