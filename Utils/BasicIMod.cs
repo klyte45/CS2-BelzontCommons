@@ -143,7 +143,7 @@ namespace Belzont.Interfaces
                 if (m_modInstallFolder is null)
                 {
                     var thisFullName = Instance.GetType().Assembly.FullName;
-                    ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition.FullName == thisFullName));
+                    ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName));
                     if (thisInfo is null)
                     {
                         throw new Exception("This mod info was not found!!!!");
