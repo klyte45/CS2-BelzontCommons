@@ -2,6 +2,7 @@
 using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
+using Colossal.OdinSerializer.Utilities;
 using Colossal.UI;
 using Game;
 using Game.SceneFlow;
@@ -190,14 +191,18 @@ namespace Belzont.Interfaces
                     }
                     GameManager.instance.localizationManager.AddSource(lang, new ModGenI18n(ModData));
                 }
-
+            }
+            else
+            {
+                GameManager.instance.localizationManager.AddSource("en-US", new ModGenI18n(ModData));
             }
         }
 
         private static Dictionary<string, string> LocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn)
         {
-            return fileLines.Skip(1).Where(x => x.ElementAtOrDefault(valueColumn) != default).GroupBy(x => x[0]).ToDictionary(x => ProcessKey(x.Key, ModData), x => RemoveQuotes(x.First().ElementAtOrDefault(valueColumn)));
+            return fileLines.Skip(1).GroupBy(x => x[0]).Select(x => x.First()).ToDictionary(x => ProcessKey(x[0], ModData), x => RemoveQuotes(x.ElementAtOrDefault(valueColumn) is string s && !s.IsNullOrWhitespace() ? s : x.ElementAtOrDefault(1)));
         }
+
 
         private static string ProcessKey(string key, BasicModData modData)
         {
@@ -287,3 +292,4 @@ namespace Belzont.Interfaces
     }
 
 }
+
