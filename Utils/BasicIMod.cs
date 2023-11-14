@@ -171,7 +171,7 @@ namespace Belzont.Interfaces
         #region UI
         private void LoadLocales()
         {
-            var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
+            var file = Path.Combine(ModInstallFolder, $"i18n.csv");
             if (File.Exists(file))
             {
                 var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
@@ -194,7 +194,10 @@ namespace Belzont.Interfaces
             }
             else
             {
-                GameManager.instance.localizationManager.AddSource("en-US", new ModGenI18n(ModData));
+                foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
+                {
+                    GameManager.instance.localizationManager.AddSource("en-US", new ModGenI18n(ModData));
+                }
             }
         }
 
