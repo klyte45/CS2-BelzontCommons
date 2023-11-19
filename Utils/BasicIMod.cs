@@ -160,6 +160,7 @@ namespace Belzont.Interfaces
                 if (m_modInstallFolder is null)
                 {
 #if THUNDERSTORE
+                    m_modInstallFolder = typeof(IBasicIMod).Assembly.Location;
 #else
                     var thisFullName = Instance.GetType().Assembly.FullName;
                     ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName));
@@ -169,7 +170,7 @@ namespace Belzont.Interfaces
                     }
                     m_modInstallFolder = Path.GetDirectoryName(thisInfo.GetMeta().path);
 #endif
-                    m_modInstallFolder = typeof(IBasicIMod).Assembly.Location;
+                    LogUtils.DoInfoLog($"Mod location: {m_modInstallFolder}");
                 }
                 return m_modInstallFolder;
             }
