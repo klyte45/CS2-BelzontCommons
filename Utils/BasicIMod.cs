@@ -3,15 +3,15 @@ using Game.Reflection;
 using Game.UI.Localization;
 using Game.UI.Menu;
 using Game.UI.Widgets;
+#else
+using Colossal.IO.AssetDatabase;
 #endif
 using Belzont.Utils;
 using Colossal;
-using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
 using Colossal.UI;
 using Game;
-using Game.Modding;
 using Game.SceneFlow;
 using System;
 using System.Collections.Generic;
@@ -22,15 +22,9 @@ using UnityEngine;
 
 namespace Belzont.Interfaces
 {
-    public
-#if THUNDERSTORE
-        interface 
-#else
-    abstract class
-#endif
-        IBasicIMod
+    public abstract class BasicIMod
     {
-        protected abstract UpdateSystem UpdateSystem { get; set; }
+        protected UpdateSystem UpdateSystem { get; set; }
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
             UpdateSystem = updateSystem;
@@ -56,7 +50,9 @@ namespace Belzont.Interfaces
         public abstract BasicModData CreateSettingsFile();
         public void OnLoad()
         {
+            Instance = this;
 #if THUNDERSTORE
+            LogUtils.LogsEnabled = true;
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
             LoadModData();
 #else
@@ -64,9 +60,9 @@ namespace Belzont.Interfaces
             ModData.RegisterInOptionsUI();
             AssetDatabase.global.LoadSettings(SafeName, ModData);
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
+            Redirector.PatchAll();
 #endif
 
-            Redirector.PatchAll();
 
             Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
                 .Union(ReflectionUtils.GetStructForInterfaceImplementations(typeof(IBufferElementData), new[] { GetType().Assembly })).ToArray();
@@ -111,19 +107,19 @@ namespace Belzont.Interfaces
         public abstract string SimpleName { get; }
         public abstract string SafeName { get; }
         public abstract string Acronym { get; }
-        public abstract string IconName { get; }
-        public abstract string GitHubRepoPath { get; }
-        public abstract string[] AssetExtraDirectoryNames { get; }
-        public abstract string[] AssetExtraFileNames { get; }
+        public string IconName { get; } = "ModIcon";
+        public string GitHubRepoPath { get; } = "";
+        public string[] AssetExtraDirectoryNames { get; } = new string[0];
+        public string[] AssetExtraFileNames { get; } = new string[] { };
         public virtual string ModRootFolder => KFileUtils.BASE_FOLDER_PATH + SafeName;
         public abstract string Description { get; }
 
         #endregion
 
         #region Old CommonProperties Static
-        public static IBasicIMod Instance => ModData.ModInstance;
+        public static BasicIMod Instance { get; private set; }
         public static BasicModData ModData { get; protected set; }
-        public static bool DebugMode => ModData.DebugMode;
+        public static bool DebugMode => ModData?.DebugMode ?? true;
 
 
         private static ulong m_modId;
@@ -160,7 +156,7 @@ namespace Belzont.Interfaces
                 if (m_modInstallFolder is null)
                 {
 #if THUNDERSTORE
-                    m_modInstallFolder = typeof(IBasicIMod).Assembly.Location;
+                    m_modInstallFolder = Path.GetDirectoryName(Instance.GetType().Assembly.Location);
 #else
                     var thisFullName = Instance.GetType().Assembly.FullName;
                     ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName));
@@ -175,29 +171,33 @@ namespace Belzont.Interfaces
                 return m_modInstallFolder;
             }
         }
+        private const string kVersionSuffix =
+#if THUNDERSTORE
+        "B";
+#else
+"";
+#endif
 
         private static string m_modInstallFolder;
-
-        public static string MinorVersion => Instance.MinorVersion_;
-        public static string MajorVersion => Instance.MajorVersion_;
-        public static string FullVersion => Instance.FullVersion_;
-        public static string Version => Instance.Version_;
+        public static string MinorVersion => Instance.MinorVersion_ + kVersionSuffix;
+        public static string MajorVersion => Instance.MajorVersion_ + kVersionSuffix;
+        public static string FullVersion => Instance.FullVersion_ + kVersionSuffix;
+        public static string Version => Instance.Version_ + kVersionSuffix;
         #endregion
 
         #region CommonProperties Fixed
         public string Name => $"{SimpleName} {Version}";
         public string GeneralName => $"{SimpleName} (v{Version})";
-
-        protected virtual Dictionary<string, Coroutine> TasksRunningOnController { get; }
-        private string MinorVersion_ => MajorVersion + "." + GetType().Assembly.GetName().Version.Build;
+        protected Dictionary<string, Coroutine> TasksRunningOnController { get; } = new Dictionary<string, Coroutine>();
+        private string MinorVersion_ => MajorVersion_ + "." + GetType().Assembly.GetName().Version.Build;
         private string MajorVersion_ => GetType().Assembly.GetName().Version.Major + "." + GetType().Assembly.GetName().Version.Minor;
-        private string FullVersion_ => MinorVersion + " r" + GetType().Assembly.GetName().Version.Revision;
+        private string FullVersion_ => MinorVersion_ + " r" + GetType().Assembly.GetName().Version.Revision;
         private string Version_ =>
            GetType().Assembly.GetName().Version.Minor == 0 && GetType().Assembly.GetName().Version.Build == 0
                     ? GetType().Assembly.GetName().Version.Major.ToString()
                     : GetType().Assembly.GetName().Version.Build > 0
-                        ? MinorVersion
-                        : MajorVersion;
+                        ? MinorVersion_
+                        : MajorVersion_;
 
         public string CouiHost => $"{Acronym.ToLower()}.k45";
 
@@ -211,17 +211,17 @@ namespace Belzont.Interfaces
         {
             OptionsUISystem.Page page = new()
             {
-                id = $"K45_{Instance.Acronym}"
+                id = ModData.id
             };
             List<OptionsUISystem.Section> sections = page.sections;
             sections.AddRange(GenerateModOptionsSections());
             OptionsUISystem.Section section = new()
             {
-                id = $"K45.{Instance.Acronym}.About",
+                id = ModData.GetPathForAggroupator(BasicModData.kAboutTab),
                 items = new List<IWidget>
                 {
-                    Instance.AddBoolField($"K45.{Acronym}.DebugMode", new DelegateAccessor<bool>(()=>DebugMode,(x)=>ModData.DebugMode=x)),
-                    Instance.AddValueField($"K45.{Instance.Acronym}.Version",()=>FullVersion)
+                    Instance.AddBoolField(ModData.GetPathForOption("DebugMode"), new DelegateAccessor<bool>(()=>DebugMode,(x)=>ModData.DebugMode=x)),
+                    Instance.AddValueField(ModData.GetPathForOption("Version"),()=>FullVersion)
                 }
             };
             sections.Add(section);
@@ -337,14 +337,21 @@ namespace Belzont.Interfaces
 
             public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
             {
+                string PrepareFieldName(string f) =>
+#if THUNDERSTORE
+                f;
+#else
+                f.Replace(modData.GetType().Name, nameof(BasicModData));
+#endif
+
                 return new Dictionary<string, string>
                 {
                     [modData.GetSettingsLocaleID()] = Instance.GeneralName,
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
-                    [modData.GetOptionLabelLocaleID(nameof(BasicModData.DebugMode)).Replace(modData.GetType().Name, nameof(BasicModData))] = "Debug Mode",
-                    [modData.GetOptionDescLocaleID(nameof(BasicModData.DebugMode)).Replace(modData.GetType().Name, nameof(BasicModData))] = "Turns on the log debugging for this mod",
-                    [modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)).Replace(modData.GetType().Name, nameof(BasicModData))] = "Mod Version",
-                    [modData.GetOptionDescLocaleID(nameof(BasicModData.Version)).Replace(modData.GetType().Name, nameof(BasicModData))] = "The current mod version.\n\nThe 4th digit being higher than 1000 indicates beta version.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.DebugMode)))] = "Debug Mode",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.DebugMode)))] = "Turns on the log debugging for this mod",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nThe 4th digit being higher than 1000 indicates beta version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
                 };
             }
 
@@ -354,23 +361,12 @@ namespace Belzont.Interfaces
         }
     }
 
-#if !THUNDERSTORE
-    public abstract class BasicIMod : IBasicIMod
-    {
-        protected sealed override UpdateSystem UpdateSystem { get; set; }
-        public override string IconName { get; } = "ModIcon";
-        public override string GitHubRepoPath { get; } = "";
-        public override string[] AssetExtraDirectoryNames { get; } = new string[0];
-        public override string[] AssetExtraFileNames { get; } = new string[] { };
-        protected sealed override Dictionary<string, Coroutine> TasksRunningOnController { get; } = new Dictionary<string, Coroutine>();
-
-    }
-#else
+#if THUNDERSTORE
     internal static class IBasicIModExtensions
     {
 
 
-        public static bool GetButtonsGroup(this IBasicIMod mod, string groupName, out ButtonRow buttons, Button item)
+        public static bool GetButtonsGroup(this BasicIMod mod, string groupName, out ButtonRow buttons, Button item)
         {
             var AutomaticSettingsSButtonGroups = typeof(AutomaticSettings).GetField("sButtonGroups", RedirectorUtils.allFlags);
             var sButtonGroups = (Dictionary<string, ButtonRow>)AutomaticSettingsSButtonGroups.GetValue(null);
@@ -392,7 +388,7 @@ namespace Belzont.Interfaces
             sButtonGroups.Add(groupName, buttons);
             return true;
         }
-        public static IWidget AddOptionField<T>(this IBasicIMod<T> mod, string path, string groupName, Action<T> onSet, T value, Func<bool> disabledFn = null, string warningI18n = null) where T : BasicModData
+        public static IWidget AddOptionField<T>(this BasicIMod<T> mod, string path, string groupName, Action<T> onSet, T value, Func<bool> disabledFn = null, string warningI18n = null) where T : BasicModData
         {
             return mod.GetButtonsGroup(groupName, out ButtonRow item, new ButtonWithConfirmation
             {
@@ -408,7 +404,7 @@ namespace Belzont.Interfaces
                 ? item
                 : (IWidget)null;
         }
-        public static IWidget AddBoolField(this IBasicIMod mod, string path, DelegateAccessor<bool> accessor, Func<bool> disabledFn = null)
+        public static IWidget AddBoolField(this BasicIMod mod, string path, DelegateAccessor<bool> accessor, Func<bool> disabledFn = null)
         {
             return new ToggleField
             {
@@ -419,7 +415,7 @@ namespace Belzont.Interfaces
             };
         }
 
-        public static IWidget AddValueField(this IBasicIMod mod, string path, Func<string> getter)
+        public static IWidget AddValueField(this BasicIMod mod, string path, Func<string> getter)
         {
             return new ValueField
             {

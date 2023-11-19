@@ -12,19 +12,14 @@ using Unity.Entities;
 
 namespace Belzont.Interfaces
 {
-    public interface IBasicIMod<T> : IBasicIMod where T : BasicModData
+    public abstract class BasicIMod<T> : BasicIMod where T : BasicModData
     {
-        public void Start()
-        {
-            OnLoad();
-            DefaultWorldInitialization.DefaultWorldInitialized +=
-        }
         public abstract T CreateNewModData();
         public void SaveModData()
         {
             File.WriteAllText(ModDataFilePath, XmlUtils.DefaultXmlSerialize(ModData));
         }
-        void IBasicIMod.LoadModData()
+        protected override void LoadModData()
         {
             if (File.Exists(ModDataFilePath))
             {
@@ -45,7 +40,7 @@ namespace Belzont.Interfaces
         }
 
 
-        public static new T ModData { get => (T)IBasicIMod.ModData; protected set => IBasicIMod.ModData = value; } 
+        public static new T ModData { get => (T)BasicIMod.ModData; protected set => BasicIMod.ModData = value; } 
 
     }
 }

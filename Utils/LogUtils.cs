@@ -1,4 +1,7 @@
 ﻿using Belzont.Interfaces;
+#if THUNDERSTORE
+using BepInEx.Logging;
+#endif
 using Colossal.Logging;
 using HarmonyLib;
 using System;
@@ -10,7 +13,7 @@ namespace Belzont.Utils
 {
     public static class LogUtils
     {
-        #region Log Utils
+#region Log Utils
 
         private static ILog logOutput;
 
@@ -27,13 +30,30 @@ namespace Belzont.Utils
             }
         }
 
-        private static string LogLineStart(string level) => $"[{IBasicIMod.Instance.Acronym,-4}] [v{IBasicIMod.FullVersion,-16}] [{level,-8}] ";
+#if THUNDERSTORE
+        public static bool LogsEnabled { get; internal set; }
+        internal static ManualLogSource Logger { get; set; }
+#endif
+
+        private static string LogLineStart(string level) =>
+#if THUNDERSTORE
+             !LogsEnabled ? "" :
+#endif
+            $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
+
 
         public static void DoLog(string format, params object[] args)
         {
             try
             {
-                if (IBasicIMod.DebugMode)
+#if THUNDERSTORE
+                if (!LogsEnabled)
+                {
+                    Logger?.LogDebug(string.Format(LogLineStart("DEBUG") + format, args));
+                    return;
+                }
+#endif
+                if (BasicIMod.DebugMode)
                 {
                     var oldEffectivenessLevel = LogOutput.effectivenessLevel;
                     LogOutput.effectivenessLevel = Level.Debug;
@@ -51,6 +71,13 @@ namespace Belzont.Utils
         {
             try
             {
+#if THUNDERSTORE
+                if (!LogsEnabled)
+                {
+                    Logger?.LogWarning(string.Format(LogLineStart("WARNING") + format, args));
+                    return;
+                }
+#endif
                 LogOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
             }
             catch (Exception e)
@@ -61,6 +88,13 @@ namespace Belzont.Utils
 
         private static void LogCaughtLogException(string format, object[] args, Exception e)
         {
+#if THUNDERSTORE
+            if (!LogsEnabled)
+            {
+                Logger?.LogFatal(string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})\n{e}", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())));
+                return;
+            }
+#endif
             LogOutput.Log(Level.Warn, string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())), e);
         }
 
@@ -68,6 +102,14 @@ namespace Belzont.Utils
         {
             try
             {
+#if THUNDERSTORE
+                if (!LogsEnabled)
+                {
+                    Logger?.LogInfo(string.Format(LogLineStart("INFO") + format, args));
+                    return;
+                }
+#endif
+
                 LogOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
             }
             catch (Exception e)
@@ -79,13 +121,29 @@ namespace Belzont.Utils
         {
             try
             {
+#if THUNDERSTORE
+                if (!LogsEnabled)
+                {
+                    Logger?.LogError(string.Format(LogLineStart("ERROR") + format + $"\n{e}", args));
+                    return;
+                }
+#endif
                 LogOutput.Log(Level.Error, string.Format(LogLineStart("ERROR") + format, args), e);
             }
             catch (Exception e2)
             {
                 if (e != null)
                 {
-                    LogOutput.Log(Level.Error, LogLineStart("ERROR") + "An exception has occurred.", e);
+#if THUNDERSTORE
+                    if (!LogsEnabled)
+                    {
+                        Logger?.LogError(string.Format(LogLineStart("ERROR") + $"An exception has occurred.\n{e}"));
+                    }
+                    else
+#endif
+                    {
+                        LogOutput.Log(Level.Error, LogLineStart("ERROR") + "An exception has occurred.", e);
+                    }
                 }
                 LogCaughtLogException(format, args, e2);
             }
@@ -93,17 +151,17 @@ namespace Belzont.Utils
 
         public static void PrintMethodIL(IEnumerable<CodeInstruction> inst, bool force = false)
         {
-            if (force || IBasicIMod.DebugMode)
+            if (force || BasicIMod.DebugMode)
             {
                 int j = 0;
-                LogOutput.Log(Level.Info, $"{LogLineStart("TRANSPILLED")}\n\t{string.Join("\n\t", inst.Select(x => $"{j++:D8} {x.opcode,-10} {ParseOperand(inst, x.operand)}").ToArray())}", null);
+                DoInfoLog($"{LogLineStart("TRANSPILLED")}\n\t{string.Join("\n\t", inst.Select(x => $"{j++:D8} {x.opcode,-10} {ParseOperand(inst, x.operand)}").ToArray())}", null);
             }
         }
 
         public static string GetLinesPointingToLabel(IEnumerable<CodeInstruction> inst, Label lbl)
         {
             int j = 0;
-            return "\t" + string.Join("\n\t", inst.Select(x => Tuple.New(x, $"{(j++).ToString("D8")} {x.opcode.ToString().PadRight(10)} {ParseOperand(inst, x.operand)}")).Where(x => x.First.operand is Label label && label == lbl).Select(x => x.Second).ToArray());
+            return "\t" + string.Join("\n\t", inst.Select(x => Tuple.New(x, $"{j++:D8} {x.opcode.ToString().PadRight(10)} {ParseOperand(inst, x.operand)}")).Where(x => x.First.operand is Label label && label == lbl).Select(x => x.Second).ToArray());
         }
 
 
@@ -123,6 +181,6 @@ namespace Belzont.Utils
                 return operand.ToString() + $" (Type={operand.GetType()})";
             }
         }
-        #endregion
+#endregion
     }
 }

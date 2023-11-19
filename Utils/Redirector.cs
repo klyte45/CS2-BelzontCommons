@@ -1,4 +1,7 @@
-﻿using Belzont.Interfaces;
+﻿#if THUNDERSTORE
+using System.IO;
+using System.Linq;
+#endif
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -6,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
+using Belzont.Interfaces;
 
 namespace Belzont.Utils
 {
@@ -25,7 +29,8 @@ namespace Belzont.Utils
     public class Redirector : MonoBehaviour
     {
         #region Class Base
-        private static Harmony m_harmony = new Harmony($"com.klyte.redirectors.{IBasicIMod.Instance.Acronym}");
+        private static Harmony m_harmony;
+
         private static readonly List<MethodInfo> m_patches = new List<MethodInfo>();
         private static readonly List<Action> m_onUnpatchActions = new List<Action>();
 
@@ -36,11 +41,16 @@ namespace Belzont.Utils
         {
             get
             {
-                if (m_harmony is null)
+#if THUNDERSTORE
+                if (m_harmony == null)
                 {
-                    m_harmony = new Harmony($"com.klyte.redirectors.{IBasicIMod.Instance.Acronym}");
+                    var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod<>), null);
+                    m_harmony = new Harmony($"com.klyte.redirectors.{modImplementations.First().Name}");
                 }
                 return m_harmony;
+#else
+                return m_harmony ??= new Harmony($"com.klyte.redirectors.{BasicIMod.Instance.Acronym}");
+#endif
             }
         }
         #endregion
@@ -73,7 +83,7 @@ namespace Belzont.Utils
 
         public static void UnpatchAll()
         {
-            LogUtils.DoWarnLog($"Unpatching all: {Harmony.Id}");
+            LogUtils.DoInfoLog($"Unpatching all: {Harmony.Id}");
             foreach (MethodInfo method in m_patches)
             {
                 Harmony.Unpatch(method, HarmonyPatchType.All, Harmony.Id);
@@ -89,15 +99,25 @@ namespace Belzont.Utils
         }
         public static void PatchAll()
         {
-            LogUtils.DoWarnLog($"Patching all: {Harmony.Id}");
+            LogUtils.DoInfoLog($"Patching all: {Harmony.Id}");
             var objName = $"k45_Redirectors_{Harmony.Id}";
             GameObject m_topObj = GameObject.Find(objName) ?? new GameObject(objName);
             DontDestroyOnLoad(m_topObj);
             Type typeTarg = typeof(IRedirectable);
-            List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, new List<Assembly> { IBasicIMod.Instance.GetType().Assembly });
+
+
+#if THUNDERSTORE
+            string basePathLocation = Path.GetDirectoryName(typeof(Redirector).Assembly.Location);
+            List<Assembly> refAssemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().Where(x => x.Location.StartsWith(basePathLocation)));
+            LogUtils.DoInfoLog($"LoadedAssemblies:\n{string.Join("\n", refAssemblies.Select(x => $"- {x.FullName} @ {x.Location}"))}");
+#else
+            List<Assembly> refAssemblies = new List<Assembly> { BasicIMod.Instance.GetType().Assembly };
+#endif
+
+            List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, refAssemblies);
             LogUtils.DoLog($"Found Redirectors: {instances.Count}");
             Type typeTargWorldless = typeof(IRedirectableWorldless);
-            List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, new List<Assembly> { IBasicIMod.Instance.GetType().Assembly });
+            List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, refAssemblies);
             LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
             Application.logMessageReceived += ErrorPatchingHandler;
             try
