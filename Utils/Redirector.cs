@@ -109,7 +109,6 @@ namespace Belzont.Utils
 #if THUNDERSTORE
             string basePathLocation = Path.GetDirectoryName(typeof(Redirector).Assembly.Location);
             List<Assembly> refAssemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().Where(x => x.Location.StartsWith(basePathLocation)));
-            LogUtils.DoInfoLog($"LoadedAssemblies:\n{string.Join("\n", refAssemblies.Select(x => $"- {x.FullName} @ {x.Location}"))}");
 #else
             List<Assembly> refAssemblies = new List<Assembly> { BasicIMod.Instance.GetType().Assembly };
 #endif
