@@ -61,11 +61,10 @@ namespace Belzont.Interfaces
             AssetDatabase.global.LoadSettings(SafeName, ModData);
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
             Redirector.PatchAll();
-#endif
 
 
             Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
-                .Union(ReflectionUtils.GetStructForInterfaceImplementations(typeof(IBufferElementData), new[] { GetType().Assembly })).ToArray();
+                .Union(ReflectionUtils.GetStructForInterfaceImplementations(typeof(IBufferElementData), new[] { GetType().Assembly })).ToHashSet().ToArray();
 
             if (newComponents.Length > 0)
             {
@@ -88,6 +87,7 @@ namespace Belzont.Interfaces
             {
                 LogUtils.DoInfoLog($"No components found at mod {SimpleName}");
             }
+#endif
             DoOnLoad();
         }
 
