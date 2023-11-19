@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Colossal.OdinSerializer.Utilities;
+using Game.UI.Menu;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -86,20 +88,26 @@ namespace Belzont.Utils
             }).ToArray();
         }
 
-        public static T TryConvertClass<T, U>(object instance, Func<U> destinationGenerator) where U : T
+        public static T TryConvertClass<T, U>(object srcValue, Func<U> destinationGenerator) where U : T
         {
-            LogUtils.DoLog("Trying to convert {0} to class {1}", instance.GetType().FullName, typeof(T).FullName);
-            if (instance.GetType().IsAssignableFrom(typeof(T)))
+            LogUtils.DoLog("Trying to convert {0} to class {1}", srcValue.GetType().FullName, typeof(T).FullName);
+            if (srcValue.GetType().IsAssignableFrom(typeof(T)))
             {
-                return (T)instance;
+                return (T)srcValue;
             }
             var newInstanceOfT = destinationGenerator();
-            foreach (var fieldOnSrc in typeof(T).GetProperties(RedirectorUtils.allFlags))
+            var srcType = srcValue.GetType();
+            var dstType = newInstanceOfT.GetType();
+            foreach (var fieldOnInterface in typeof(T).GetProperties(RedirectorUtils.allFlags))
             {
-                var property = newInstanceOfT.GetType().GetProperty(fieldOnSrc.Name, RedirectorUtils.allFlags);
-                if (!(fieldOnSrc is null) && fieldOnSrc.PropertyType.IsAssignableFrom(property.PropertyType))
+                LogUtils.DoLog("fieldOnItf: {0} {1}=>{2}", fieldOnInterface.GetReturnType().FullName, typeof(T).FullName, fieldOnInterface.Name);
+                var fieldOnSrc = srcType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
+                LogUtils.DoLog("fieldOnSrc: {0} {1}=>{2}", fieldOnSrc.GetReturnType().FullName, srcType.FullName, fieldOnSrc.Name);
+                var fieldOnDst = dstType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
+                LogUtils.DoLog("fieldOnDst: {0} {1}=>{2}", fieldOnDst.GetReturnType().FullName, dstType.FullName, fieldOnDst.Name);
+                if (fieldOnSrc is not null && fieldOnSrc.PropertyType.IsAssignableFrom(fieldOnDst.PropertyType))
                 {
-                    property.SetValue(newInstanceOfT, fieldOnSrc.GetValue(instance));
+                    fieldOnDst.SetValue(newInstanceOfT, fieldOnSrc.GetValue(srcValue));
                 }
             }
             return newInstanceOfT;
