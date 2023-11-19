@@ -27,13 +27,13 @@ namespace Belzont.Utils
             }
         }
 
-        private static string LogLineStart(string level) => $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
+        private static string LogLineStart(string level) => $"[{IBasicIMod.Instance.Acronym,-4}] [v{IBasicIMod.FullVersion,-16}] [{level,-8}] ";
 
         public static void DoLog(string format, params object[] args)
         {
             try
             {
-                if (BasicIMod.DebugMode)
+                if (IBasicIMod.DebugMode)
                 {
                     var oldEffectivenessLevel = LogOutput.effectivenessLevel;
                     LogOutput.effectivenessLevel = Level.Debug;
@@ -93,7 +93,7 @@ namespace Belzont.Utils
 
         public static void PrintMethodIL(IEnumerable<CodeInstruction> inst, bool force = false)
         {
-            if (force || BasicIMod.DebugMode)
+            if (force || IBasicIMod.DebugMode)
             {
                 int j = 0;
                 LogOutput.Log(Level.Info, $"{LogLineStart("TRANSPILLED")}\n\t{string.Join("\n\t", inst.Select(x => $"{j++:D8} {x.opcode,-10} {ParseOperand(inst, x.operand)}").ToArray())}", null);

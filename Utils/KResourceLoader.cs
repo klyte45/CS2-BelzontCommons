@@ -7,8 +7,8 @@ namespace Belzont.Utils
 {
     public static class KResourceLoader
     {
-        public static Assembly RefAssemblyMod => BasicIMod.Instance.GetType().Assembly;
-        private static string NamespaceMod => $"{BasicIMod.Instance.SafeName}.";
+        public static Assembly RefAssemblyMod => IBasicIMod.Instance.GetType().Assembly;
+        private static string NamespaceMod => $"{IBasicIMod.Instance.SafeName}.";
         public static Assembly RefAssemblyBelzont => typeof(KResourceLoader).Assembly;
 
         public static byte[] LoadResourceDataMod(string name) => LoadResourceData(NamespaceMod + name, RefAssemblyMod);

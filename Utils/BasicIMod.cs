@@ -1,10 +1,17 @@
-﻿using Belzont.Utils;
+﻿#if THUNDERSTORE
+using Game.Reflection;
+using Game.UI.Localization;
+using Game.UI.Menu;
+using Game.UI.Widgets;
+#endif
+using Belzont.Utils;
 using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
 using Colossal.UI;
 using Game;
+using Game.Modding;
 using Game.SceneFlow;
 using System;
 using System.Collections.Generic;
@@ -15,14 +22,24 @@ using UnityEngine;
 
 namespace Belzont.Interfaces
 {
-    public abstract class BasicIMod
+    public
+#if THUNDERSTORE
+        interface 
+#else
+    abstract class
+#endif
+        IBasicIMod
     {
-        protected UpdateSystem m_updateSystem;
+        protected abstract UpdateSystem UpdateSystem { get; set; }
         public void OnCreateWorld(UpdateSystem updateSystem)
         {
-            m_updateSystem = updateSystem;
-            Redirector.OnWorldCreated(m_updateSystem.World);
+            UpdateSystem = updateSystem;
+            Redirector.OnWorldCreated(UpdateSystem.World);
             LoadLocales();
+#if THUNDERSTORE
+            var optionsList = ((List<OptionsUISystem.Page>)typeof(OptionsUISystem).GetProperty("options", RedirectorUtils.allFlags).GetValue(updateSystem.World.GetOrCreateSystemManaged<OptionsUISystem>()));
+            optionsList.Add(Instance.BuildModPage());
+#endif
 
             var uiSys = GameManager.instance.userInterface.view.uiSystem;
             LogUtils.DoLog($"CouiHost => {CouiHost}");
@@ -32,14 +49,23 @@ namespace Belzont.Interfaces
 
         }
         public abstract void OnDispose();
+
+#if THUNDERSTORE
+        protected abstract void LoadModData();
+#endif
         public abstract BasicModData CreateSettingsFile();
         public void OnLoad()
         {
+#if THUNDERSTORE
+            KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
+            LoadModData();
+#else
             ModData = CreateSettingsFile();
             ModData.RegisterInOptionsUI();
             AssetDatabase.global.LoadSettings(SafeName, ModData);
-
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
+#endif
+
             Redirector.PatchAll();
 
             Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
@@ -72,6 +98,10 @@ namespace Belzont.Interfaces
         public abstract void DoOnCreateWorld(UpdateSystem updateSystem);
 
         public abstract void DoOnLoad();
+#if THUNDERSTORE
+        public string ModDataFilePath => Path.Combine(ModSettingsRootFolder, "settings.xml");
+
+#endif
 
         #region Saved shared config
         public static string CurrentSaveVersion { get; }
@@ -79,20 +109,20 @@ namespace Belzont.Interfaces
 
         #region Old CommonProperties Overridable
         public abstract string SimpleName { get; }
-        public virtual string IconName { get; } = "ModIcon";
         public abstract string SafeName { get; }
-        public virtual string GitHubRepoPath { get; } = "";
         public abstract string Acronym { get; }
-        public virtual string[] AssetExtraDirectoryNames { get; } = new string[0];
-        public virtual string[] AssetExtraFileNames { get; } = new string[] { };
+        public abstract string IconName { get; }
+        public abstract string GitHubRepoPath { get; }
+        public abstract string[] AssetExtraDirectoryNames { get; }
+        public abstract string[] AssetExtraFileNames { get; }
         public virtual string ModRootFolder => KFileUtils.BASE_FOLDER_PATH + SafeName;
         public abstract string Description { get; }
 
         #endregion
 
         #region Old CommonProperties Static
-        public static BasicIMod Instance => ModData.ModInstance;
-        public static BasicModData ModData { get; private set; }
+        public static IBasicIMod Instance => ModData.ModInstance;
+        public static BasicModData ModData { get; protected set; }
         public static bool DebugMode => ModData.DebugMode;
 
 
@@ -129,6 +159,8 @@ namespace Belzont.Interfaces
             {
                 if (m_modInstallFolder is null)
                 {
+#if THUNDERSTORE
+#else
                     var thisFullName = Instance.GetType().Assembly.FullName;
                     ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName));
                     if (thisInfo is null)
@@ -136,6 +168,8 @@ namespace Belzont.Interfaces
                         throw new Exception("This mod info was not found!!!!");
                     }
                     m_modInstallFolder = Path.GetDirectoryName(thisInfo.GetMeta().path);
+#endif
+                    m_modInstallFolder = typeof(IBasicIMod).Assembly.Location;
                 }
                 return m_modInstallFolder;
             }
@@ -153,7 +187,7 @@ namespace Belzont.Interfaces
         public string Name => $"{SimpleName} {Version}";
         public string GeneralName => $"{SimpleName} (v{Version})";
 
-        private readonly Dictionary<string, Coroutine> TasksRunningOnController = new Dictionary<string, Coroutine>();
+        protected virtual Dictionary<string, Coroutine> TasksRunningOnController { get; }
         private string MinorVersion_ => MajorVersion + "." + GetType().Assembly.GetName().Version.Build;
         private string MajorVersion_ => GetType().Assembly.GetName().Version.Major + "." + GetType().Assembly.GetName().Version.Minor;
         private string FullVersion_ => MinorVersion + " r" + GetType().Assembly.GetName().Version.Revision;
@@ -169,6 +203,31 @@ namespace Belzont.Interfaces
         #endregion
 
         #region UI
+#if THUNDERSTORE
+        protected abstract IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections();
+
+        internal OptionsUISystem.Page BuildModPage()
+        {
+            OptionsUISystem.Page page = new()
+            {
+                id = $"K45_{Instance.Acronym}"
+            };
+            List<OptionsUISystem.Section> sections = page.sections;
+            sections.AddRange(GenerateModOptionsSections());
+            OptionsUISystem.Section section = new()
+            {
+                id = $"K45.{Instance.Acronym}.About",
+                items = new List<IWidget>
+                {
+                    Instance.AddBoolField($"K45.{Acronym}.DebugMode", new DelegateAccessor<bool>(()=>DebugMode,(x)=>ModData.DebugMode=x)),
+                    Instance.AddValueField($"K45.{Instance.Acronym}.Version",()=>FullVersion)
+                }
+            };
+            sections.Add(section);
+            return page;
+        }
+#endif
+
         private void LoadLocales()
         {
             var file = Path.Combine(ModInstallFolder, $"i18n.csv");
@@ -233,11 +292,11 @@ namespace Belzont.Interfaces
 
         public T GetManagedSystem<T>() where T : ComponentSystemBase
         {
-            return m_updateSystem.World.GetOrCreateSystemManaged<T>();
+            return UpdateSystem.World.GetOrCreateSystemManaged<T>();
         }
         public ComponentSystemBase GetManagedSystem(Type t)
         {
-            return m_updateSystem.World.GetOrCreateSystemManaged(t);
+            return UpdateSystem.World.GetOrCreateSystemManaged(t);
         }
 
         public void SetupCaller(Action<string, object[]> eventCaller)
@@ -293,6 +352,83 @@ namespace Belzont.Interfaces
             }
         }
     }
+
+#if !THUNDERSTORE
+    public abstract class BasicIMod : IBasicIMod
+    {
+        protected sealed override UpdateSystem UpdateSystem { get; set; }
+        public override string IconName { get; } = "ModIcon";
+        public override string GitHubRepoPath { get; } = "";
+        public override string[] AssetExtraDirectoryNames { get; } = new string[0];
+        public override string[] AssetExtraFileNames { get; } = new string[] { };
+        protected sealed override Dictionary<string, Coroutine> TasksRunningOnController { get; } = new Dictionary<string, Coroutine>();
+
+    }
+#else
+    internal static class IBasicIModExtensions
+    {
+
+
+        public static bool GetButtonsGroup(this IBasicIMod mod, string groupName, out ButtonRow buttons, Button item)
+        {
+            var AutomaticSettingsSButtonGroups = typeof(AutomaticSettings).GetField("sButtonGroups", RedirectorUtils.allFlags);
+            var sButtonGroups = (Dictionary<string, ButtonRow>)AutomaticSettingsSButtonGroups.GetValue(null);
+            if (sButtonGroups.TryGetValue(groupName, out buttons))
+            {
+                Button[] array = new Button[buttons.children.Length + 1];
+                buttons.children.CopyTo(array, 0);
+                array[array.Length - 1] = item;
+                buttons.children = array;
+                return false;
+            }
+            buttons = new ButtonRow
+            {
+                children = new Button[]
+                {
+                    item
+                }
+            };
+            sButtonGroups.Add(groupName, buttons);
+            return true;
+        }
+        public static IWidget AddOptionField<T>(this IBasicIMod<T> mod, string path, string groupName, Action<T> onSet, T value, Func<bool> disabledFn = null, string warningI18n = null) where T : BasicModData
+        {
+            return mod.GetButtonsGroup(groupName, out ButtonRow item, new ButtonWithConfirmation
+            {
+                path = path,
+                displayName = $"Options.OPTION[{path}]",
+                action = delegate
+                {
+                    onSet(value);
+                },
+                disabled = disabledFn,
+                confirmationMessage = (warningI18n != null ? new LocalizedString?(LocalizedString.Id(warningI18n)) : null)
+            })
+                ? item
+                : (IWidget)null;
+        }
+        public static IWidget AddBoolField(this IBasicIMod mod, string path, DelegateAccessor<bool> accessor, Func<bool> disabledFn = null)
+        {
+            return new ToggleField
+            {
+                path = path,
+                displayName = $"Options.OPTION[{path}]",
+                accessor = accessor,
+                disabled = disabledFn
+            };
+        }
+
+        public static IWidget AddValueField(this IBasicIMod mod, string path, Func<string> getter)
+        {
+            return new ValueField
+            {
+                path = path,
+                displayName = $"Options.OPTION[{path}]",
+                accessor = new DelegateAccessor<string>(getter, (x) => { })
+            };
+        }
+    }
+#endif
 
 }
 

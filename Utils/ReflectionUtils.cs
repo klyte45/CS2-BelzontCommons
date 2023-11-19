@@ -368,7 +368,7 @@ namespace Belzont.Utils
         }
         public static List<Type> GetSubtypesRecursive(Type typeTarg, Type refType)
         {
-            if (BasicIMod.DebugMode)
+            if (IBasicIMod.DebugMode)
             {
                 LogUtils.DoLog($"typeTarg = {typeTarg} | IsGenType={typeTarg.IsGenericType} ");
             }
@@ -383,7 +383,7 @@ namespace Belzont.Utils
                                          where t.IsClass && y != null && ((!typeTarg.IsGenericType && y == typeTarg) || (y.IsGenericType && y.GetGenericTypeDefinition() == typeTarg))
                                          select t);
             var result = new List<Type>();
-            if (BasicIMod.DebugMode)
+            if (IBasicIMod.DebugMode)
             {
                 LogUtils.DoLog($"classes:\r\n\t {string.Join("\r\n\t", classes.Select(x => x.ToString()).ToArray())} ");
             }
@@ -404,7 +404,7 @@ namespace Belzont.Utils
 
         public static List<Type> GetInterfaceImplementations(Type interfaceType, IEnumerable<Assembly> assembly = null)
         {
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
+            if (IBasicIMod.DebugMode) LogUtils.DoLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
 
             if (assembly == null)
             {
@@ -428,7 +428,7 @@ namespace Belzont.Utils
         }
         public static List<Type> GetStructForInterfaceImplementations(Type interfaceType, IEnumerable<Assembly> assembly = null)
         {
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
+            if (IBasicIMod.DebugMode) LogUtils.DoLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
 
             if (assembly == null)
             {

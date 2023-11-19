@@ -25,7 +25,7 @@ namespace Belzont.Utils
     public class Redirector : MonoBehaviour
     {
         #region Class Base
-        private static Harmony m_harmony = new Harmony($"com.klyte.redirectors.{BasicIMod.Instance.Acronym}");
+        private static Harmony m_harmony = new Harmony($"com.klyte.redirectors.{IBasicIMod.Instance.Acronym}");
         private static readonly List<MethodInfo> m_patches = new List<MethodInfo>();
         private static readonly List<Action> m_onUnpatchActions = new List<Action>();
 
@@ -38,7 +38,7 @@ namespace Belzont.Utils
             {
                 if (m_harmony is null)
                 {
-                    m_harmony = new Harmony($"com.klyte.redirectors.{BasicIMod.Instance.Acronym}");
+                    m_harmony = new Harmony($"com.klyte.redirectors.{IBasicIMod.Instance.Acronym}");
                 }
                 return m_harmony;
             }
@@ -94,10 +94,10 @@ namespace Belzont.Utils
             GameObject m_topObj = GameObject.Find(objName) ?? new GameObject(objName);
             DontDestroyOnLoad(m_topObj);
             Type typeTarg = typeof(IRedirectable);
-            List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, new List<Assembly> { BasicIMod.Instance.GetType().Assembly });
+            List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, new List<Assembly> { IBasicIMod.Instance.GetType().Assembly });
             LogUtils.DoLog($"Found Redirectors: {instances.Count}");
             Type typeTargWorldless = typeof(IRedirectableWorldless);
-            List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, new List<Assembly> { BasicIMod.Instance.GetType().Assembly });
+            List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, new List<Assembly> { IBasicIMod.Instance.GetType().Assembly });
             LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
             Application.logMessageReceived += ErrorPatchingHandler;
             try
