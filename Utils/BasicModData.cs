@@ -1,4 +1,6 @@
-﻿#if !THUNDERSTORE
+﻿using Belzont.AssemblyUtility;
+using System.Reflection;
+#if !THUNDERSTORE
 using Game.Modding;
 using Game.Settings;
 #else
@@ -45,6 +47,11 @@ namespace Belzont.Interfaces
         [SettingsUISection(kAboutTab, null)]
 #endif
         public string Version => BasicIMod.FullVersion;
+
+#if !THUNDERSTORE
+        [SettingsUISection(kAboutTab, null)]
+#endif
+        public string CanonVersion => ModInstance?.GetType()?.Assembly?.GetCustomAttribute<KlyteModCanonVersionAttribute>()?.CanonVersion ?? "<N/D>";
 
         public
 

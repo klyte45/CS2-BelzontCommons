@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using Unity.Entities;
 using UnityEngine;
+using System.Reflection;
+using Belzont.AssemblyUtility;
 
 namespace Belzont.Interfaces
 {
@@ -220,13 +222,16 @@ namespace Belzont.Interfaces
             };
             List<OptionsUISystem.Section> sections = page.sections;
             sections.AddRange(GenerateModOptionsSections());
+            var extraAttributes = ModData.GetType().Assembly.GetCustomAttribute<KlyteModCanonVersionAttribute>();
             OptionsUISystem.Section section = new()
             {
                 id = ModData.GetPathForAggroupator(BasicModData.kAboutTab),
                 items = new List<IWidget>
                 {
                     Instance.AddBoolField(ModData.GetPathForOption("DebugMode"), new DelegateAccessor<bool>(()=>DebugMode,(x)=>ModData.DebugMode=x)),
-                    Instance.AddValueField(ModData.GetPathForOption("Version"),()=>FullVersion)
+                    Instance.AddValueField(ModData.GetPathForOption("Version"),()=>FullVersion),
+                    Instance.AddValueField(ModData.GetPathForOption("CanonVersion"),()=>extraAttributes?.CanonVersion??"<N/D>"),
+                    Instance.AddValueField(ModData.GetPathForOption("ThunderstoreVersion"),()=>extraAttributes?.ThunderstoreVersion??"<N/D>")
                 }
             };
             sections.Add(section);
@@ -348,15 +353,37 @@ namespace Belzont.Interfaces
 #else
                 f.Replace(modData.GetType().Name, nameof(BasicModData));
 #endif
+                var settingsMenuName = Instance.GeneralName.Split(" (");
+                while (settingsMenuName[0].Length > 30 - settingsMenuName[1].Length)
+                {
+                    var splittedName = settingsMenuName[0].Split(" ");
+                    if (!splittedName.Any(x => x.Length > 2)) { break; }
+                    var biggestIndex = -1;
+                    var sizeBiggest = 2;
+                    for (int i = 0; i < splittedName.Length; i++)
+                    {
+                        if (splittedName[i].Length <= sizeBiggest) continue;
+                        biggestIndex = i;
+                        sizeBiggest = splittedName[i].Length;
+                    }
+                    if (biggestIndex < 0) break;
+                    splittedName[biggestIndex] = splittedName[biggestIndex][0] + ".";
+                    settingsMenuName[0] = string.Join(" ", splittedName);
+                }
+
 
                 return new Dictionary<string, string>
                 {
-                    [modData.GetSettingsLocaleID()] = Instance.GeneralName,
+                    [modData.GetSettingsLocaleID()] = settingsMenuName[0] + " (" + settingsMenuName[1],
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.DebugMode)))] = "Debug Mode",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.DebugMode)))] = "Turns on the log debugging for this mod",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nThe 4th digit being higher than 1000 indicates beta version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.CanonVersion)))] = "Canonic Mod Version",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.CanonVersion)))] = "The global version of this mod, used as main version reference.\n\nThe 4th digit being higher than 1000 indicates beta version.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID("ThunderstoreVersion"))] = "Thunderstore Version",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID("ThunderstoreVersion"))] = "The equivalent version of this mod registered at the Thunderstore",
                 };
             }
 
