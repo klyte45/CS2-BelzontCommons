@@ -1,5 +1,5 @@
 ﻿using Colossal.OdinSerializer.Utilities;
-using Game.UI.Menu;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,15 +18,22 @@ namespace Belzont.Utils
                 {
                     return s.GetExportedTypes();
                 }
-                catch
+                catch (ReflectionTypeLoadException tle)
                 {
+                    return tle.Types;
+                }
+                catch (Exception e)
+                {
+                    LogUtils.DoWarnLog($"Error exporting types from assembly {s}\n{e}");
                     return new Type[0];
                 }
             }).Where(p =>
             {
                 try
                 {
-                    var result = t.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract;
+                    var allSrcs = p.GetInterfaces().Select(x => x.Name).AddItem(p.BaseType.Name);
+                    LogUtils.DoLog($"srcs {p.Name} => {string.Join("; ", allSrcs)}");
+                    var result = allSrcs.Any(x => x == t.Name) && p.IsClass && !p.IsAbstract;
                     return result;
                 }
                 catch { return false; }
