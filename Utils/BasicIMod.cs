@@ -181,7 +181,12 @@ namespace Belzont.Interfaces
         private static string m_modInstallFolder;
         public static string MinorVersion => Instance.MinorVersion_ + kVersionSuffix;
         public static string MajorVersion => Instance.MajorVersion_ + kVersionSuffix;
-        public static string FullVersion => Instance.FullVersion_ + kVersionSuffix;
+        public static string FullVersion =>
+#if THUNDERSTORE
+            Version;
+#else
+             Instance.FullVersion_ + kVersionSuffix;
+#endif
         public static string Version => Instance.Version_ + kVersionSuffix;
         #endregion
 
@@ -201,9 +206,9 @@ namespace Belzont.Interfaces
 
         public string CouiHost => $"{Acronym.ToLower()}.k45";
 
-        #endregion
+#endregion
 
-        #region UI
+#region UI
 #if THUNDERSTORE
         protected abstract IEnumerable<OptionsUISystem.Section> GenerateModOptionsSections();
 
@@ -286,9 +291,9 @@ namespace Belzont.Interfaces
 
         private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
 
-        #endregion
+#endregion
 
-        #region UI Event binding register
+#region UI Event binding register
 
 
         public T GetManagedSystem<T>() where T : ComponentSystemBase
@@ -325,7 +330,7 @@ namespace Belzont.Interfaces
             }
         }
 
-        #endregion
+#endregion
 
         private class ModGenI18n : IDictionarySource
         {
