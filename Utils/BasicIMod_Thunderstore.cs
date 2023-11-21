@@ -1,14 +1,7 @@
 ﻿#if THUNDERSTORE
 
 using Belzont.Utils;
-using Game.Reflection;
-using Game.UI.Localization;
-using Game.UI.Menu;
-using Game.UI.Widgets;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using Unity.Entities;
 
 namespace Belzont.Interfaces
 {
@@ -40,7 +33,9 @@ namespace Belzont.Interfaces
         }
 
 
-        public static new T ModData { get => (T)BasicIMod.ModData; protected set => BasicIMod.ModData = value; } 
+        public static new T ModData { get => (T)BasicIMod.ModData; protected set => BasicIMod.ModData = value; }
+
+        public sealed override BasicModData CreateSettingsFile() => CreateNewModData();
 
     }
 }
