@@ -354,7 +354,8 @@ namespace Belzont.Interfaces
                 f.Replace(modData.GetType().Name, nameof(BasicModData));
 #endif
                 var settingsMenuName = Instance.GeneralName.Split(" (");
-                while (settingsMenuName[0].Length > 30 - settingsMenuName[1].Length)
+                var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
+                while (settingsMenuName[0].Length > 26 - versionLenghtRef)
                 {
                     var splittedName = settingsMenuName[0].Split(" ");
                     if (!splittedName.Any(x => x.Length > 2)) { break; }
