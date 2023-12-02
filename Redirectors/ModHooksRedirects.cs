@@ -21,7 +21,7 @@ namespace Belzont.Thunderstore
         private static FieldInfo updateSystemField = typeof(GameManager).GetField("m_UpdateSystem", RedirectorUtils.allFlags);
         private static void LoadMods()
         {
-            var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod<>), null);
+            var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod), null);
             foreach (var modImplementation in modImplementations)
             {
                 var basicMod = modImplementation.GetConstructor(new System.Type[0]).Invoke(new object[0]) as BasicIMod;

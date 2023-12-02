@@ -44,7 +44,7 @@ namespace Belzont.Utils
 #if THUNDERSTORE
                 if (m_harmony == null)
                 {
-                    var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod<>), null);
+                    var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod), null);
                     m_harmony = new Harmony($"com.klyte.redirectors.{modImplementations.First().Name}");
                 }
                 return m_harmony;
@@ -108,7 +108,14 @@ namespace Belzont.Utils
 
 #if THUNDERSTORE
             string basePathLocation = Path.GetDirectoryName(typeof(Redirector).Assembly.Location);
-            List<Assembly> refAssemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().Where(x => x.Location.StartsWith(basePathLocation)));
+            List<Assembly> refAssemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().Where(x =>
+            {
+                try
+                {
+                    return x.Location.StartsWith(basePathLocation);
+                }
+                catch { return false; }
+            }));
 #else
             List<Assembly> refAssemblies = new List<Assembly> { BasicIMod.Instance.GetType().Assembly };
 #endif
