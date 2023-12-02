@@ -52,7 +52,6 @@ namespace Belzont.Interfaces
 
 #if !THUNDERSTORE
             Redirector.PatchAll();
-#endif
 
 
             Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
@@ -79,6 +78,7 @@ namespace Belzont.Interfaces
             {
                 LogUtils.DoInfoLog($"No components found at mod {SimpleName}");
             }
+#endif
 
             DoOnLoad();
         }
