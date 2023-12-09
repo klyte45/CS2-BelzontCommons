@@ -6,13 +6,16 @@ using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
+using Colossal.Serialization.Entities;
 using Colossal.UI;
 using Game;
 using Game.SceneFlow;
+using Game.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
 
@@ -72,6 +75,9 @@ namespace Belzont.Interfaces
 
                 AddAllComponents.Invoke(null, new object[] { newComponents, startTypeIndex, writeGroupByType, descendantCountByType });
 
+                var serializerSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SerializerSystem>();
+                typeof(SerializerSystem).GetField("m_ComponentSerializerLibrary", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(serializerSystem, new ComponentSerializerLibrary(serializerSystem));
+
                 LogUtils.DoLog("Post loaded component count: " + TypeManager.GetTypeCount());
             }
             else
@@ -79,7 +85,6 @@ namespace Belzont.Interfaces
                 LogUtils.DoInfoLog($"No components found at mod {SimpleName}");
             }
 #endif
-
             DoOnLoad();
         }
 
@@ -88,11 +93,11 @@ namespace Belzont.Interfaces
         public abstract void DoOnLoad();
 
 
-#region Saved shared config
+        #region Saved shared config
         public static string CurrentSaveVersion { get; }
-#endregion
+        #endregion
 
-#region Old CommonProperties Overridable
+        #region Old CommonProperties Overridable
         public abstract string SimpleName { get; }
         public abstract string SafeName { get; }
         public abstract string Acronym { get; }
@@ -103,9 +108,9 @@ namespace Belzont.Interfaces
         public virtual string ModRootFolder => KFileUtils.BASE_FOLDER_PATH + SafeName;
         public abstract string Description { get; }
 
-#endregion
+        #endregion
 
-#region Old CommonProperties Static
+        #region Old CommonProperties Static
         public static BasicIMod Instance { get; private set; }
         public static BasicModData ModData { get; protected set; }
         public static bool DebugMode => ModData?.DebugMode ?? true;
@@ -177,9 +182,9 @@ namespace Belzont.Interfaces
              Instance.FullVersion_ + kVersionSuffix;
 #endif
         public static string Version => Instance.Version_ + kVersionSuffix;
-#endregion
+        #endregion
 
-#region CommonProperties Fixed
+        #region CommonProperties Fixed
         public string Name => $"{SimpleName} {Version}";
         public string GeneralName => $"{SimpleName} (v{Version})";
         protected Dictionary<string, Coroutine> TasksRunningOnController { get; } = new Dictionary<string, Coroutine>();
@@ -195,9 +200,9 @@ namespace Belzont.Interfaces
 
         public string CouiHost => $"{Acronym.ToLower()}.k45";
 
-#endregion
+        #endregion
 
-#region UI
+        #region UI
 
         private void LoadLocales()
         {
@@ -256,9 +261,9 @@ namespace Belzont.Interfaces
 
         private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
 
-#endregion
+        #endregion
 
-#region UI Event binding register
+        #region UI Event binding register
 
 
         public T GetManagedSystem<T>() where T : ComponentSystemBase
@@ -295,7 +300,7 @@ namespace Belzont.Interfaces
             }
         }
 
-#endregion
+        #endregion
 
         private class ModGenI18n : IDictionarySource
         {
