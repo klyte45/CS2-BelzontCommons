@@ -105,7 +105,7 @@ namespace Belzont.Interfaces
         public string GitHubRepoPath { get; } = "";
         public string[] AssetExtraDirectoryNames { get; } = new string[0];
         public string[] AssetExtraFileNames { get; } = new string[] { };
-        public virtual string ModRootFolder => KFileUtils.BASE_FOLDER_PATH + SafeName;
+        public virtual string ModRootFolder => Path.Combine(KFileUtils.BASE_FOLDER_PATH, SafeName);
         public abstract string Description { get; }
 
         #endregion

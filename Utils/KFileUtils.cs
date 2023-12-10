@@ -7,7 +7,7 @@ namespace Belzont.Utils
     public class KFileUtils
     {
         #region File & Prefab Utils
-        public static readonly string BASE_FOLDER_PATH = Application.persistentDataPath + Path.DirectorySeparatorChar + "Klyte45Mods" + Path.DirectorySeparatorChar;
+        public static readonly string BASE_FOLDER_PATH = Path.Combine(Application.persistentDataPath, "ModsData", "Klyte45Mods");
 
         public static FileInfo EnsureFolderCreation(string folderName)
         {
