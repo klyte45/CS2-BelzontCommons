@@ -1,4 +1,4 @@
-﻿#if THUNDERSTORE
+﻿#if BEPINEX_CS2
 using System.IO;
 using System.Linq;
 #endif
@@ -41,7 +41,7 @@ namespace Belzont.Utils
         {
             get
             {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                 if (m_harmony == null)
                 {
                     var modImplementations = ReflectionUtils.GetSubtypesRecursive(typeof(BasicIMod), null);
@@ -106,7 +106,7 @@ namespace Belzont.Utils
             Type typeTarg = typeof(IRedirectable);
 
 
-#if THUNDERSTORE
+#if BEPINEX_CS2
             string basePathLocation = Path.GetDirectoryName(typeof(Redirector).Assembly.Location);
             List<Assembly> refAssemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies().Where(x =>
             {

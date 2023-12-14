@@ -1,5 +1,5 @@
 ﻿using Belzont.Interfaces;
-#if THUNDERSTORE
+#if BEPINEX_CS2
 using BepInEx.Logging;
 #endif
 using Colossal.Logging;
@@ -30,13 +30,13 @@ namespace Belzont.Utils
             }
         }
 
-#if THUNDERSTORE
+#if BEPINEX_CS2
         public static bool LogsEnabled { get; internal set; }
         internal static ManualLogSource Logger { get; set; }
 #endif
 
         private static string LogLineStart(string level) =>
-#if THUNDERSTORE
+#if BEPINEX_CS2
              !LogsEnabled ? "" :
 #endif
             $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
@@ -46,7 +46,7 @@ namespace Belzont.Utils
         {
             try
             {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                 if (!LogsEnabled)
                 {
                     Logger?.LogDebug(string.Format(LogLineStart("DEBUG") + format, args));
@@ -71,7 +71,7 @@ namespace Belzont.Utils
         {
             try
             {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                 if (!LogsEnabled)
                 {
                     Logger?.LogWarning(string.Format(LogLineStart("WARNING") + format, args));
@@ -88,7 +88,7 @@ namespace Belzont.Utils
 
         private static void LogCaughtLogException(string format, object[] args, Exception e)
         {
-#if THUNDERSTORE
+#if BEPINEX_CS2
             if (!LogsEnabled)
             {
                 Logger?.LogFatal(string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})\n{e}", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())));
@@ -102,7 +102,7 @@ namespace Belzont.Utils
         {
             try
             {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                 if (!LogsEnabled)
                 {
                     Logger?.LogInfo(string.Format(LogLineStart("INFO") + format, args));
@@ -121,7 +121,7 @@ namespace Belzont.Utils
         {
             try
             {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                 if (!LogsEnabled)
                 {
                     Logger?.LogError(string.Format(LogLineStart("ERROR") + format + $"\n{e}", args));
@@ -134,7 +134,7 @@ namespace Belzont.Utils
             {
                 if (e != null)
                 {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                     if (!LogsEnabled)
                     {
                         Logger?.LogError(string.Format(LogLineStart("ERROR") + $"An exception has occurred.\n{e}"));

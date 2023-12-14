@@ -1,4 +1,4 @@
-﻿#if THUNDERSTORE
+﻿#if BEPINEX_CS2
 using Belzont.Interfaces;
 using Belzont.Utils;
 using Game;
@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Belzont.Thunderstore
+namespace Belzont.BepInExCs2
 {
     public class ModHooksRedirects : Redirector, IRedirectableWorldless
     {

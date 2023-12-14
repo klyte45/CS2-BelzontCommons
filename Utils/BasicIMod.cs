@@ -1,4 +1,4 @@
-﻿#if THUNDERSTORE
+﻿#if BEPINEX_CS2
 #else
 #endif
 using Belzont.Utils;
@@ -45,7 +45,7 @@ namespace Belzont.Interfaces
         public void OnLoad()
         {
             Instance = this;
-#if THUNDERSTORE
+#if BEPINEX_CS2
             LogUtils.LogsEnabled = true;
 #endif
             ModData = CreateSettingsFile();
@@ -53,7 +53,7 @@ namespace Belzont.Interfaces
             AssetDatabase.global.LoadSettings(SafeName, ModData);
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
 
-#if !THUNDERSTORE
+#if !BEPINEX_CS2
             Redirector.PatchAll();
 
 
@@ -149,7 +149,7 @@ namespace Belzont.Interfaces
             {
                 if (m_modInstallFolder is null)
                 {
-#if THUNDERSTORE
+#if BEPINEX_CS2
                     m_modInstallFolder = Path.GetDirectoryName(Instance.GetType().Assembly.Location);
 #else
                     var thisFullName = Instance.GetType().Assembly.FullName;
@@ -166,8 +166,8 @@ namespace Belzont.Interfaces
             }
         }
         private const string kVersionSuffix =
-#if THUNDERSTORE
-        "B";
+#if BEPINEX_CS2
+        "-B";
 #else
 "";
 #endif
@@ -176,7 +176,7 @@ namespace Belzont.Interfaces
         public static string MinorVersion => Instance.MinorVersion_ + kVersionSuffix;
         public static string MajorVersion => Instance.MajorVersion_ + kVersionSuffix;
         public static string FullVersion =>
-#if THUNDERSTORE
+#if BEPINEX_CS2
             Version;
 #else
              Instance.FullVersion_ + kVersionSuffix;
@@ -344,8 +344,6 @@ namespace Belzont.Interfaces
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.CanonVersion)))] = "Canonic Mod Version",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.CanonVersion)))] = "The global version of this mod, used as main version reference.\n\nIf the first digit is '0', means this is a pre-release and experimental version.\n\nThe 4th digit being higher than 1000 indicates beta version.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID("ThunderstoreVersion"))] = "Thunderstore Version",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID("ThunderstoreVersion"))] = "The equivalent version of this mod registered at the Thunderstore",
                 };
             }
 
