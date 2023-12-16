@@ -55,35 +55,6 @@ namespace Belzont.Interfaces
 
 #if !BEPINEX_CS2
             Redirector.PatchAll();
-
-
-            Type[] newComponents = ReflectionUtils.GetStructForInterfaceImplementations(typeof(IComponentData), new[] { GetType().Assembly })
-                .Union(ReflectionUtils.GetStructForInterfaceImplementations(typeof(IBufferElementData), new[] { GetType().Assembly })).ToHashSet().ToArray();
-
-            if (newComponents.Length > 0)
-            {
-                LogUtils.DoInfoLog($"Registering {newComponents.Length} components found at mod {SimpleName}");
-                if (DebugMode)
-                {
-                    LogUtils.DoLog("Loaded component count: " + TypeManager.GetTypeCount());
-                    LogUtils.DoLog("Loading found components:\n\t" + string.Join("\n\t", newComponents.Select(x => x.ToString())));
-                }
-                var AddAllComponents = typeof(TypeManager).GetMethod("AddAllComponentTypes", RedirectorUtils.allFlags);
-                int startTypeIndex = TypeManager.GetTypeCount();
-                Dictionary<int, HashSet<TypeIndex>> writeGroupByType = new();
-                Dictionary<Type, int> descendantCountByType = newComponents.Select(x => (x, 0)).ToDictionary(x => x.x, x => x.Item2);
-
-                AddAllComponents.Invoke(null, new object[] { newComponents, startTypeIndex, writeGroupByType, descendantCountByType });
-
-                var serializerSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SerializerSystem>();
-                typeof(SerializerSystem).GetField("m_ComponentSerializerLibrary", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(serializerSystem, new ComponentSerializerLibrary(serializerSystem));
-
-                LogUtils.DoLog("Post loaded component count: " + TypeManager.GetTypeCount());
-            }
-            else
-            {
-                LogUtils.DoInfoLog($"No components found at mod {SimpleName}");
-            }
 #endif
             DoOnLoad();
         }
