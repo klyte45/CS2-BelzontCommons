@@ -7,7 +7,6 @@ using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
-using Colossal.UI;
 using Game;
 using Game.SceneFlow;
 using System;
@@ -15,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Unity.Entities;
 using UnityEngine;
 
@@ -65,7 +65,7 @@ namespace Belzont.Interfaces
         private static string DisplayName = (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
         public string SimpleName => DisplayName;
         public string SafeName => DisplayName.Replace(" ", "");
-        public virtual string Acronym { get; } = modAssemblyDescription.DisplayName?.Replace("[^A-Z]", "");
+        public virtual string Acronym => Regex.Replace(DisplayName, "[^A-Z]", "");
         public virtual string GitHubRepoPath { get; } = "";
         public virtual string ModRootFolder => Path.Combine(KFileUtils.BASE_FOLDER_PATH, SafeName);
         public string Description => modAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
@@ -124,7 +124,7 @@ namespace Belzont.Interfaces
                 return m_modInstallFolder;
             }
         }
-        private const string kVersionSuffix ="";
+        private const string kVersionSuffix = "";
 
         private static string m_modInstallFolder;
         public static string MinorVersion => Instance.MinorVersion_ + kVersionSuffix;

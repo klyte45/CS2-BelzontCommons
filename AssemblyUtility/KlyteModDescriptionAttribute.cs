@@ -8,7 +8,6 @@ namespace Belzont.AssemblyUtility
         public string ModId { get; }
         public string DisplayName { get; }
         public string ShortDescription { get; }
-        public string ModVersion { get; }
 
 
         public KlyteModDescriptionAttribute(
@@ -20,7 +19,6 @@ namespace Belzont.AssemblyUtility
             this.ModId = ModId;
             this.DisplayName = DisplayName;
             this.ShortDescription = ShortDescription;
-            ModVersion = BasicIMod.FullVersion;
         }
 
 
