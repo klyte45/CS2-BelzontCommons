@@ -1,6 +1,7 @@
 ﻿#if BEPINEX_CS2
 #else
 #endif
+using Belzont.AssemblyUtility;
 using Belzont.Utils;
 using Colossal;
 using Colossal.IO.AssetDatabase;
@@ -23,20 +24,17 @@ namespace Belzont.Interfaces
     {
         protected UpdateSystem UpdateSystem { get; set; }
 
-        public static PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
+        internal static KlyteModDescriptionAttribute modAssemblyDescription => typeof(BasicIMod)?.Assembly?.GetCustomAttribute<KlyteModDescriptionAttribute>();
+
         public void OnLoad(UpdateSystem updateSystem)
         {
             OnLoad();
             UpdateSystem = updateSystem;
             Redirector.OnWorldCreated(UpdateSystem.World);
             LoadLocales();
-
-
-            var uiSys = GameManager.instance.userInterface.view.uiSystem;
             LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
             GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
             DoOnCreateWorld(updateSystem);
-
         }
         public abstract void OnDispose();
 
@@ -45,17 +43,12 @@ namespace Belzont.Interfaces
         public void OnLoad()
         {
             Instance = this;
-#if BEPINEX_CS2
-            LogUtils.LogsEnabled = true;
-#endif
             ModData = CreateSettingsFile();
             ModData.RegisterInOptionsUI();
             AssetDatabase.global.LoadSettings(SafeName, ModData);
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
 
-#if !BEPINEX_CS2
             Redirector.PatchAll();
-#endif
             DoOnLoad();
         }
 
@@ -69,15 +62,13 @@ namespace Belzont.Interfaces
         #endregion
 
         #region Old CommonProperties Overridable
-        public abstract string SimpleName { get; }
-        public abstract string SafeName { get; }
-        public abstract string Acronym { get; }
-        public string IconName { get; } = "ModIcon";
-        public string GitHubRepoPath { get; } = "";
-        public string[] AssetExtraDirectoryNames { get; } = new string[0];
-        public string[] AssetExtraFileNames { get; } = new string[] { };
+        private static string DisplayName = (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
+        public string SimpleName => DisplayName;
+        public string SafeName => DisplayName.Replace(" ", "");
+        public virtual string Acronym { get; } = modAssemblyDescription.DisplayName?.Replace("[^A-Z]", "");
+        public virtual string GitHubRepoPath { get; } = "";
         public virtual string ModRootFolder => Path.Combine(KFileUtils.BASE_FOLDER_PATH, SafeName);
-        public abstract string Description { get; }
+        public string Description => modAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
 
         #endregion
 
@@ -120,9 +111,6 @@ namespace Belzont.Interfaces
             {
                 if (m_modInstallFolder is null)
                 {
-#if BEPINEX_CS2
-                    m_modInstallFolder = Path.GetDirectoryName(Instance.GetType().Assembly.Location);
-#else
                     var thisFullName = Instance.GetType().Assembly.FullName;
                     ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName));
                     if (thisInfo is null)
@@ -130,28 +118,18 @@ namespace Belzont.Interfaces
                         throw new Exception("This mod info was not found!!!!");
                     }
                     m_modInstallFolder = Path.GetDirectoryName(thisInfo.GetMeta().path);
-#endif
+
                     LogUtils.DoInfoLog($"Mod location: {m_modInstallFolder}");
                 }
                 return m_modInstallFolder;
             }
         }
-        private const string kVersionSuffix =
-#if BEPINEX_CS2
-        "-B";
-#else
-"";
-#endif
+        private const string kVersionSuffix ="";
 
         private static string m_modInstallFolder;
         public static string MinorVersion => Instance.MinorVersion_ + kVersionSuffix;
         public static string MajorVersion => Instance.MajorVersion_ + kVersionSuffix;
-        public static string FullVersion =>
-#if BEPINEX_CS2
-            Version;
-#else
-             Instance.FullVersion_ + kVersionSuffix;
-#endif
+        public static string FullVersion => Instance.FullVersion_ + kVersionSuffix;
         public static string Version => Instance.Version_ + kVersionSuffix;
         #endregion
 
@@ -314,8 +292,6 @@ namespace Belzont.Interfaces
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.DebugMode)))] = "Turns on the log debugging for this mod",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.CanonVersion)))] = "Canonic Mod Version",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.CanonVersion)))] = "The global version of this mod, used as main version reference.\n\nIf the first digit is '0', means this is a pre-release and experimental version.\n\nThe 4th digit being higher than 1000 indicates beta version.",
                 };
             }
 

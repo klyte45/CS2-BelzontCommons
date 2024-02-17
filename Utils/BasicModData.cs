@@ -28,11 +28,6 @@ namespace Belzont.Interfaces
         [SettingsUISection(kAboutTab, null)]
         public string Version => BasicIMod.FullVersion;
 
-
-        [SettingsUISection(kAboutTab, null)]
-
-        public string CanonVersion => ModInstance?.GetType()?.Assembly?.GetCustomAttribute<KlyteModCanonVersionAttribute>()?.CanonVersion ?? "<N/D>";
-
         public sealed override void SetDefaults()
         {
             DebugMode = false;
