@@ -6,11 +6,9 @@ using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
-using Colossal.Serialization.Entities;
 using Colossal.UI;
 using Game;
 using Game.SceneFlow;
-using Game.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,17 +22,19 @@ namespace Belzont.Interfaces
     public abstract class BasicIMod
     {
         protected UpdateSystem UpdateSystem { get; set; }
-        public void OnCreateWorld(UpdateSystem updateSystem)
+
+        public static PropertyInfo HostLocationsMap = typeof(DefaultResourceHandler).GetProperty("HostLocationsMap", ReflectionUtils.allFlags);
+        public void OnLoad(UpdateSystem updateSystem)
         {
+            OnLoad();
             UpdateSystem = updateSystem;
             Redirector.OnWorldCreated(UpdateSystem.World);
             LoadLocales();
 
 
             var uiSys = GameManager.instance.userInterface.view.uiSystem;
-            LogUtils.DoLog($"CouiHost => {CouiHost}");
-            ((DefaultResourceHandler)uiSys.resourceHandler).HostLocationsMap.Add(CouiHost, new List<string> { ModInstallFolder });
-
+            LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
+            GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
             DoOnCreateWorld(updateSystem);
 
         }
@@ -177,7 +177,8 @@ namespace Belzont.Interfaces
 
         private void LoadLocales()
         {
-            var file = Path.Combine(ModInstallFolder, $"i18n.csv");
+            var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
+
             if (File.Exists(file))
             {
                 var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
