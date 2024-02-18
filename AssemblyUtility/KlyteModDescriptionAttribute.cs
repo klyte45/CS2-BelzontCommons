@@ -1,5 +1,7 @@
 ﻿using Belzont.Interfaces;
 using System;
+using System.Security;
+using System.Web;
 namespace Belzont.AssemblyUtility
 {
     [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
@@ -17,8 +19,8 @@ namespace Belzont.AssemblyUtility
             )
         {
             this.ModId = ModId;
-            this.DisplayName = DisplayName;
-            this.ShortDescription = ShortDescription;
+            this.DisplayName = HttpUtility.HtmlDecode(DisplayName);
+            this.ShortDescription = HttpUtility.HtmlDecode(ShortDescription);
         }
 
 
