@@ -59,7 +59,7 @@ namespace Belzont.Utils
         {
             var stackTrace = new StackTrace();
             StackFrame[] stackFrames = stackTrace.GetFrames();
-            LogUtils.DoLog($"SemiPreventDefault fullStackTrace: \r\n {Environment.StackTrace}");
+            if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog($"SemiPreventDefault fullStackTrace: \r\n {Environment.StackTrace}");
             for (int i = 2; i < stackFrames.Length; i++)
             {
                 if (stackFrames[i].GetMethod().DeclaringType.ToString().StartsWith("Klyte."))
@@ -75,7 +75,7 @@ namespace Belzont.Utils
         public void AddRedirect(MethodInfo oldMethod, MethodInfo newMethodPre, MethodInfo newMethodPost = null, MethodInfo transpiler = null)
         {
 
-            LogUtils.DoLog($"Adding patch! {oldMethod.DeclaringType} {oldMethod}");
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Adding patch! {oldMethod.DeclaringType} {oldMethod}");
             m_detourList.Add(Harmony.Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, transpiler != null ? new HarmonyMethod(transpiler) : null));
             m_patches.Add(oldMethod);
         }
@@ -121,21 +121,21 @@ namespace Belzont.Utils
 #endif
 
             List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, refAssemblies);
-            LogUtils.DoLog($"Found Redirectors: {instances.Count}");
+            if (BasicIMod.DebugMode) LogUtils.DoLog($"Found Redirectors: {instances.Count}");
             Type typeTargWorldless = typeof(IRedirectableWorldless);
             List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, refAssemblies);
-            LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
+            if (BasicIMod.DebugMode) LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
             Application.logMessageReceived += ErrorPatchingHandler;
             try
             {
                 foreach (Type t in instances)
                 {
-                    LogUtils.DoLog($"Redirector: {t}");
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Redirector: {t}");
                     worldDependantRedirectors.Add(m_topObj.AddComponent(t) as IRedirectable);
                 }
                 foreach (Type t in instancesWorldless)
                 {
-                    LogUtils.DoLog($"Redirector Worldless: {t}");
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Redirector Worldless: {t}");
                     m_topObj.AddComponent(t);
                 }
             }

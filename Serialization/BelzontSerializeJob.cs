@@ -1,4 +1,5 @@
-﻿using Belzont.Utils;
+﻿using Belzont.Interfaces;
+using Belzont.Utils;
 using Colossal.Serialization.Entities;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,7 +12,7 @@ namespace Belzont.Serialization
         {
             TWriter writer = this.m_WriterData.GetWriter<TWriter>();
             World.All[m_WorldIndex].GetExistingSystemManaged<B>().Serialize(writer);
-            LogUtils.DoLog($"Serialized {typeof(B)}");
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Serialized {typeof(B)}");
         }
         public int m_WorldIndex;
         public EntityWriterData m_WriterData;

@@ -1,4 +1,5 @@
-﻿using Belzont.Utils;
+﻿using Belzont.Interfaces;
+using Belzont.Utils;
 using Colossal.Serialization.Entities;
 using System;
 using Unity.Entities;
@@ -15,7 +16,7 @@ namespace Belzont.Serialization
                 var reader = m_ReaderData.GetReader<TReader>();                
                 World.All[m_WorldIndex].GetExistingSystemManaged<B>().Deserialize(reader);
 
-                LogUtils.DoLog($"Deserialized {typeof(B)}");
+                if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Deserialized {typeof(B)}");
             }
             catch (Exception e)
             {

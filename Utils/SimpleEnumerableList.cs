@@ -25,7 +25,7 @@ namespace Belzont.Utils
                 return;
             }
             var valueSerializer = new XmlSerializer(typeof(ValueContainer<TKey, TValue>), "");
-            LogUtils.DoLog($"reader = {reader}; empty = {reader.IsEmptyElement}");
+            if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog($"reader = {reader}; empty = {reader.IsEmptyElement}");
             reader.ReadStartElement();
             while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
             {

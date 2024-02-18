@@ -13,7 +13,7 @@ namespace Belzont.Utils
 {
     public static class LogUtils
     {
-#region Log Utils
+        #region Log Utils
 
         private static ILog logOutput;
 
@@ -23,44 +23,44 @@ namespace Belzont.Utils
             {
                 if (logOutput is null)
                 {
-                    logOutput = LogManager.GetLogger("Mods_K45");
-                    logOutput.effectivenessLevel = Level.Info;
+                    logOutput = LogManager.GetLogger($"Mods_K45_{BasicIMod.Instance.Acronym}");
+                    logOutput.SetEffectiveness(Level.Info);
                 }
                 return logOutput;
             }
         }
 
-#if BEPINEX_CS2
-        public static bool LogsEnabled { get; internal set; }
-        internal static ManualLogSource Logger { get; set; }
-#endif
-
         private static string LogLineStart(string level) =>
-#if BEPINEX_CS2
-             !LogsEnabled ? "" :
-#endif
+
             $"[{BasicIMod.Instance.Acronym,-4}] [v{BasicIMod.FullVersion,-16}] [{level,-8}] ";
 
-
+        public static void DoVerboseLog(string format, params object[] args)
+        {
+            try
+            {
+                LogOutput.Log(Level.Verbose, string.Format(LogLineStart("VERBOSE") + format, args), null);
+            }
+            catch (Exception e)
+            {
+                LogCaughtLogException(format, args, e);
+            }
+        }
+        public static void DoTraceLog(string format, params object[] args)
+        {
+            try
+            {
+                LogOutput.Log(Level.Trace, string.Format(LogLineStart("TRACE") + format, args), null);
+            }
+            catch (Exception e)
+            {
+                LogCaughtLogException(format, args, e);
+            }
+        }
         public static void DoLog(string format, params object[] args)
         {
             try
             {
-#if BEPINEX_CS2
-                if (!LogsEnabled)
-                {
-                    Logger?.LogDebug(string.Format(LogLineStart("DEBUG") + format, args));
-                    return;
-                }
-#endif
-                if (BasicIMod.DebugMode)
-                {
-                    var oldEffectivenessLevel = LogOutput.effectivenessLevel;
-                    LogOutput.effectivenessLevel = Level.Debug;
-                    LogOutput.Log(Level.Debug, string.Format(LogLineStart("DEBUG") + format, args), null);
-                    LogOutput.effectivenessLevel = oldEffectivenessLevel;
-                }
-
+                LogOutput.Log(Level.Debug, string.Format(LogLineStart("DEBUG") + format, args), null);
             }
             catch (Exception e)
             {
@@ -71,13 +71,6 @@ namespace Belzont.Utils
         {
             try
             {
-#if BEPINEX_CS2
-                if (!LogsEnabled)
-                {
-                    Logger?.LogWarning(string.Format(LogLineStart("WARNING") + format, args));
-                    return;
-                }
-#endif
                 LogOutput.Log(Level.Warn, string.Format(LogLineStart("WARNING") + format, args), null);
             }
             catch (Exception e)
@@ -88,13 +81,6 @@ namespace Belzont.Utils
 
         private static void LogCaughtLogException(string format, object[] args, Exception e)
         {
-#if BEPINEX_CS2
-            if (!LogsEnabled)
-            {
-                Logger?.LogFatal(string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})\n{e}", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())));
-                return;
-            }
-#endif
             LogOutput.Log(Level.Warn, string.Format($"{LogLineStart("SEVERE")} Erro ao fazer log: {{0}} (args = {{1}})", format, args == null ? "[]" : string.Join(",", args.Select(x => x != null ? x.ToString() : "--NULL--").ToArray())), e);
         }
 
@@ -102,14 +88,6 @@ namespace Belzont.Utils
         {
             try
             {
-#if BEPINEX_CS2
-                if (!LogsEnabled)
-                {
-                    Logger?.LogInfo(string.Format(LogLineStart("INFO") + format, args));
-                    return;
-                }
-#endif
-
                 LogOutput.Log(Level.Info, string.Format(LogLineStart("INFO") + format, args), null);
             }
             catch (Exception e)
@@ -121,26 +99,12 @@ namespace Belzont.Utils
         {
             try
             {
-#if BEPINEX_CS2
-                if (!LogsEnabled)
-                {
-                    Logger?.LogError(string.Format(LogLineStart("ERROR") + format + $"\n{e}", args));
-                    return;
-                }
-#endif
                 LogOutput.Log(Level.Error, string.Format(LogLineStart("ERROR") + format, args), e);
             }
             catch (Exception e2)
             {
                 if (e != null)
                 {
-#if BEPINEX_CS2
-                    if (!LogsEnabled)
-                    {
-                        Logger?.LogError(string.Format(LogLineStart("ERROR") + $"An exception has occurred.\n{e}"));
-                    }
-                    else
-#endif
                     {
                         LogOutput.Log(Level.Error, LogLineStart("ERROR") + "An exception has occurred.", e);
                     }
@@ -181,6 +145,28 @@ namespace Belzont.Utils
                 return operand.ToString() + $" (Type={operand.GetType()})";
             }
         }
-#endregion
+
+        internal static void SetLogLevel(Level level)
+        {
+            LogOutput.SetEffectiveness(level);
+            DoInfoLog($"Log level set to: {level}");
+        }
+
+        internal static void SetStackTracing(bool enable)
+        {
+            LogOutput.SetLogStackTrace(enable);
+            DoInfoLog($"Log stacktrace was turned {(enable ? "on" : "off")}");
+        }
+        internal static void SetDisplayErrorsOnUI(bool enable)
+        {
+            LogOutput.SetShowsErrorsInUI(enable);
+            DoInfoLog($"Displaying errors on UI was turned {(enable ? "on" : "off")}");
+        }
+
+        internal static bool IsLogLevelEnabled(Level level)
+        {
+            return LogOutput.isLevelEnabled(level);
+        }
+        #endregion
     }
 }

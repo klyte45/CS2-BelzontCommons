@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Unity.Entities;
 using UnityEngine;
+using static Belzont.Interfaces.BasicModData;
 
 namespace Belzont.Interfaces
 {
@@ -75,7 +76,9 @@ namespace Belzont.Interfaces
         #region Old CommonProperties Static
         public static BasicIMod Instance { get; private set; }
         public static BasicModData ModData { get; protected set; }
-        public static bool DebugMode => ModData?.DebugMode ?? true;
+        public static bool DebugMode => ModData?.LoggingLevel >= LogLevel.Debug;
+        public static bool TraceMode => ModData?.LoggingLevel >= LogLevel.Trace;
+        public static bool VerboseMode => ModData?.LoggingLevel >= LogLevel.Verbose;
 
 
         private static ulong m_modId;
@@ -288,10 +291,21 @@ namespace Belzont.Interfaces
                 {
                     [modData.GetSettingsLocaleID()] = settingsMenuName[0] + " (" + settingsMenuName[1],
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.DebugMode)))] = "Debug Mode",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.DebugMode)))] = "Turns on the log debugging for this mod",
+                    [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.LoggingLevel)))] = "Logging Level",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.LoggingLevel)))] = "Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.",
+
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.LogStacktraces)))] = "Log Stacktraces",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.LogStacktraces)))] = "Add stacktrace information telling when the log was generated in the code",
+
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Show this mod errors on UI",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Only disable it on emergencies!",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
+                    [modData.GetEnumValueLocaleID(LogLevel.Normal)] = "Normal",
+                    [modData.GetEnumValueLocaleID(LogLevel.Debug)] = "Debug",
+                    [modData.GetEnumValueLocaleID(LogLevel.Trace)] = "Trace (Beware...) ",
+                    [modData.GetEnumValueLocaleID(LogLevel.Verbose)] = "Verbose (Don't let it for much time!)",
                 };
             }
 

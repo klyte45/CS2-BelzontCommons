@@ -18,7 +18,7 @@ namespace Belzont.Utils
             var stream = (UnmanagedMemoryStream)refAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                LogUtils.DoLog("Could not find resource: " + name);
+                LogUtils.DoInfoLog("Could not find resource: " + name);
                 return null;
             }
 
@@ -33,7 +33,7 @@ namespace Belzont.Utils
             var stream = (UnmanagedMemoryStream)refAssembly.GetManifestResourceStream(name);
             if (stream == null)
             {
-                LogUtils.DoLog("Could not find resource: " + name);
+                LogUtils.DoInfoLog("Could not find resource: " + name);
                 return null;
             }
 
@@ -48,7 +48,7 @@ namespace Belzont.Utils
             {
                 if (stream == null)
                 {
-                    LogUtils.DoLog("Could not find resource: " + name);
+                    LogUtils.DoInfoLog("Could not find resource: " + name);
                     yield break;
                 }
 
