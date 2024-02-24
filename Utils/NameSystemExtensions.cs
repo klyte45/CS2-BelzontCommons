@@ -1,16 +1,18 @@
 ﻿using Game.UI;
+using HarmonyLib;
 using System.Reflection;
+using static Game.UI.NameSystem;
 
 namespace Belzont.Utils
 {
     public static class NameSystemExtensions
     {
-        private static readonly FieldInfo NameTypeFI = typeof(NameSystem.Name).GetField("m_NameType", RedirectorUtils.allFlags);
-        private static readonly FieldInfo NameIDFI = typeof(NameSystem.Name).GetField("m_NameID", RedirectorUtils.allFlags);
-        private static readonly FieldInfo NameArgsFI = typeof(NameSystem.Name).GetField("m_NameArgs", RedirectorUtils.allFlags);
-        public static NameSystem.NameType GetNameType(this NameSystem.Name name) => (NameSystem.NameType)NameTypeFI.GetValue(name);
-        public static string GetNameID(this NameSystem.Name name) => (string)NameIDFI.GetValue(name);
-        public static string[] GetNameArgs(this NameSystem.Name name) => (string[])NameArgsFI.GetValue(name);
+        public static AccessTools.StructFieldRef<NameSystem.Name, NameType> fieldRefNameType = HarmonyLib.AccessTools.StructFieldRefAccess<NameSystem.Name, NameType>("m_NameType");
+        public static AccessTools.StructFieldRef<NameSystem.Name, string> fieldRefNameId = HarmonyLib.AccessTools.StructFieldRefAccess<NameSystem.Name, string>("m_NameID");
+        public static AccessTools.StructFieldRef<NameSystem.Name, string[]> fieldRefNameArgs = HarmonyLib.AccessTools.StructFieldRefAccess<NameSystem.Name, string[]>("m_NameArgs");
+        public static NameSystem.NameType GetNameType(this NameSystem.Name name) => fieldRefNameType(ref name);
+        public static string GetNameID(this NameSystem.Name name) => fieldRefNameId(ref name);
+        public static string[] GetNameArgs(this NameSystem.Name name) => fieldRefNameArgs(ref name);
 
         internal static ValuableName ToValueableName(this NameSystem.Name name) => new(name);
 
