@@ -4,6 +4,7 @@
     <SourceBaseFolder>$(ProjectDir)UI</SourceBaseFolder>
     <Configurations>Debug;Release</Configurations>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <DisableFastUpToDateCheck Condition="'$(Configuration)'=='Release'">true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <ItemGroup>
     <None Include="UI\**\*" Exclude="UI\**\node_modules\**\*" />
