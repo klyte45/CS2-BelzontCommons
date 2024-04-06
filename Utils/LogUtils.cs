@@ -162,6 +162,10 @@ namespace Belzont.Utils
             LogOutput.SetShowsErrorsInUI(enable);
             DoInfoLog($"Displaying errors on UI was turned {(enable ? "on" : "off")}");
         }
+        internal static bool GetDisplayErrorsOnUI()
+        {
+            return LogOutput.showsErrorsInUI;            
+        }
 
         internal static bool IsLogLevelEnabled(Level level)
         {

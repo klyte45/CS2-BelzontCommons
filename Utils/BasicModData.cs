@@ -17,7 +17,7 @@ namespace Belzont.Interfaces
         public const string kLogSection = "Logging";
         private LogLevel loggingLevel = LogLevel.Normal;
         private bool logStacktraces = true;
-        private bool showErrorsPopups = true;
+        private bool showErrorsPopups = false;
 
         public event Action<LogLevel> OnLoggingEnabledChanged;
 
@@ -39,6 +39,7 @@ namespace Belzont.Interfaces
                 loggingLevel = value;
                 LogUtils.SetLogLevel(GetEffectiveLogLevel(loggingLevel));
                 LogUtils.SetStackTracing(loggingLevel > LogLevel.Normal && logStacktraces);
+                LogUtils.SetDisplayErrorsOnUI(loggingLevel > LogLevel.Normal && showErrorsPopups);
                 OnLoggingEnabledChanged?.Invoke(value);
             }
         }
@@ -57,7 +58,7 @@ namespace Belzont.Interfaces
         [SettingsUISection(kAboutTab, kLogSection)]
         public bool ShowErrorsPopups
         {
-            get => showErrorsPopups; set
+            get => showErrorsPopups && LogUtils.GetDisplayErrorsOnUI(); set
             {
                 showErrorsPopups = value;
                 LogUtils.SetDisplayErrorsOnUI(value);
