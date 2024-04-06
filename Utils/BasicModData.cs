@@ -56,6 +56,7 @@ namespace Belzont.Interfaces
         }
 
         [SettingsUISection(kAboutTab, kLogSection)]
+        [SettingsUIHideByCondition(typeof(BasicModData), nameof(ShowLogStacktraces))]
         public bool ShowErrorsPopups
         {
             get => showErrorsPopups && LogUtils.GetDisplayErrorsOnUI(); set
