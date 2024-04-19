@@ -164,7 +164,7 @@ namespace Belzont.Utils
         }
         internal static bool GetDisplayErrorsOnUI()
         {
-            return LogOutput.showsErrorsInUI;            
+            return LogOutput.showsErrorsInUI;
         }
 
         internal static bool IsLogLevelEnabled(Level level)
