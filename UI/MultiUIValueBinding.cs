@@ -9,20 +9,21 @@ namespace Belzont.Utils
         {
             get => m_value; set
             {
-                if (!m_value.Equals(value))
+                if (!Equals(value, m_value))
                 {
                     m_value = value;
-                    UpdateUIs(value);
+                    UpdateUIs();
                 }
             }
         }
         private T m_value;
         private readonly Action<string, object[]> eventCaller;
         private readonly string m_propertyPrefix;
-        private readonly Func<T, T> m_dataNormalizeFn;
+        private readonly Func<U, T> m_dataNormalizeFn;
         private readonly Func<T, U> m_frontendTransformFn;
+        public event Action<T> OnScreenValueChanged;
 
-        public MultiUIValueBinding(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, U> frontendTransformFn, Func<T, T> dataNormalizeFn = null)
+        public MultiUIValueBinding(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, U> frontendTransformFn, Func<U, T> dataNormalizeFn)
         {
             m_value = initialValue;
             m_propertyPrefix = propertyPrefix;
@@ -33,27 +34,29 @@ namespace Belzont.Utils
             m_frontendTransformFn = frontendTransformFn;
         }
 
-        private object GetValueUI() => m_frontendTransformFn is null ? Value : m_frontendTransformFn(Value);
+        private object GetValueUI() => m_frontendTransformFn(Value);
 
-        private void OnUiValueChanged(T newValue)
+        private void OnUiValueChanged(U newValue)
         {
-            m_value = m_dataNormalizeFn is null ? newValue : m_dataNormalizeFn.Invoke(newValue);
-            UpdateUIs(m_value);
+            m_value = m_dataNormalizeFn(newValue);
+            OnScreenValueChanged?.Invoke(m_value);
+            UpdateUIs();
         }
 
-        private void UpdateUIs(T newValue)
+        private void UpdateUIs()
         {
             var valueToSend = GetValueUI();
             eventCaller($"{m_propertyPrefix}->", new object[] { valueToSend });
             GameManager.instance.userInterface.view.View.TriggerEvent($"{m_propertyPrefix}->", valueToSend);
         }
+
     }
 
 
     public class MultiUIValueBinding<T> : MultiUIValueBinding<T, T> where T : IEquatable<T>
     {
         public MultiUIValueBinding(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, T> dataNormalizeFn = null)
-            : base(initialValue, propertyPrefix, euisEventCaller, callBinder, null, dataNormalizeFn)
+            : base(initialValue, propertyPrefix, euisEventCaller, callBinder, (x) => x, dataNormalizeFn ?? ((x) => x))
         {
         }
     }
