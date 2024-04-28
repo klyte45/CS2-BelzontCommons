@@ -12,12 +12,20 @@ namespace Belzont.Utils
             writer.Write(arraySave);
             arraySave.Dispose();
         }
+        public static void Write(this IWriter writer, string text)
+        {
+            var arraySave = new NativeArray<byte>(ZipUtils.Zip(text ?? ""), Allocator.Temp);
+            writer.Write(arraySave.Length);
+            writer.Write(arraySave);
+            arraySave.Dispose();
+        }
 
         public static void Read(this IReader reader, out FixedString512Bytes text) => text = ReadString(reader);
         public static void Read(this IReader reader, out FixedString128Bytes text) => text = ReadString(reader);
         public static void Read(this IReader reader, out FixedString64Bytes text) => text = ReadString(reader);
         public static void Read(this IReader reader, out FixedString32Bytes text) => text = ReadString(reader);
         public static void Read(this IReader reader, out FixedString4096Bytes text) => text = ReadString(reader);
+        public static void Read(this IReader reader, out string text) => text = ReadString(reader).TrimToNull();
 
         private static string ReadString(IReader reader)
         {

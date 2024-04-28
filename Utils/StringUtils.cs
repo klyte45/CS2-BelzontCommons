@@ -7,8 +7,8 @@ namespace Belzont.Utils
     {
         public static string TrimToNull(this string str)
         {
-            str = str.Trim();
-            return str.Length == 0 ? null : str;
+            str = str?.Trim();
+            return str?.Length == 0 ? null : str;
         }
 
         public static string Truncate(this string value, int maxLength)
