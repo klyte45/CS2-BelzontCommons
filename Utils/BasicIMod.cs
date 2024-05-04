@@ -258,6 +258,34 @@ namespace Belzont.Interfaces
             }
         }
 
+        public void SelfRegiterUIEvents(string modAcronym)
+        {
+            SetupCallBinder((callAddress, action) => GameManager.instance.userInterface.view.uiSystem.UIViews[0].View.BindCall($"k45::{modAcronym}.{callAddress}", action));
+            SetupCaller((callAddress, args) =>
+            {
+                var targetView = GameManager.instance.userInterface.view.uiSystem.UIViews[0].View;
+                var eventNameFull = $"k45::{modAcronym}.{callAddress}";
+                var argsLenght = args is null ? 0 : args.Length;
+                switch (argsLenght)
+                {
+                    case 0: targetView.TriggerEvent(eventNameFull); break;
+                    case 1: targetView.TriggerEvent(eventNameFull, args[0]); break;
+                    case 2: targetView.TriggerEvent(eventNameFull, args[0], args[1]); break;
+                    case 3: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2]); break;
+                    case 4: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3]); break;
+                    case 5: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4]); break;
+                    case 6: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                    case 7: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                    case 8: targetView.TriggerEvent(eventNameFull, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]); break;
+                    default:
+                        LogUtils.DoWarnLog($"Too much arguments for trigger event! {argsLenght}: {args}");
+                        break;
+                }
+            });
+            SetupEventBinder((callAddress, action) => GameManager.instance.userInterface.view.uiSystem.UIViews[0].View.RegisterForEvent($"k45::{modAcronym}.{callAddress}", action));
+
+        }
+
         #endregion
 
         private class ModGenI18n : IDictionarySource
