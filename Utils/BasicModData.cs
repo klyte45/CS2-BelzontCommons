@@ -16,7 +16,7 @@ namespace Belzont.Interfaces
         public const string kAboutTab = "About";
         public const string kLogSection = "Logging";
         private LogLevel loggingLevel = LogLevel.Normal;
-        private bool logStacktraces = true;
+        private bool logStacktraces = false;
         private bool showErrorsPopups = false;
 
         public event Action<LogLevel> OnLoggingEnabledChanged;
