@@ -46,6 +46,7 @@ namespace Belzont.Interfaces
             Instance = this;
             ModData = CreateSettingsFile();
             ModData.RegisterInOptionsUI();
+            ModData.RegisterKeyBindings();
             AssetDatabase.global.LoadSettings(SafeName, ModData);
             KFileUtils.EnsureFolderCreation(ModSettingsRootFolder);
 
