@@ -99,26 +99,34 @@ namespace Belzont.Utils
         public static T TryConvertClass<T, U>(object srcValue, Func<U> destinationGenerator) where U : T
         {
             if (BasicIMod.TraceMode) LogUtils.DoTraceLog("Trying to convert {0} to class {1}", srcValue.GetType().FullName, typeof(T).FullName);
-            if (srcValue.GetType().IsAssignableFrom(typeof(T)))
+            try
             {
-                return (T)srcValue;
-            }
-            var newInstanceOfT = destinationGenerator();
-            var srcType = srcValue.GetType();
-            var dstType = newInstanceOfT.GetType();
-            foreach (var fieldOnInterface in typeof(T).GetProperties(RedirectorUtils.allFlags))
-            {
-                if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnItf: {0} {1}=>{2}", fieldOnInterface.GetReturnType().FullName, typeof(T).FullName, fieldOnInterface.Name);
-                var fieldOnSrc = srcType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
-                if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnSrc: {0} {1}=>{2}", fieldOnSrc.GetReturnType().FullName, srcType.FullName, fieldOnSrc.Name);
-                var fieldOnDst = dstType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
-                if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnDst: {0} {1}=>{2}", fieldOnDst.GetReturnType().FullName, dstType.FullName, fieldOnDst.Name);
-                if (fieldOnSrc is not null && fieldOnSrc.PropertyType.IsAssignableFrom(fieldOnDst.PropertyType))
+                if (srcValue.GetType().IsAssignableFrom(typeof(T)))
                 {
-                    fieldOnDst.SetValue(newInstanceOfT, fieldOnSrc.GetValue(srcValue));
+                    return (T)srcValue;
                 }
+                var newInstanceOfT = destinationGenerator();
+                var srcType = srcValue.GetType();
+                var dstType = newInstanceOfT.GetType();
+                foreach (var fieldOnInterface in typeof(T).GetProperties(RedirectorUtils.allFlags))
+                {
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnItf: {0} {1}=>{2}", fieldOnInterface.GetReturnType().FullName, typeof(T).FullName, fieldOnInterface.Name);
+                    var fieldOnSrc = srcType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnSrc: {0} {1}=>{2}", fieldOnSrc.GetReturnType().FullName, srcType.FullName, fieldOnSrc.Name);
+                    var fieldOnDst = dstType.GetProperty(fieldOnInterface.Name, RedirectorUtils.allFlags);
+                    if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog("fieldOnDst: {0} {1}=>{2}", fieldOnDst.GetReturnType().FullName, dstType.FullName, fieldOnDst.Name);
+                    if (fieldOnSrc is not null && fieldOnSrc.PropertyType.IsAssignableFrom(fieldOnDst.PropertyType))
+                    {
+                        fieldOnDst.SetValue(newInstanceOfT, fieldOnSrc.GetValue(srcValue));
+                    }
+                }
+                return newInstanceOfT;
             }
-            return newInstanceOfT;
+            catch (Exception e)
+            {
+                LogUtils.DoWarnLog("Error trying to convert class:\n{0}", e);
+                return default;
+            }
         }
     }
 }
