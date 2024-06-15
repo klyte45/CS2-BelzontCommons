@@ -17,10 +17,13 @@ namespace Belzont.Utils
             {
                 try
                 {
-                    return s.GetExportedTypes();
+                    var types = s.GetExportedTypes();
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog("GetExportedTypes [{0}]", string.Join(";", types.Select(x => x.Name)));
+                    return types;
                 }
                 catch (ReflectionTypeLoadException tle)
                 {
+                    if (BasicIMod.TraceMode) LogUtils.DoTraceLog("ReflectionTypeLoadException '{0}'", tle);
                     return tle.Types;
                 }
                 catch (Exception e)
