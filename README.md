@@ -1,6 +1,8 @@
 # Belzont Commons - C# Library for Cities Skylines 2
 
-This library offers some utility methods that I use in Cities Skylines 2 development. Some highlights are:
+This library offers some utility methods that I use in Cities Skylines 2 development. It's an evolution from Klyte Commons and Kwytto Utility libraries that I used in Cities Skylines 1.
+
+Some highlights are:
 - `Frontend.targets` contains automation to compile multiple frontend subprojects, both using EUIS or Vanilla APIs
 - `IBelzontSerializableSingleton` contains utility to save/load system data. It uses default jobs to make the work of serialization/deserialization of system files.
 - `IBelzontBindable` is meant to be used along EUIS to register event/call/trigger bindings throught all UI screens enabled and also the vanilla UI as well. More details at EUIS documentation.
