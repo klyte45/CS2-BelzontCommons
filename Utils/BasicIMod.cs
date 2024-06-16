@@ -157,10 +157,16 @@ namespace Belzont.Interfaces
 
         #region UI
 
-        private void LoadLocales()
+        private Queue<(string, IDictionarySource)> previouslyLoadedDictionaries;
+        internal string AdditionalI18nFilesFolder => Path.Combine(ModInstallFolder, $"i18n/");
+
+        internal void LoadLocales()
         {
             var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
+            previouslyLoadedDictionaries ??= new();
+            UnloadLocales();
 
+            var baseModData = new ModGenI18n(ModData);
             if (File.Exists(file))
             {
                 var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
@@ -168,6 +174,7 @@ namespace Belzont.Interfaces
                 var enMemoryFile = new MemorySource(LocaleFileForColumn(fileLines, enColumn));
                 foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
+                    previouslyLoadedDictionaries.Enqueue((lang, enMemoryFile));
                     GameManager.instance.localizationManager.AddSource(lang, enMemoryFile);
                     if (lang != "en-US")
                     {
@@ -175,18 +182,36 @@ namespace Belzont.Interfaces
                         if (valueColumn > 0)
                         {
                             var i18nFile = new MemorySource(LocaleFileForColumn(fileLines, valueColumn));
+                            previouslyLoadedDictionaries.Enqueue((lang, i18nFile));
+                            GameManager.instance.localizationManager.AddSource(lang, i18nFile);
+                        }
+                        else if (File.Exists(Path.Combine(AdditionalI18nFilesFolder, lang + ".csv")))
+                        {
+                            var csvFileEntries = File.ReadAllLines(Path.Combine(AdditionalI18nFilesFolder, lang + ".csv")).Select(x => x.Split("\t")).ToDictionary(x => x[0], x => x.ElementAtOrDefault(1));
+                            var i18nFile = new MemorySource(csvFileEntries);
+                            previouslyLoadedDictionaries.Enqueue((lang, i18nFile));
                             GameManager.instance.localizationManager.AddSource(lang, i18nFile);
                         }
                     }
-                    GameManager.instance.localizationManager.AddSource(lang, new ModGenI18n(ModData));
+                    previouslyLoadedDictionaries.Enqueue((lang, baseModData));
+                    GameManager.instance.localizationManager.AddSource(lang, baseModData);
                 }
             }
             else
             {
                 foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
-                    GameManager.instance.localizationManager.AddSource("en-US", new ModGenI18n(ModData));
+                    previouslyLoadedDictionaries.Enqueue((lang, baseModData));
+                    GameManager.instance.localizationManager.AddSource(lang, baseModData);
                 }
+            }
+        }
+
+        private void UnloadLocales()
+        {
+            while (previouslyLoadedDictionaries.TryDequeue(out var src))
+            {
+                GameManager.instance.localizationManager.RemoveSource(src.Item1, src.Item2);
             }
         }
 
@@ -337,7 +362,15 @@ namespace Belzont.Interfaces
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Show this mod errors on UI",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Only disable it on emergencies!",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.\n\nIf version ends with 'B', it's a version compiled for BepInEx framework.",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.",
+
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Go To Translations folder",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Open the folder where the additional translations files shall be placed:\r\n- They should be named as <langID>.csv and it contents must be in the format \"<KEY><TAB_character><VALUE>\".\r\n- New lines in value content must be replaced by \"\\n\" char sequence.\r\n- Don't forget to keep the values inside curly braces \"{}\" in the new translation.\r\n- Share it later at forums to get it added with the mod package at Paradox Mods.\r\n- Check Localization.log at game logs folder to get the available langIDs.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ReloadLocales)))] = "Reload translations",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ReloadLocales)))] = "When doing translations, click here to load your modfied file for testing purposes.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToForum)))] = "Go to forums",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods",
+
                     [modData.GetEnumValueLocaleID(LogLevel.Normal)] = "Normal",
                     [modData.GetEnumValueLocaleID(LogLevel.Debug)] = "Debug",
                     [modData.GetEnumValueLocaleID(LogLevel.Trace)] = "Trace (Beware...) ",

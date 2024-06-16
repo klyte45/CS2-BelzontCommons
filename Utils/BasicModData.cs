@@ -1,9 +1,12 @@
 ﻿using Belzont.Utils;
+using Colossal;
 using Colossal.Logging;
+using Colossal.OdinSerializer.Utilities;
 using Game.Modding;
 using Game.Settings;
 using Game.UI.Widgets;
 using System;
+using UnityEngine;
 
 
 namespace Belzont.Interfaces
@@ -108,11 +111,29 @@ namespace Belzont.Interfaces
         [SettingsUISection(kAboutTab, null)]
         public string Version => BasicIMod.FullVersion;
 
+        [SettingsUISection(kAboutTab, null)]
+        [SettingsUIButtonGroup("1")]
+        [SettingsUIButton]
+        public bool GoToLocalesFolder { set { RemoteProcess.OpenFolder(BasicIMod.Instance.AdditionalI18nFilesFolder); } }
+
+        [SettingsUISection(kAboutTab, null)]
+        [SettingsUIButtonGroup("1")]
+        [SettingsUIButton]
+        public bool ReloadLocales { set { BasicIMod.Instance.LoadLocales(); } }
+
+        [SettingsUISection(kAboutTab, null)]
+        [SettingsUIButtonGroup("2")]
+        [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckForumsLinkUnset))]
+        [SettingsUIButton]
+        public bool GoToForum { set => Application.OpenURL(BasicIMod.modAssemblyDescription.ForumsURL); }
+
         public sealed override void SetDefaults()
         {
             LoggingLevel = LogLevel.Normal;
             OnSetDefaults();
         }
+
+        public bool CheckForumsLinkUnset() => BasicIMod.modAssemblyDescription.ForumsURL.IsNullOrWhitespace();
 
         [SettingsUIMultilineText]
         [SettingsUISection(kAboutTab, kChangelogSection)]
