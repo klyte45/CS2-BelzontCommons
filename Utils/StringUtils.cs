@@ -1,6 +1,7 @@
 ﻿#if BEPINEX_CS2
 using BepInEx.Logging;
 #endif
+using Colossal.OdinSerializer.Utilities;
 using System.Text.RegularExpressions;
 
 namespace Belzont.Utils
@@ -22,6 +23,7 @@ namespace Belzont.Utils
 
         public static string SiteMdToGameMd(string markdownText)
         {
+            if(markdownText.IsNullOrWhitespace()) return "";
             markdownText = new Regex(@"<").Replace(markdownText, "[");
             markdownText = new Regex(@">").Replace(markdownText, "]");
             markdownText = new Regex(@"\[([^\]]+)\]\(([^)]+)\)\r?\Z").Replace(markdownText, "<$2|$1>");

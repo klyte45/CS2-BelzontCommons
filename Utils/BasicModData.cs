@@ -136,8 +136,10 @@ namespace Belzont.Interfaces
         public bool CheckForumsLinkUnset() => BasicIMod.modAssemblyDescription.ForumsURL.IsNullOrWhitespace();
 
         [SettingsUIMultilineText]
+        [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckChangelogUnavailable))]
         [SettingsUISection(kAboutTab, kChangelogSection)]
         public string Changelog => string.Empty;
+        public bool CheckChangelogUnavailable() => !KResourceLoader.ResourceExistsMod("changelog.md");
 
         public abstract void OnSetDefaults();
 

@@ -26,6 +26,9 @@ namespace Belzont.Utils
             return read.ReadBytes((int)stream.Length);
         }
 
+        public static bool ResourceExistsMod(string name) => RefAssemblyMod.GetManifestResourceStream(NamespaceMod + name) != null;
+        public static bool ResourceExistsBelzont(string name) => RefAssemblyBelzont.GetManifestResourceStream("Belzont." + name) != null;
+
         public static string LoadResourceStringMod(string name) => LoadResourceString(NamespaceMod + name, RefAssemblyMod);
         public static string LoadResourceStringBelzont(string name) => LoadResourceString("Belzont." + name, RefAssemblyBelzont);
         private static string LoadResourceString(string name, Assembly refAssembly)
