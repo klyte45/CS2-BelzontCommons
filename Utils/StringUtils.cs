@@ -27,9 +27,9 @@ namespace Belzont.Utils
             markdownText = new Regex(@"<").Replace(markdownText, "[");
             markdownText = new Regex(@">").Replace(markdownText, "]");
             markdownText = new Regex(@"\[([^\]]+)\]\(([^)]+)\)\r?\Z").Replace(markdownText, "<$2|$1>");
-            foreach (var s in new[] { "__", "_", "\\*\\*\\*", "\\*", "`" })
+            foreach (var s in new[] { "__", "_", "\\*\\*\\*", "(?<!\\*)\\*(?!\\*)", "`" })
             {
-                markdownText = new Regex($@"(\s|^){s}([^\s][^_]*[^\s]){s}(\s|$)").Replace(markdownText, "$1<$2>$3");
+                markdownText = new Regex($@"(\s|^){s}([^\s][^\r\n]*[^\s]){s}(\s|\r?\Z)").Replace(markdownText, "$1<$2>$3");
             }
             return markdownText;
         }
