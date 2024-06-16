@@ -15,6 +15,7 @@ namespace Belzont.Interfaces
     {
         public const string kAboutTab = "About";
         public const string kLogSection = "Logging";
+        public const string kChangelogSection = "Changelog";
         private LogLevel loggingLevel = LogLevel.Normal;
         private bool logStacktraces = false;
         private bool showErrorsPopups = false;
@@ -112,6 +113,10 @@ namespace Belzont.Interfaces
             LoggingLevel = LogLevel.Normal;
             OnSetDefaults();
         }
+
+        [SettingsUIMultilineText]
+        [SettingsUISection(kAboutTab, kChangelogSection)]
+        public string Changelog => string.Empty;
 
         public abstract void OnSetDefaults();
 

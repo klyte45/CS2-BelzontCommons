@@ -325,6 +325,9 @@ namespace Belzont.Interfaces
                     [modData.GetSettingsLocaleID()] = settingsMenuName[0] + " (" + settingsMenuName[1],
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
                     [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
+                    [modData.GetOptionGroupLocaleID(BasicModData.kChangelogSection)] = "Changelog",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Changelog)))] = $"Changelog\n{Utils.StringUtils.SiteMdToGameMd(KResourceLoader.LoadResourceStringMod("changelog.md"))}",
+
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.LoggingLevel)))] = "Logging Level",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.LoggingLevel)))] = "Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.",
 
