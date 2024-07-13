@@ -31,6 +31,7 @@ namespace Belzont.Interfaces
         protected BasicModData(IMod mod) : base(mod)
         {
             ModInstance = mod as BasicIMod;
+            Instance = this;
         }
 
 

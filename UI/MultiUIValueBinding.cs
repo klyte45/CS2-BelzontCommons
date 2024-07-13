@@ -43,6 +43,13 @@ namespace Belzont.Utils
             UpdateUIs();
         }
 
+        public void ChangeValueWithEffects(U newValue)
+        {
+            m_value = m_dataNormalizeFn(newValue);
+            OnScreenValueChanged?.Invoke(m_value);
+            UpdateUIs();
+        }
+
         private void UpdateUIs()
         {
             var valueToSend = GetValueUI();

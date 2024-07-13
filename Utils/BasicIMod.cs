@@ -155,7 +155,7 @@ namespace Belzont.Interfaces
 
         #endregion
 
-        #region UI
+        #region UI 
 
         private Queue<(string, IDictionarySource)> previouslyLoadedDictionaries;
         internal string AdditionalI18nFilesFolder => Path.Combine(ModInstallFolder, $"i18n/");
@@ -228,6 +228,7 @@ namespace Belzont.Interfaces
         private static string ProcessKey(string key, BasicModData modData)
         {
             if (!key.StartsWith("::")) return key;
+            if (key == "::M") return modData.GetBindingMapLocaleID();
             var prefix = key[..3];
             var suffix = key[3..];
             return prefix switch
@@ -238,9 +239,13 @@ namespace Belzont.Interfaces
                 "::T" => modData.GetOptionTabLocaleID(suffix),
                 "::W" => modData.GetOptionWarningLocaleID(suffix),
                 "::E" => suffix.Split(".", 2) is string[] enumVal && enumVal.Length == 2 ? modData.GetEnumValueLocaleID(enumVal[0], enumVal[1]) : suffix,
+                "::B" => modData.GetBindingKeyLocaleID(suffix),
+                "::H" => modData.GetBindingKeyHintLocaleID(suffix),
                 _ => suffix
             };
         }
+
+        //Options.OPTION[BelzontWE.BelzontWE.WriteEverywhereCS2Mod.WEModData.ToolReduceMovementStrenght]
 
         private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
 
