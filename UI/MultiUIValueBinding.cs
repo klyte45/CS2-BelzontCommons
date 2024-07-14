@@ -54,7 +54,7 @@ namespace Belzont.Utils
         {
             var valueToSend = GetValueUI();
             eventCaller($"{m_propertyPrefix}->", new object[] { valueToSend });
-            GameManager.instance.userInterface.view.View.TriggerEvent($"{m_propertyPrefix}->", valueToSend);
+            if (GameManager.instance.userInterface.view.View.IsReadyForBindings()) GameManager.instance.userInterface.view.View.TriggerEvent($"{m_propertyPrefix}->", valueToSend);
         }
 
     }

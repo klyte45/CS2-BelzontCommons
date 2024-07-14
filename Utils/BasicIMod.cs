@@ -290,10 +290,16 @@ namespace Belzont.Interfaces
 
         public void SelfRegiterUIEvents(string modAcronym)
         {
-            SetupCallBinder((callAddress, action) => GameManager.instance.userInterface.view.uiSystem.UIViews[0].View.BindCall($"k45::{modAcronym}.{callAddress}", action));
+            SetupCallBinder((callAddress, action) =>
+            {
+                var callName = $"k45::{modAcronym}.{callAddress}";
+                LogUtils.DoInfoLog($"Register call: {callName}");
+                GameManager.instance.userInterface.view.View.BindCall(callName, action);
+            });
             SetupCaller((callAddress, args) =>
             {
-                var targetView = GameManager.instance.userInterface.view.uiSystem.UIViews[0].View;
+                var targetView = GameManager.instance.userInterface.view.View;
+                if (!targetView.IsReadyForBindings()) return;
                 var eventNameFull = $"k45::{modAcronym}.{callAddress}";
                 var argsLenght = args is null ? 0 : args.Length;
                 switch (argsLenght)
@@ -311,8 +317,14 @@ namespace Belzont.Interfaces
                         LogUtils.DoWarnLog($"Too much arguments for trigger event! {argsLenght}: {args}");
                         break;
                 }
+                if (TraceMode) LogUtils.DoTraceLog($"Triggered event: {eventNameFull}");
             });
-            SetupEventBinder((callAddress, action) => GameManager.instance.userInterface.view.uiSystem.UIViews[0].View.RegisterForEvent($"k45::{modAcronym}.{callAddress}", action));
+            SetupEventBinder((callAddress, action) =>
+            {
+                var eventName = $"k45::{modAcronym}.{callAddress}";
+                LogUtils.DoInfoLog($"Register event: {eventName}");
+                GameManager.instance.userInterface.view.View.RegisterForEvent(eventName, action);
+            });
 
         }
 
