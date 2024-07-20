@@ -247,7 +247,7 @@ namespace Belzont.Interfaces
 
         //Options.OPTION[BelzontWE.BelzontWE.WriteEverywhereCS2Mod.WEModData.ToolReduceMovementStrenght]
 
-        private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1] : v;
+        private static string RemoveQuotes(string v) => v != null && v.StartsWith("\"") && v.EndsWith("\"") ? v[1..^1].Replace("\"\"", "\"") : v;
 
         #endregion
 

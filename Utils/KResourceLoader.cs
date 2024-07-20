@@ -1,7 +1,10 @@
 ﻿using Belzont.Interfaces;
+using Colossal.IO.AssetDatabase;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using UnityEngine;
 
 namespace Belzont.Utils
 {
@@ -42,6 +45,25 @@ namespace Belzont.Utils
 
             var read = new StreamReader(stream);
             return read.ReadToEnd();
+        }
+        public static Texture2D LoadTextureMod(string filename, string folder = "Images")
+        {
+            return LoadTexture(NamespaceMod + $"UI.{folder}.{filename}.png", RefAssemblyMod);
+        }
+        private static Texture2D LoadTexture(string filename, Assembly refAssembly)
+        {
+            try
+            {
+                var texture = KTextureUtils.New(1, 1);
+                texture.LoadImage(LoadResourceData(filename, refAssembly));
+                return texture;
+            }
+            catch (Exception e)
+            {
+                LogUtils.DoErrorLog("The file could not be read:" + e.Message);
+            }
+
+            return null;
         }
         public static IEnumerable<string> LoadResourceStringLinesMod(string name) => LoadResourceStringLines(NamespaceMod + name, RefAssemblyMod);
         public static IEnumerable<string> LoadResourceStringLinesBelzont(string name) => LoadResourceStringLines("Belzont." + name, RefAssemblyBelzont);
