@@ -25,10 +25,12 @@ namespace Belzont.Interfaces
     {
         protected UpdateSystem UpdateSystem { get; set; }
 
-        internal static KlyteModDescriptionAttribute modAssemblyDescription => typeof(BasicIMod)?.Assembly?.GetCustomAttribute<KlyteModDescriptionAttribute>();
+        private static Type MainType;
+        internal static KlyteModDescriptionAttribute modAssemblyDescription => MainType?.Assembly?.GetCustomAttribute<KlyteModDescriptionAttribute>();
 
         public void OnLoad(UpdateSystem updateSystem)
         {
+            MainType = GetType();
             OnLoad();
             UpdateSystem = updateSystem;
             Redirector.OnWorldCreated(UpdateSystem.World);
@@ -64,7 +66,7 @@ namespace Belzont.Interfaces
         #endregion
 
         #region Old CommonProperties Overridable
-        private static string DisplayName = (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
+        private static string DisplayName => (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
         public string SimpleName => DisplayName;
         public string SafeName => DisplayName.Replace(" ", "");
         public virtual string Acronym => Regex.Replace(DisplayName, "[^A-Z]", "");
