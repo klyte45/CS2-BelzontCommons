@@ -9,18 +9,21 @@ namespace Belzont.AssemblyUtility
         public string DisplayName { get; }
         public string ShortDescription { get; }
         public string ForumsURL { get; }
+        public string GitHubURL { get; }
 
         public KlyteModDescriptionAttribute(
             string ModId,
             string DisplayName,
             string ShortDescription,
-            string ForumsURL
+            string ForumsURL,
+            string GitHubURL
             )
         {
             this.ModId = ModId;
             this.DisplayName = HttpUtility.HtmlDecode(DisplayName);
             this.ShortDescription = HttpUtility.HtmlDecode(ShortDescription);
             this.ForumsURL = ForumsURL;
+            this.GitHubURL = GitHubURL;
         }
 
 

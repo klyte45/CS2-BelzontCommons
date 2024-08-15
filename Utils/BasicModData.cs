@@ -128,6 +128,12 @@ namespace Belzont.Interfaces
         [SettingsUIButton]
         public bool GoToForum { set => Application.OpenURL(BasicIMod.modAssemblyDescription.ForumsURL); }
 
+        [SettingsUISection(kAboutTab, null)]
+        [SettingsUIButtonGroup("2")]
+        [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckGitHubLinkUnset))]
+        [SettingsUIButton]
+        public bool GoToGitHub { set => Application.OpenURL(BasicIMod.modAssemblyDescription.GitHubURL); }
+
         public sealed override void SetDefaults()
         {
             LoggingLevel = LogLevel.Normal;
@@ -135,6 +141,7 @@ namespace Belzont.Interfaces
         }
 
         public bool CheckForumsLinkUnset() => BasicIMod.modAssemblyDescription.ForumsURL.IsNullOrWhitespace();
+        public bool CheckGitHubLinkUnset() => BasicIMod.modAssemblyDescription.GitHubURL.IsNullOrWhitespace();
 
         [SettingsUIMultilineText]
         [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckChangelogUnavailable))]

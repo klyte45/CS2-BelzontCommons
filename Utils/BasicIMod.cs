@@ -385,7 +385,9 @@ namespace Belzont.Interfaces
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ReloadLocales)))] = "Reload translations",
                     [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ReloadLocales)))] = "When doing translations, click here to load your modfied file for testing purposes.",
                     [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToForum)))] = "Go to forums",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods.",
+                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToGitHub)))] = "Go to repository",
+                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToGitHub)))] = "Access the mod repository to get access to the mod sources.",
 
                     [modData.GetEnumValueLocaleID(LogLevel.Normal)] = "Normal",
                     [modData.GetEnumValueLocaleID(LogLevel.Debug)] = "Debug",
