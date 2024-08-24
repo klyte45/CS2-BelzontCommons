@@ -23,14 +23,15 @@ namespace Belzont.Utils
 
         public static string SiteMdToGameMd(string markdownText)
         {
-            if(markdownText.IsNullOrWhitespace()) return "";
-            markdownText = new Regex(@"<").Replace(markdownText, "[");
-            markdownText = new Regex(@">").Replace(markdownText, "]");
-            markdownText = new Regex(@"\[([^\]]+)\]\(([^)]+)\)\r?\Z").Replace(markdownText, "<$2|$1>");
+            if (markdownText.IsNullOrWhitespace()) return "";
+            markdownText = new Regex(@"<").Replace(markdownText, "\\<");
+            markdownText = new Regex(@">").Replace(markdownText, "\\>");
+            markdownText = new Regex(@"\[([^\]]+)\]\((https://[^)]+)\)").Replace(markdownText, "<$2|$1>");
             foreach (var s in new[] { "__", "_", "\\*\\*\\*", "(?<!\\*)\\*(?!\\*)", "`" })
             {
-                markdownText = new Regex($@"(\s|^){s}([^\s][^\r\n]*[^\s]){s}(\s|\r?\Z)").Replace(markdownText, "$1<$2>$3");
+                markdownText = new Regex($@"(\s|^){s}([^\s][^\r\n]*[^\s]){s}(\s|\r?\Z)").Replace(markdownText, "$1\\<$2\\>$3");
             }
+            LogUtils.DoLog(markdownText);
             return markdownText;
         }
     }
