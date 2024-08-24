@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kwytto.Utils
+namespace Belzont.Utils
 {
     public static class NumberExtensions
     {
