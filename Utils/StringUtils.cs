@@ -31,7 +31,6 @@ namespace Belzont.Utils
             {
                 markdownText = new Regex($@"(\s|^){s}([^\s][^\r\n]*[^\s]){s}(\s|\r?\Z)").Replace(markdownText, "$1\\<$2\\>$3");
             }
-            LogUtils.DoLog(markdownText);
             return markdownText;
         }
     }
