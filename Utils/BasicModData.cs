@@ -6,6 +6,7 @@ using Game.Modding;
 using Game.Settings;
 using Game.UI.Widgets;
 using System;
+using System.IO;
 using UnityEngine;
 
 
@@ -134,6 +135,11 @@ namespace Belzont.Interfaces
         [SettingsUIButton]
         public bool GoToGitHub { set => Application.OpenURL(BasicIMod.modAssemblyDescription.GitHubURL); }
 
+        [SettingsUISection(kAboutTab, null)]
+        [SettingsUIButtonGroup("3")]
+        [SettingsUIButton]
+        public bool GoToLogFolder { set => RemoteProcess.OpenFolder(Path.GetDirectoryName(LogUtils.GetLogLocation())); }
+
         public sealed override void SetDefaults()
         {
             LoggingLevel = LogLevel.Normal;
@@ -152,6 +158,7 @@ namespace Belzont.Interfaces
         public abstract void OnSetDefaults();
 
         public string GetEnumValueLocaleID(string classname, string value) => $"Options.{id}.{classname.ToUpper()}[{value}]";
+        public string FixLocaleId(string localeId) => localeId.Replace(GetType().Name, nameof(BasicModData));
 
         public enum LogLevel
         {

@@ -171,6 +171,11 @@ namespace Belzont.Utils
         {
             return LogOutput.isLevelEnabled(level);
         }
+
+        internal static string GetLogLocation()
+        {
+            return LogOutput.logPath;
+        }
         #endregion
     }
 }
