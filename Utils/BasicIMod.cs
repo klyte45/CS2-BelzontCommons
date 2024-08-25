@@ -339,7 +339,7 @@ namespace Belzont.Interfaces
 
             public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
             {
-                string PrepareFieldName(string f) => f.Replace(modData.GetType().Name, nameof(BasicModData));
+            
 
                 var settingsMenuName = Instance.GeneralName.Split(" (");
                 var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
@@ -367,29 +367,29 @@ namespace Belzont.Interfaces
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
                     [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
                     [modData.GetOptionGroupLocaleID(BasicModData.kChangelogSection)] = "Changelog",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Changelog)))] = $"Changelog\n{Utils.StringUtils.SiteMdToGameMd(KResourceLoader.LoadResourceStringMod("changelog.md"))}",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.Changelog)))] = $"Changelog\n{Utils.StringUtils.SiteMdToGameMd(KResourceLoader.LoadResourceStringMod("changelog.md"))}",
 
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.LoggingLevel)))] = "Logging Level",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.LoggingLevel)))] = "Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.LoggingLevel)))] = "Logging Level",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.LoggingLevel)))] = "Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.",
 
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.LogStacktraces)))] = "Log Stacktraces",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.LogStacktraces)))] = "Add stacktrace information telling when the log was generated in the code",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.LogStacktraces)))] = "Log Stacktraces",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.LogStacktraces)))] = "Add stacktrace information telling when the log was generated in the code",
 
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Show this mod errors on UI",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Only disable it on emergencies!",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Show this mod errors on UI",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Only disable it on emergencies!",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.",
 
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Go To Translations folder",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Open the folder where the additional translations files shall be placed:\r\n- They should be named as <[langID].csv> and it contents must be in the format <[KEY][_TAB_character_][VALUE]>.\r\n- New lines in value content must be replaced by <\\\\n> char sequence.\r\n- Don't forget to keep the values inside curly braces <{}> in the new translation.\r\n- Share it later at forums to get it added with the mod package at Paradox Mods.\r\n- Check Localization.log at game logs folder to get the available langIDs.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.ReloadLocales)))] = "Reload translations",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.ReloadLocales)))] = "When doing translations, click here to load your modfied file for testing purposes.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToForum)))] = "Go to forums",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToGitHub)))] = "Go to repository",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToGitHub)))] = "Access the mod repository to get access to the mod sources.",
-                    [PrepareFieldName(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLogFolder)))] = "Go to log folder",
-                    [PrepareFieldName(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLogFolder)))] = $"Access game mod folders. The log name of this mod is <{Path.GetFileName(LogUtils.GetLogLocation())}>",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Go To Translations folder",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Open the folder where the additional translations files shall be placed:\r\n- They should be named as <[langID].csv> and it contents must be in the format <[KEY][_TAB_character_][VALUE]>.\r\n- New lines in value content must be replaced by <\\\\n> char sequence.\r\n- Don't forget to keep the values inside curly braces <{}> in the new translation.\r\n- Share it later at forums to get it added with the mod package at Paradox Mods.\r\n- Check Localization.log at game logs folder to get the available langIDs.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.ReloadLocales)))] = "Reload translations",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.ReloadLocales)))] = "When doing translations, click here to load your modfied file for testing purposes.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToForum)))] = "Go to forums",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToGitHub)))] = "Go to repository",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToGitHub)))] = "Access the mod repository to get access to the mod sources.",
+                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLogFolder)))] = "Go to log folder",
+                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLogFolder)))] = $"Access game mod folders. The log name of this mod is <{Path.GetFileName(LogUtils.GetLogLocation())}>",
 
                     [modData.GetEnumValueLocaleID(LogLevel.Normal)] = "Normal",
                     [modData.GetEnumValueLocaleID(LogLevel.Debug)] = "Debug",

@@ -72,7 +72,7 @@ namespace Belzont.Interfaces
             }
         }
 
-        public bool ShowLogStacktraces() => loggingLevel == LogLevel.Normal;
+        public bool ShowLogStacktraces() => !BasicIMod.DebugMode;
 
         private Level GetEffectiveLogLevel(LogLevel logLevel)
         {
