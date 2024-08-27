@@ -17,6 +17,7 @@ namespace Belzont.Utils
             var notificationId = $"K45::{BasicIMod.Instance.Acronym}.{identifier}";
             var notificationTitle = new LocalizedString(GetModDefaultNotificationTitle(titleI18n ?? identifier), null, argsTitle);
             var notificationText = new LocalizedString(GetModDefaultNotificationText(textI18n ?? identifier), null, argsText);
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"{notificationId}: {notificationTitle.Translate()} {notificationText.Translate()} ");
             NotificationSystem.Push(notificationId, notificationTitle, notificationText, null, null, null, ProgressState.Progressing, progress, null);
             if (progress >= 100)
             {
@@ -28,11 +29,13 @@ namespace Belzont.Utils
             var notificationId = $"K45::{BasicIMod.Instance.Acronym}.{identifier}";
             var notificationTitle = new LocalizedString(GetModDefaultNotificationTitle(titleI18n ?? identifier), null, argsTitle);
             var notificationText = new LocalizedString(GetModDefaultNotificationText(textI18n ?? identifier), null, argsText);
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"{notificationId}: {notificationTitle.Translate()} {notificationText.Translate()} ");
             NotificationSystem.Push(notificationId, notificationTitle, notificationText, null, null, null, progress, null, callback);
         }
         public static void RemoveNotification(string identifier)
         {
             var notificationId = $"K45::{BasicIMod.Instance.Acronym}.{identifier}";
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"{notificationId}: REMOVED");
             NotificationSystem.Pop(notificationId, 0, null, null, null, null, null, null, null);
         }
     }
