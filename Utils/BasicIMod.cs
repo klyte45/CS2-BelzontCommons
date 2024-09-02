@@ -292,7 +292,7 @@ namespace Belzont.Interfaces
             SetupCallBinder((callAddress, action) =>
             {
                 var callName = $"k45::{modAcronym}.{callAddress}";
-                LogUtils.DoInfoLog($"Register call: {callName}");
+                if (BasicIMod.DebugMode) LogUtils.DoLog($"Register call: {callName}");
                 GameManager.instance.userInterface.view.View.BindCall(callName, action);
             });
             SetupCaller((callAddress, args) =>
@@ -339,7 +339,7 @@ namespace Belzont.Interfaces
 
             public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
             {
-            
+
 
                 var settingsMenuName = Instance.GeneralName.Split(" (");
                 var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
