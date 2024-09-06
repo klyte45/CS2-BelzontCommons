@@ -399,17 +399,17 @@ namespace Belzont.Utils
             return result.Distinct().ToList();
         }
 
-        public static List<Type> GetInterfaceImplementations(Type interfaceType, IEnumerable<Assembly> assembly = null)
+        public static List<Type> GetInterfaceImplementations(Type interfaceType, IEnumerable<Assembly> assemblies)
         {
             if (BasicIMod.VerboseMode) LogUtils.DoVerboseLog($"interfaceType = {interfaceType}\nFrom:{Environment.StackTrace}");
 
-            if (assembly == null)
+            if (assemblies == null)
             {
-                throw new NotSupportedException("Aguardando ModsMan Impl");
+                throw new ArgumentNullException("assembly");
             }
             else
             {
-                IEnumerable<Type> classes = (from t in assembly.SelectMany(x =>
+                IEnumerable<Type> classes = (from t in assemblies.SelectMany(x =>
                 {
                     try
                     { return x?.GetTypes(); }
