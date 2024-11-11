@@ -5,7 +5,7 @@ namespace Belzont.Utils
 {
     public static class FixedStringExtensions
     {
-        public static void Write(this IWriter writer, FixedString512Bytes text)
+        public static void Write(this IWriter writer, FixedString4096Bytes text)
         {
             writer.Write(text.ToString());
         }

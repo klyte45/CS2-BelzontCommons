@@ -2,12 +2,15 @@
 using BepInEx.Logging;
 #endif
 using Colossal.OdinSerializer.Utilities;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Unity.Collections;
 
 namespace Belzont.Utils
 {
     public static class StringUtils
     {
+        public static NativeArray<ushort> ToUshortNativeArray(this string s) => new(Regex.Split(s, string.Empty).Where(x => x.Length > 0).Select(x => (ushort)char.ConvertToUtf32(x, 0)).ToArray(), Allocator.Persistent);
         public static string TrimToNull(this string str)
         {
             str = str?.Trim();
