@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 #endif
+using Belzont.Interfaces;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Diagnostics;
 using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
-using Belzont.Interfaces;
 
 namespace Belzont.Utils
 {
@@ -78,6 +78,12 @@ namespace Belzont.Utils
             if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Adding patch! {oldMethod.DeclaringType} {oldMethod}");
             m_detourList.Add(Harmony.Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, transpiler != null ? new HarmonyMethod(transpiler) : null));
             m_patches.Add(oldMethod);
+        }
+
+        public void AddReversePatch(MethodInfo targetMethod, MethodInfo ownMethod)
+        {
+            if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Reverse patch! {targetMethod.DeclaringType} {targetMethod}");
+            Harmony.ReversePatch(targetMethod, new HarmonyMethod(ownMethod));
         }
         public void AddUnpatchAction(Action unpatchAction) => m_onUnpatchActions.Add(unpatchAction);
 
