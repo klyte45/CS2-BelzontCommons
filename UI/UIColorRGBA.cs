@@ -7,5 +7,4 @@
         public float b;
         public float a;
     }
-
 }
