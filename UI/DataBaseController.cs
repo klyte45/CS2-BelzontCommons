@@ -35,6 +35,7 @@ namespace Belzont.Utils
         }
 
         protected abstract void DoInitValueBindings();
+        public override void Update() { }
         protected override void OnCreate()
         {
             base.OnCreate();
