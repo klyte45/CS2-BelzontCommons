@@ -10,7 +10,7 @@ namespace Belzont.Utils
         protected Action<string, object[]> EventCaller { get; private set; }
         protected Action<string, Delegate> CallBinder { get; private set; }
 
-        protected bool m_initialized = false;
+        private bool m_initialized = false;
 
         public void SetupCallBinder(Action<string, Delegate> callBinder)
         {
@@ -35,11 +35,11 @@ namespace Belzont.Utils
         }
 
         protected abstract void DoInitValueBindings();
+        public override void Update() { }
         protected override void OnCreate()
         {
             base.OnCreate();
             GameManager.instance.userInterface.view.Listener.BindingsReleased += () => m_initialized = false;
         }
-        public abstract void OnCurrentItemChanged(Entity newSelection);
     }
 }
