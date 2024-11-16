@@ -1,5 +1,4 @@
 ﻿using Belzont.Interfaces;
-using Game.SceneFlow;
 using System;
 using Unity.Entities;
 
@@ -7,17 +6,15 @@ namespace Belzont.Utils
 {
     public abstract class DataBaseController : ComponentSystemBase, IBelzontBindable
     {
-        protected Action<string, object[]> EventCaller { get; private set; }
-        protected Action<string, Delegate> CallBinder { get; private set; }
-
-        private bool m_initialized = false;
+        private Action<string, object[]> EventCaller { get; set; }
+        private Action<string, Delegate> CallBinder { get; set; }
 
         public void SetupCallBinder(Action<string, Delegate> callBinder)
         {
             CallBinder = callBinder;
             if (EventCaller != null) InitValueBindings();
         }
-        public void SetupEventBinder(Action<string, Delegate> eventBinder)
+        public virtual void SetupEventBinder(Action<string, Delegate> eventBinder)
         {
         }
 
@@ -29,17 +26,16 @@ namespace Belzont.Utils
 
         private void InitValueBindings()
         {
-            if (m_initialized) return;
-            DoInitValueBindings();
-            m_initialized = true;
+            DoInitValueBindings(EventCaller, CallBinder);
+            CallBinder = null;
+            EventCaller = null;
         }
 
-        protected abstract void DoInitValueBindings();
+        protected abstract void DoInitValueBindings(Action<string, object[]> eventCaller, Action<string, Delegate> callBinder);
         public override void Update() { }
         protected override void OnCreate()
         {
             base.OnCreate();
-            GameManager.instance.userInterface.view.Listener.BindingsReleased += () => m_initialized = false;
         }
     }
 }
