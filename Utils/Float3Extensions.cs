@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
 
-namespace Kwytto.Utils
+namespace Belzont.Utils
 {
     public static class Float3Extensions
     {
