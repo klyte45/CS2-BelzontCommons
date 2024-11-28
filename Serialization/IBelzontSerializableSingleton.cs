@@ -1,4 +1,5 @@
 ﻿using Colossal.Serialization.Entities;
+using System;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -9,6 +10,15 @@ namespace Belzont.Serialization
         World World { get; }
         public void Serialize<TWriter>(TWriter writer) where TWriter : IWriter;
         public void Deserialize<TReader>(TReader reader) where TReader : IReader;
+
+        internal sealed void CheckVersion<TReader>(TReader reader, uint currentVersion) where TReader : IReader
+        {
+            reader.Read(out int version);
+            if (version > currentVersion)
+            {
+                throw new Exception($"Invalid version of {GetType()}!");
+            }
+        }
 
         JobHandle IJobSerializable.Serialize<TWriter>(EntityWriterData writerData, JobHandle inputDeps)
         {
