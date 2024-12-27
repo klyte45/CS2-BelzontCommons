@@ -4,7 +4,6 @@ using BepInEx.Logging;
 using Colossal.Serialization.Entities;
 using System;
 using Unity.Collections;
-using Unity.Entities;
 
 namespace Belzont.Utils
 {
@@ -54,16 +53,15 @@ namespace Belzont.Utils
             if (input.IsCreated)
             {
                 input.Clear();
-                input.Resize(length, Unity.Collections.NativeArrayOptions.ClearMemory);
             }
             else
             {
-                input.ResizeUninitialized(length);
+                input = new NativeList<T>(Allocator.Persistent);
             }
             for (int i = 0; i < length; i++)
             {
                 reader.Read(out T item);
-                input[i] = item;
+                input.Add(item);
             }
         }
     }
