@@ -9,13 +9,14 @@ namespace Belzont.Utils
 {
     public static class EntitySerializableUtils
     {
-        public static void CheckVersionK45(this IReader reader, uint currentVersion, Type currentType)
+        public static uint CheckVersionK45(this IReader reader, uint currentVersion, Type currentType)
         {
             reader.Read(out uint version);
             if (version > currentVersion)
             {
                 throw new Exception($"Invalid version of {currentType.FullName}! ({version} > {currentVersion})");
             }
+            return version;
         }
 
         public static void Read<IEnum>(this IReader reader, out IEnum result) where IEnum : struct, Enum
