@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
 
-namespace Kwytto.Utils
+namespace Belzont.Utils
 {
     public static class Float3Extensions
     {
@@ -11,6 +11,8 @@ namespace Kwytto.Utils
             float3 vector = new float3(a.x - b.x, a.y - b.y, a.z - b.z);
             return (vector.x * vector.x) + (vector.y * vector.y) + (vector.z * vector.z);
         }
+
+        public static float[] ToArray(this float3 f) => new[] { f.x, f.y, f.z };
 
         //public static segment3 ToRayY(this float3 vector) => new Segment3(new float3(vector.x, -999999f, vector.z), new float3(vector.x, 999999f, vector.z));
     }

@@ -32,6 +32,11 @@ namespace Belzont.Utils
                 .Select(r => r[(folderName.Length + 1)..])
                 .ToArray();
         }
+
+        public static string RemoveInvalidFilenameChars(string fileName)
+        {
+            return string.Join("_", (fileName ?? "").Split(Path.GetInvalidFileNameChars()));
+        }
         #endregion
     }
 }
