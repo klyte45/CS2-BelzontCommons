@@ -36,7 +36,7 @@ namespace Belzont.Interfaces
             LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
             GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
             DoOnCreateWorld(updateSystem);
-            RegisterAtEuis();
+            GameManager.instance.RegisterUpdater(RegisterAtEuis);
         }
         public abstract void OnDispose();
 
