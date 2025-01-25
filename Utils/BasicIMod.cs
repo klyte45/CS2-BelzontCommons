@@ -37,6 +37,7 @@ namespace Belzont.Interfaces
             DoOnCreateWorld(updateSystem);
             GameManager.instance.RegisterUpdater(RegisterAtEuis);
             GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
+            SelfRegiterUIEvents();
         }
         public abstract void OnDispose();
 
