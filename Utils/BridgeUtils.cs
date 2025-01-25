@@ -1,4 +1,5 @@
 ﻿using Belzont.Interfaces;
+using Colossal.IO.AssetDatabase;
 using Colossal.OdinSerializer.Utilities;
 using HarmonyLib;
 using System;
@@ -10,6 +11,10 @@ namespace Belzont.Utils
 {
     public static class BridgeUtils
     {
+        public static ExecutableAsset FindExecutableAsset(string assetName)
+        {
+           return AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assetName)));
+        }
         public static object[] GetAllLoadableClassesInAssemblyList(Type t, IEnumerable<Assembly> assemblies = null)
         {
             assemblies ??= AppDomain.CurrentDomain.GetAssemblies();

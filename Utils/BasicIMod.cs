@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using Unity.Entities;
 using UnityEngine;
@@ -35,6 +36,7 @@ namespace Belzont.Interfaces
             LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
             GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
             DoOnCreateWorld(updateSystem);
+            RegisterAtEuis();
         }
         public abstract void OnDispose();
 
@@ -147,7 +149,6 @@ namespace Belzont.Interfaces
                         ? MinorVersion_
                         : MajorVersion_;
 
-        public string CouiHost => $"{Acronym.ToLower()}.k45";
 
         #endregion
 
@@ -323,6 +324,47 @@ namespace Belzont.Interfaces
             });
 
         }
+
+        #endregion
+
+        #region EUIS utility
+
+        protected virtual bool UseEuisRegister => false;
+        protected virtual bool EuisIsMandatory => false;
+
+        public virtual string EuisModderIdentifier => "k45";
+        public virtual string EuisModAcronym => Acronym.ToLower();
+
+        protected virtual Dictionary<string, EuisAppRegister> EuisApps { get; }
+
+        private void RegisterAtEuis()
+        {
+            if (!UseEuisRegister) return;
+            var euisAsset = BridgeUtils.FindExecutableAsset("ExtraUIScreens");
+            if (euisAsset is null)
+            {
+                if (EuisIsMandatory)
+                {
+                    throw new Exception($"The mod {Name} requires Extra UI Screens mod to work!");
+                }
+                else return;
+            }
+            var bridgeClass = euisAsset.assembly.GetExportedTypes().FirstOrDefault(x => x.Name == "EuisExternalRegisterBridge")
+                ?? throw new Exception($"Incorrect version of EUIS loaded for mod {Name}!\nEnsure its version is 0.2.0 or higher.");
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+
+
+            bridgeClass.GetMethod("RegisterModForEUIS").Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, Delegate.Combine(SetupCaller), Delegate.Combine(SetupEventBinder), Delegate.Combine(SetupCallBinder) });
+            var registerAppMethod = bridgeClass.GetMethod("RegisterAppForEUIS");
+            foreach (var app in EuisApps)
+            {
+                registerAppMethod.Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, app.Key, app.Value.DisplayName, app.Value.UrlJs, app.Value.UrlCss, app.Value.UrlIcon });;
+            }
+        }
+
+        protected string CouiHost => $"{EuisModAcronym}.{EuisModderIdentifier}";
+
+        protected record EuisAppRegister(string DisplayName, string UrlJs, string UrlCss, string UrlIcon) { }
 
         #endregion
 
