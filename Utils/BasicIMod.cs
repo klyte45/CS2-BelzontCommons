@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 using Unity.Entities;
 using UnityEngine;
@@ -37,6 +36,7 @@ namespace Belzont.Interfaces
             GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
             DoOnCreateWorld(updateSystem);
             GameManager.instance.RegisterUpdater(RegisterAtEuis);
+            GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
         }
         public abstract void OnDispose();
 
@@ -285,11 +285,11 @@ namespace Belzont.Interfaces
             }
         }
 
-        public void SelfRegiterUIEvents(string modAcronym)
+        public void SelfRegiterUIEvents()
         {
             SetupCallBinder((callAddress, action) =>
             {
-                var callName = $"k45::{modAcronym}.{callAddress}";
+                var callName = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 if (BasicIMod.DebugMode) LogUtils.DoLog($"Register call: {callName}");
                 GameManager.instance.userInterface.view.View.BindCall(callName, action);
             });
@@ -297,7 +297,7 @@ namespace Belzont.Interfaces
             {
                 var targetView = GameManager.instance.userInterface.view.View;
                 if (!targetView.IsReadyForBindings()) return;
-                var eventNameFull = $"k45::{modAcronym}.{callAddress}";
+                var eventNameFull = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 var argsLenght = args is null ? 0 : args.Length;
                 switch (argsLenght)
                 {
@@ -318,7 +318,7 @@ namespace Belzont.Interfaces
             });
             SetupEventBinder((callAddress, action) =>
             {
-                var eventName = $"k45::{modAcronym}.{callAddress}";
+                var eventName = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 LogUtils.DoInfoLog($"Register event: {eventName}");
                 GameManager.instance.userInterface.view.View.RegisterForEvent(eventName, action);
             });
@@ -358,7 +358,7 @@ namespace Belzont.Interfaces
             var registerAppMethod = bridgeClass.GetMethod("RegisterAppForEUIS");
             foreach (var app in EuisApps)
             {
-                registerAppMethod.Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, app.Key, app.Value.DisplayName, app.Value.UrlJs, app.Value.UrlCss, app.Value.UrlIcon });;
+                registerAppMethod.Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, app.Key, app.Value.DisplayName, app.Value.UrlJs, app.Value.UrlCss, app.Value.UrlIcon }); ;
             }
         }
 
