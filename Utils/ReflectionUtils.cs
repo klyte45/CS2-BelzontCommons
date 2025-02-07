@@ -1,9 +1,13 @@
 ﻿using Belzont.Interfaces;
+using Colossal.OdinSerializer.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace Belzont.Utils
 {
@@ -656,18 +660,118 @@ namespace Belzont.Utils
         }
 
         #endregion
-    }
-    public static class ByteArrayUtils
-    {
-        public static IEnumerable<byte[]> Chunk(this byte[] value, int bufferLength)
-        {
-            int countOfArray = value.Length / bufferLength;
-            if (value.Length % bufferLength > 0)
-                countOfArray++;
-            for (int i = 0; i < countOfArray; i++)
-            {
-                yield return value.Skip(i * bufferLength).Take(bufferLength).ToArray();
 
+
+        public static Dictionary<string, object> GetAllProperties(object obj, HashSet<object> alreadyRead = null)
+        {
+            alreadyRead ??= new HashSet<object>();
+            var propValues = obj.GetType().GetProperties().Where(x => !x.IsStatic()).ToDictionary(prop => $"{obj.GetType()}.{prop.Name}", prop => GetValueFromPropertyAsDict(prop, obj, alreadyRead));
+            var fieldValues = obj.GetType().GetFields().Where(x => !x.IsStatic()).ToDictionary(prop => $"{obj.GetType()}.{prop.Name}", prop => GetValueFromFieldAsDict(prop, obj, alreadyRead));
+
+            return propValues.Union(fieldValues).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        private static object GetValueFromFieldAsDict(FieldInfo prop, object obj, HashSet<object> alreadyRead)
+        {
+            try
+            {
+                var value = prop.GetValue(obj);
+                return CheckValue(alreadyRead, value);
+            }
+            catch (Exception e)
+            {
+                return $"ERROR: {e}";
+            }
+        }
+
+        private static object CheckValue(HashSet<object> alreadyRead, object value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+            else
+            {
+                if (value.GetType().IsPrimitive || value is float2 || value is float3 || value is float4
+                     || value is uint2 || value is uint3 || value is uint4 || value is Guid || value is Colossal.Hash128
+                     || value is string || value is IList<char> || value is Color || value is Color32 || value is Enum)
+                {
+                    return value;
+                }
+                else if (value is IEnumerable objectArray)
+                {
+                    List<object> result = new();
+                    foreach (object item in objectArray)
+                    {
+                        result.Add(CheckValue(alreadyRead, item));
+                    }
+                    return result;
+                }
+                else
+                {
+                    if (alreadyRead.Contains(value)) return $"LOOP TO: {value}";
+                    alreadyRead.Add(value);
+                    return GetAllProperties(value, alreadyRead);
+                }
+            }
+        }
+
+        private static object GetValueFromPropertyAsDict(PropertyInfo prop, object obj, HashSet<object> alreadyRead)
+        {
+            try
+            {
+                var value = prop.GetValue(obj);
+                return CheckValue(alreadyRead, value);
+            }
+            catch (Exception e)
+            {
+                return $"ERROR: {e}";
+            }
+        }
+
+        public static string PrintPropertiesDictionary(Dictionary<string, object> dict)
+        {
+            var lines = new List<string>();
+            PrintPropertiesDictionary(dict, 0, lines);
+            return string.Join("\n", lines);
+        }
+        public static unsafe void PrintPropertiesDictionary(Dictionary<string, object> dict, int ident, List<string> lines)
+        {
+            foreach (var (key, value) in dict)
+            {
+                PrintKv(ident, lines, key, value);
+            }
+        }
+
+        private static unsafe void PrintKv(int ident, List<string> lines, string key, object value)
+        {
+            if (value is null)
+            {
+                lines.Add($"{"".PadLeft(ident * 4)}{key} => NULL");
+            }
+            else if (value is Dictionary<string, object> innerDict)
+            {
+                lines.Add($"{"".PadLeft(ident * 4)}{key} => [");
+                PrintPropertiesDictionary(innerDict, ident + 1, lines);
+                lines.Add($"{"".PadLeft(ident * 4)}]");
+            }
+            else if (value is string)
+            {
+                lines.Add($"{"".PadLeft(ident * 4)}{key} => ({value.GetType()}) {value}");
+            }
+            else if (value is IList ienum)
+            {
+                lines.Add($"{"".PadLeft(ident * 4)}{key} => ({value.GetType()}: {ienum.Count}) [");
+                int counter = 0;
+                foreach (var item in ienum)
+                {
+                    PrintKv(ident + 1, lines, $"{counter++}", item);
+                }
+                lines.Add($"{"".PadLeft(ident * 4)}]");
+            }
+            else
+            {
+                lines.Add($"{"".PadLeft(ident * 4)}{key} => ({value.GetType()}) {value}");
             }
         }
     }
