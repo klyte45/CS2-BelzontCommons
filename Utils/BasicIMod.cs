@@ -382,10 +382,11 @@ namespace Belzont.Interfaces
 
 
                 var settingsMenuName = Instance.GeneralName.Split(" (");
+                var baseName = Regex.Replace(settingsMenuName[0], "\\[[^\\]]+\\]", "").Trim();
                 var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
-                while (settingsMenuName[0].Length > 26 - versionLenghtRef)
+                while (baseName.Length > 26 - versionLenghtRef)
                 {
-                    var splittedName = settingsMenuName[0].Split(" ");
+                    var splittedName = baseName.Split(" ");
                     if (!splittedName.Any(x => x.Length > 2)) { break; }
                     var biggestIndex = -1;
                     var sizeBiggest = 2;
@@ -397,13 +398,13 @@ namespace Belzont.Interfaces
                     }
                     if (biggestIndex < 0) break;
                     splittedName[biggestIndex] = splittedName[biggestIndex][0] + ".";
-                    settingsMenuName[0] = string.Join(" ", splittedName);
+                    baseName = string.Join(" ", splittedName);
                 }
 
 
                 return new Dictionary<string, string>
                 {
-                    [modData.GetSettingsLocaleID()] = settingsMenuName[0] + " (" + settingsMenuName[1],
+                    [modData.GetSettingsLocaleID()] = baseName + " (" + settingsMenuName[1],
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
                     [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
                     [modData.GetOptionGroupLocaleID(BasicModData.kChangelogSection)] = "Changelog",
