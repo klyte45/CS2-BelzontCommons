@@ -18,6 +18,7 @@ namespace Belzont.Utils
 
         public static string Translate(this NameSystem.Name name)
         {
+            if (name.GetNameID() is null) return null;
             var type = name.GetNameType();
             switch (type)
             {
