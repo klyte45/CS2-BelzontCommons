@@ -1,7 +1,4 @@
-﻿#if BEPINEX_CS2
-#else
-#endif
-using Belzont.AssemblyUtility;
+﻿using Belzont.AssemblyUtility;
 using Belzont.Utils;
 using Colossal;
 using Colossal.IO.AssetDatabase;
@@ -34,7 +31,7 @@ namespace Belzont.Interfaces
             Redirector.OnWorldCreated(UpdateSystem.World);
             LoadLocales();
             LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
-            GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<string> { ModInstallFolder });
+            GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
             DoOnCreateWorld(updateSystem);
             GameManager.instance.RegisterUpdater(RegisterAtEuis);
         }
