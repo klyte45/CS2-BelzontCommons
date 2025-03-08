@@ -1,7 +1,4 @@
-﻿#if BEPINEX_CS2
-#else
-#endif
-using Belzont.AssemblyUtility;
+﻿using Belzont.AssemblyUtility;
 using Belzont.Utils;
 using Colossal;
 using Colossal.IO.AssetDatabase;
@@ -14,7 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 using Unity.Entities;
 using UnityEngine;
@@ -36,7 +32,9 @@ namespace Belzont.Interfaces
             LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
             GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
             DoOnCreateWorld(updateSystem);
-            RegisterAtEuis();
+            GameManager.instance.RegisterUpdater(RegisterAtEuis);
+            GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
+            SelfRegiterUIEvents();
         }
         public abstract void OnDispose();
 
@@ -285,11 +283,11 @@ namespace Belzont.Interfaces
             }
         }
 
-        public void SelfRegiterUIEvents(string modAcronym)
+        public void SelfRegiterUIEvents()
         {
             SetupCallBinder((callAddress, action) =>
             {
-                var callName = $"k45::{modAcronym}.{callAddress}";
+                var callName = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 if (BasicIMod.DebugMode) LogUtils.DoLog($"Register call: {callName}");
                 GameManager.instance.userInterface.view.View.BindCall(callName, action);
             });
@@ -297,7 +295,7 @@ namespace Belzont.Interfaces
             {
                 var targetView = GameManager.instance.userInterface.view.View;
                 if (!targetView.IsReadyForBindings()) return;
-                var eventNameFull = $"k45::{modAcronym}.{callAddress}";
+                var eventNameFull = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 var argsLenght = args is null ? 0 : args.Length;
                 switch (argsLenght)
                 {
@@ -318,7 +316,7 @@ namespace Belzont.Interfaces
             });
             SetupEventBinder((callAddress, action) =>
             {
-                var eventName = $"k45::{modAcronym}.{callAddress}";
+                var eventName = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
                 LogUtils.DoInfoLog($"Register event: {eventName}");
                 GameManager.instance.userInterface.view.View.RegisterForEvent(eventName, action);
             });
@@ -358,7 +356,7 @@ namespace Belzont.Interfaces
             var registerAppMethod = bridgeClass.GetMethod("RegisterAppForEUIS");
             foreach (var app in EuisApps)
             {
-                registerAppMethod.Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, app.Key, app.Value.DisplayName, app.Value.UrlJs, app.Value.UrlCss, app.Value.UrlIcon });;
+                registerAppMethod.Invoke(null, new object[] { EuisModderIdentifier, EuisModAcronym, app.Key, app.Value.DisplayName, app.Value.UrlJs, app.Value.UrlCss, app.Value.UrlIcon }); ;
             }
         }
 
@@ -381,10 +379,11 @@ namespace Belzont.Interfaces
 
 
                 var settingsMenuName = Instance.GeneralName.Split(" (");
+                var baseName = Regex.Replace(settingsMenuName[0], "\\[[^\\]]+\\]", "").Trim();
                 var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
-                while (settingsMenuName[0].Length > 26 - versionLenghtRef)
+                while (baseName.Length > 26 - versionLenghtRef)
                 {
-                    var splittedName = settingsMenuName[0].Split(" ");
+                    var splittedName = baseName.Split(" ");
                     if (!splittedName.Any(x => x.Length > 2)) { break; }
                     var biggestIndex = -1;
                     var sizeBiggest = 2;
@@ -396,13 +395,13 @@ namespace Belzont.Interfaces
                     }
                     if (biggestIndex < 0) break;
                     splittedName[biggestIndex] = splittedName[biggestIndex][0] + ".";
-                    settingsMenuName[0] = string.Join(" ", splittedName);
+                    baseName = string.Join(" ", splittedName);
                 }
 
 
                 return new Dictionary<string, string>
                 {
-                    [modData.GetSettingsLocaleID()] = settingsMenuName[0] + " (" + settingsMenuName[1],
+                    [modData.GetSettingsLocaleID()] = baseName + " (" + settingsMenuName[1],
                     [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
                     [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
                     [modData.GetOptionGroupLocaleID(BasicModData.kChangelogSection)] = "Changelog",
