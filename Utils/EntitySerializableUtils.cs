@@ -19,12 +19,12 @@ namespace Belzont.Utils
             return version;
         }
 
-        public static void Read<IEnum>(this IReader reader, out IEnum result) where IEnum : struct, Enum
+        public static void Read<IEnum>(this IReader reader, out IEnum result, IEnum defaultValue = default) where IEnum : struct, Enum
         {
             reader.Read(out string value);
             if (!Enum.TryParse(value, out result))
             {
-                result = default;
+                result = defaultValue;
             }
         }
         public static void ReadAsInt<IEnum>(this IReader reader, out IEnum result) where IEnum : struct, Enum
