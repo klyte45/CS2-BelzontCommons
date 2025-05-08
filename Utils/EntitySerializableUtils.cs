@@ -65,5 +65,35 @@ namespace Belzont.Utils
                 input.Add(item);
             }
         }
+
+        public static void Write(this IWriter writer, byte[] bytes)
+        {
+            if (bytes == null)
+            {
+                writer.Write(-1);
+                return;
+            }
+            using var mainTexBytes = new NativeArray<byte>(bytes, Allocator.Temp);
+            writer.Write(mainTexBytes.Length);
+            writer.Write(mainTexBytes);
+        }
+        public static void Read(this IReader reader, out byte[] bytes)
+        {
+            reader.Read(out int length);
+            if (length < 0)
+            {
+                bytes = null;
+                return;
+            }
+            if (length == 0)
+            {
+                bytes = new byte[0];
+                return;
+            }
+            using var texBytes = new NativeArray<byte>(length, Allocator.Temp);
+            reader.Read(texBytes);
+            bytes = texBytes.ToArray();
+            texBytes.Dispose();
+        }
     }
 }
