@@ -19,12 +19,12 @@ namespace Belzont.Utils
             return version;
         }
 
-        public static void Read<IEnum>(this IReader reader, out IEnum result) where IEnum : struct, Enum
+        public static void Read<IEnum>(this IReader reader, out IEnum result, IEnum defaultValue = default) where IEnum : struct, Enum
         {
             reader.Read(out string value);
             if (!Enum.TryParse(value, out result))
             {
-                result = default;
+                result = defaultValue;
             }
         }
         public static void ReadAsInt<IEnum>(this IReader reader, out IEnum result) where IEnum : struct, Enum
@@ -64,6 +64,36 @@ namespace Belzont.Utils
                 reader.Read(out T item);
                 input.Add(item);
             }
+        }
+
+        public static void Write(this IWriter writer, byte[] bytes)
+        {
+            if (bytes == null)
+            {
+                writer.Write(-1);
+                return;
+            }
+            using var mainTexBytes = new NativeArray<byte>(bytes, Allocator.Temp);
+            writer.Write(mainTexBytes.Length);
+            writer.Write(mainTexBytes);
+        }
+        public static void Read(this IReader reader, out byte[] bytes)
+        {
+            reader.Read(out int length);
+            if (length < 0)
+            {
+                bytes = null;
+                return;
+            }
+            if (length == 0)
+            {
+                bytes = new byte[0];
+                return;
+            }
+            using var texBytes = new NativeArray<byte>(length, Allocator.Temp);
+            reader.Read(texBytes);
+            bytes = texBytes.ToArray();
+            texBytes.Dispose();
         }
     }
 }

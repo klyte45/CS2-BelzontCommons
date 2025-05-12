@@ -23,7 +23,7 @@ namespace Belzont.Interfaces
     public abstract class BasicIMod
     {
         protected UpdateSystem UpdateSystem { get; set; }
-        internal static KlyteModDescriptionAttribute modAssemblyDescription => (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>();
+        internal static KlyteModDescriptionAttribute modAssemblyDescription => (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
 
         public void OnLoad(UpdateSystem updateSystem)
         {

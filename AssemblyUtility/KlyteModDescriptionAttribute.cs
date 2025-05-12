@@ -26,6 +26,13 @@ namespace Belzont.AssemblyUtility
             this.GitHubURL = GitHubURL;
         }
 
-
+        public KlyteModDescriptionAttribute()
+        {
+            ModId = "0";
+            DisplayName = "0";
+            ShortDescription = "0";
+            ForumsURL = "0";
+            GitHubURL = "0";
+        }
     }
 }
