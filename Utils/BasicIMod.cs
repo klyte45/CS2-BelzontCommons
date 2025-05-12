@@ -1,10 +1,12 @@
 ﻿using Belzont.AssemblyUtility;
 using Belzont.Utils;
+using BelzontCommons.Assets;
 using Colossal;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
 using Game;
+using Game.Prefabs;
 using Game.SceneFlow;
 using System;
 using System.Collections.Generic;
@@ -35,7 +37,36 @@ namespace Belzont.Interfaces
             GameManager.instance.RegisterUpdater(RegisterAtEuis);
             GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
             SelfRegiterUIEvents();
+            GameManager.instance.RegisterUpdater(RegisterComponents);
         }
+
+        private void RegisterComponents()
+        {
+            var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
+            foreach (var databaseType in databaseStructs)
+            {
+                var constructor = databaseType.GetConstructor(new Type[0]);
+                if (constructor == null) continue;
+                var dbKey = constructor.Invoke(null) as AssetDatabaseSelfCreate;
+                var dbInstance = dbKey.CreateDatabase();
+                AssetDatabase.global.RegisterDatabase(dbInstance).Wait();
+
+                dbKey.SelfPopulate();
+
+                var prefabSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<PrefabSystem>();
+
+
+                foreach (PrefabAsset prefabAsset in dbInstance.GetAssets(default(SearchFilter<PrefabAsset>)))
+                {
+                    PrefabBase prefabBase = prefabAsset.Load() as PrefabBase;
+                    if (prefabBase != null)
+                    {
+                        prefabSystem.AddPrefab(prefabBase, null, null, null);
+                    }
+                }
+            }
+        }
+
         public abstract void OnDispose();
 
 
