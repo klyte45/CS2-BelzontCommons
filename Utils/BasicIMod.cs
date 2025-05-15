@@ -37,10 +37,10 @@ namespace Belzont.Interfaces
             GameManager.instance.RegisterUpdater(RegisterAtEuis);
             GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
             SelfRegiterUIEvents();
-            GameManager.instance.RegisterUpdater(RegisterComponents);
+            GameManager.instance.RegisterUpdater(RegisterAssets);
         }
 
-        private void RegisterComponents()
+        private void RegisterAssets()
         {
             var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
             foreach (var databaseType in databaseStructs)
@@ -65,6 +65,12 @@ namespace Belzont.Interfaces
                     }
                 }
             }
+            AfterRegisterAssets();
+        }
+
+        protected virtual void AfterRegisterAssets()
+        {
+
         }
 
         public abstract void OnDispose();
