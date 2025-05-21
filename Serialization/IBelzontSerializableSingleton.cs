@@ -13,7 +13,7 @@ namespace Belzont.Serialization
 
         internal sealed void CheckVersion<TReader>(TReader reader, uint currentVersion) where TReader : IReader
         {
-            reader.Read(out int version);
+            reader.Read(out uint version);
             if (version > currentVersion)
             {
                 throw new Exception($"Invalid version of {GetType()}!");
