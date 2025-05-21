@@ -3,9 +3,9 @@ using System;
 
 namespace Belzont.Utils
 {
-    public class MultiUIValueBinding<T, U>
+    public class MultiUIValueBinding<B, F>
     {
-        public T Value
+        public B Value
         {
             get => m_value; set
             {
@@ -16,14 +16,14 @@ namespace Belzont.Utils
                 }
             }
         }
-        private T m_value;
+        private B m_value;
         private readonly Action<string, object[]> eventCaller;
         private readonly string m_propertyPrefix;
-        private readonly Func<U, MultiUIValueBinding<T, U>, T> m_dataNormalizeFn;
-        private readonly Func<T, MultiUIValueBinding<T, U>, U> m_frontendTransformFn;
-        public event Action<T> OnScreenValueChanged;
+        private readonly Func<F, MultiUIValueBinding<B, F>, B> m_dataNormalizeFn;
+        private readonly Func<B, MultiUIValueBinding<B, F>, F> m_frontendTransformFn;
+        public event Action<B> OnScreenValueChanged;
 
-        public MultiUIValueBinding(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, MultiUIValueBinding<T, U>, U> frontendTransformFn, Func<U, MultiUIValueBinding<T, U>, T> dataNormalizeFn)
+        public MultiUIValueBinding(B initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<B, MultiUIValueBinding<B, F>, F> frontendTransformFn, Func<F, MultiUIValueBinding<B, F>, B> dataNormalizeFn)
         {
             m_value = initialValue;
             m_propertyPrefix = propertyPrefix;
@@ -36,14 +36,14 @@ namespace Belzont.Utils
 
         private object GetValueUI() => m_frontendTransformFn(Value, this);
 
-        private void OnUiValueChanged(U newValue)
+        private void OnUiValueChanged(F newValue)
         {
             m_value = m_dataNormalizeFn(newValue, this);
             OnScreenValueChanged?.Invoke(m_value);
             UpdateUIs();
         }
 
-        public void ChangeValueWithEffects(U newValue)
+        public void ChangeValueWithEffects(F newValue)
         {
             m_value = m_dataNormalizeFn(newValue, this);
             OnScreenValueChanged?.Invoke(m_value);
