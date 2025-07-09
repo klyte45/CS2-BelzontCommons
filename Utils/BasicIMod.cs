@@ -214,6 +214,7 @@ namespace Belzont.Interfaces
                     if (lang != "en-US")
                     {
                         var valueColumn = Array.IndexOf(fileLines.First(), lang);
+                        if (TraceMode) LogUtils.DoTraceLog($"Trying load language: {lang} at folder {AdditionalI18nFilesFolder} or valueColumn with {valueColumn} items");
                         if (valueColumn > 0)
                         {
                             var i18nFile = new MemorySource(LocaleFileForColumn(fileLines, valueColumn));
@@ -222,8 +223,8 @@ namespace Belzont.Interfaces
                         }
                         else if (File.Exists(Path.Combine(AdditionalI18nFilesFolder, lang + ".csv")))
                         {
-                            var csvFileEntries = File.ReadAllLines(Path.Combine(AdditionalI18nFilesFolder, lang + ".csv")).Select(x => x.Split("\t")).ToDictionary(x => x[0], x => x.ElementAtOrDefault(1));
-                            var i18nFile = new MemorySource(csvFileEntries);
+                            var csvFileEntries = File.ReadAllLines(Path.Combine(AdditionalI18nFilesFolder, lang + ".csv")).Select(x => x.Split("\t"));
+                            var i18nFile = new MemorySource(LocaleFileForColumn(csvFileEntries, 1));
                             previouslyLoadedDictionaries.Enqueue((lang, i18nFile));
                             GameManager.instance.localizationManager.AddSource(lang, i18nFile);
                         }
