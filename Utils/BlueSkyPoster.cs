@@ -1,19 +1,15 @@
-using Belzont.AssemblyUtility;
-using Belzont.Interfaces;
-using Colossal.OdinSerializer.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
 
 namespace Belzont.Utils
 {
     public static class BlueSkyPoster
     {
-        public static void Post(string user, string password, string xmlPath, int textKind)
+        public static void Post(string user, string password, string xmlPath, string projectFile, int textKind)
         {
             // 1. Login
             var loginPayload = $"{{\"identifier\":\"{EscapeJson(user)}\",\"password\":\"{EscapeJson(password)}\"}}";
@@ -22,10 +18,10 @@ namespace Belzont.Utils
             var did = ExtractJsonValue(loginResponse, "did");
             var accessJwt = ExtractJsonValue(loginResponse, "accessJwt");
 
-            var (text, link) = textKind switch
+            var (text, link, linkTitle, linkDescription, imageBase64) = textKind switch
             {
-                0 => GetChangelog(xmlPath),
-                _ => ("MEOW! TEST!", null)
+                0 => GetChangelog(xmlPath, Path.GetDirectoryName(projectFile)),
+                _ => ("MEOW! TEST!", null, null, null, null)
             };
 
             var textEachPost = DoTextSplit(text, 280);
@@ -46,7 +42,34 @@ namespace Belzont.Utils
                 string postPayload;
                 if (i == 0)
                 {
-                    // First post - no reply
+                    // First post - no reply, with link embed if available
+                    var embedSection = "";
+                    if (!string.IsNullOrEmpty(link))
+                    {
+                        var thumbSection = "";
+
+                        // Upload image if provided
+                        if (!string.IsNullOrEmpty(imageBase64))
+                        {
+                            try
+                            {
+                                var imageBlob = UploadBlob(imageBase64, "image/png", accessJwt);
+                                if (imageBlob != null)
+                                {
+                                    thumbSection =
+                                        $",\"thumb\":{{\"$type\":\"blob\",\"ref\":{{\"$link\":\"{imageBlob.cid}\"}},\"mimeType\":\"{imageBlob.mimeType}\",\"size\":{imageBlob.size}}}";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Failed to upload image: {ex.Message}");
+                            }
+                        }
+
+                        embedSection =
+                            $",\"embed\":{{\"$type\":\"app.bsky.embed.external\",\"external\":{{\"uri\":\"{EscapeJson(link)}\",\"title\":\"{EscapeJson(linkTitle)}\",\"description\":\"{EscapeJson(linkDescription)}\"{thumbSection}}}}}";
+                    }
+
                     postPayload =
                         "{" +
                         $"\"repo\":\"{EscapeJson(did)}\"," +
@@ -54,7 +77,7 @@ namespace Belzont.Utils
                         "\"record\":{" +
                         "\"$type\":\"app.bsky.feed.post\"," +
                         $"\"text\":\"{EscapeJson(post)}\"," +
-                        $"\"createdAt\":\"{EscapeJson(createdAt)}\"" +
+                        $"\"createdAt\":\"{EscapeJson(createdAt)}\"{embedSection}" +
                         "}" +
                         "}";
                 }
@@ -85,6 +108,7 @@ namespace Belzont.Utils
 
                 var postResponse = PostJson("https://bsky.social/xrpc/com.atproto.repo.createRecord", postPayload,
                     accessJwt);
+                Console.WriteLine(postPayload);
                 Console.WriteLine(postResponse);
 
                 // Extract URI and CID for next post in thread
@@ -174,7 +198,7 @@ namespace Belzont.Utils
             return result;
         }
 
-        private static (string, string) GetChangelog(string xmlPath)
+        private static (string, string, string, string, string) GetChangelog(string xmlPath, string projectRoot)
         {
             if (!File.Exists(xmlPath))
             {
@@ -191,16 +215,27 @@ namespace Belzont.Utils
                 var changelogNode = xmlDoc.SelectSingleNode("//ChangeLog");
                 var nameNode = xmlDoc.SelectSingleNode("//DisplayName");
                 var modIdNode = xmlDoc.SelectSingleNode("//ModId");
+                var thumbnailNode = xmlDoc.SelectSingleNode("//Thumbnail");
 
                 var version = versionNode?.Attributes?["Value"]?.Value ?? "Unknown";
                 var changelog = changelogNode?.InnerText ?? "Changes not available";
                 var name = nameNode?.Attributes?["Value"]?.Value ?? throw new Exception("DisplayName node not found");
                 var modId = modIdNode?.Attributes?["Value"]?.Value ??
                             throw new Exception("New mods can't be handled yet");
+                var thumbnail = thumbnailNode?.Attributes?["Value"]?.Value;
+
+                // You can set imageBase64 here - either from a file path or pass it as parameter
+                var imageBase64 =
+                    thumbnail != null
+                        ? ConvertTextureToBase64(Path.Combine(projectRoot, thumbnail))
+                        : null; // Set this to your base64 image string when you have one
 
                 return
                     ($"{name} was updated to version {version}!\nCheck out at Paradox Mods!\nChangelog:\n{changelog}",
-                        $"https://mods.paradoxplaza.com/mods/{modId}/Windows");
+                        $"https://mods.paradoxplaza.com/mods/{modId}/Windows",
+                        $"{name} by Klyte45 at Paradox Mods",
+                        $"Check out new features from the version {version} of {name} by Klyte45 at Paradox Mods!",
+                        imageBase64);
             }
             catch (Exception ex)
             {
@@ -252,6 +287,83 @@ namespace Belzont.Utils
             var end = json.IndexOf("\"", start, StringComparison.OrdinalIgnoreCase);
             if (end < 0) return "";
             return json.Substring(start, end - start);
+        }
+
+        private static string ConvertTextureToBase64(string texturePath)
+        {
+            try
+            {
+                // Check if the path is a file path
+                if (File.Exists(texturePath))
+                {
+                    // Read image file directly
+                    var imageBytes = File.ReadAllBytes(texturePath);
+                    return Convert.ToBase64String(imageBytes);
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Could not find image file for path: {texturePath}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting texture to base64: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static BlobInfo UploadBlob(string base64Data, string mimeType, string accessJwt)
+        {
+            var imageBytes = Convert.FromBase64String(base64Data);
+
+            var request = (HttpWebRequest)WebRequest.Create("https://bsky.social/xrpc/com.atproto.repo.uploadBlob");
+            request.Method = "POST";
+            request.ContentType = mimeType;
+            request.Headers["Authorization"] = "Bearer " + accessJwt;
+            request.ContentLength = imageBytes.Length;
+
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(imageBytes, 0, imageBytes.Length);
+            }
+
+            using var response = (HttpWebResponse)request.GetResponse();
+            using var reader = new StreamReader(response.GetResponseStream()!);
+            var responseText = reader.ReadToEnd();
+
+            Console.WriteLine($"Blob upload response: {responseText}");
+
+            var cid = ExtractJsonValue(responseText, "cid");
+            if (string.IsNullOrEmpty(cid))
+            {
+                // Try extracting from blob object
+                var blobStart = responseText.IndexOf("\"blob\":{", StringComparison.OrdinalIgnoreCase);
+                if (blobStart >= 0)
+                {
+                    var blobSection = responseText.Substring(blobStart);
+                    cid = ExtractJsonValue(blobSection, "$link");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(cid))
+            {
+                return new BlobInfo
+                {
+                    cid = cid,
+                    mimeType = mimeType,
+                    size = imageBytes.Length
+                };
+            }
+
+            return null;
+        }
+
+        private class BlobInfo
+        {
+            public string cid { get; set; }
+            public string mimeType { get; set; }
+            public int size { get; set; }
         }
     }
 }
