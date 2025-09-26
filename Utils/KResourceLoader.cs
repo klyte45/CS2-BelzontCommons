@@ -87,5 +87,21 @@ namespace Belzont.Utils
                 }
             }
         }
+#if ASSET_BUNDLE_ON
+        public static AssetBundle LoadBundle(string filename, Assembly refAssembly = null)
+        {
+            refAssembly = refAssembly ?? RefAssemblyMod;
+            try
+            {
+                return AssetBundle.LoadFromMemory(LoadResourceData(refAssembly.GetName().Name + "." + filename, refAssembly));
+            }
+            catch (Exception e)
+            {
+                LogUtils.DoErrorLog("The file could not be read:" + e.Message);
+            }
+
+            return null;
+        }
+#endif
     }
 }
