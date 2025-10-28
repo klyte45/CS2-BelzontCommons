@@ -13,7 +13,7 @@ namespace Belzont.Utils
     {
         public static ExecutableAsset FindExecutableAsset(string assetName)
         {
-           return AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assetName)));
+            return AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assetName)));
         }
         public static object[] GetAllLoadableClassesInAssemblyList(Type t, IEnumerable<Assembly> assemblies = null)
         {
@@ -135,6 +135,51 @@ namespace Belzont.Utils
                 LogUtils.DoWarnLog("Error trying to convert class:\n{0}", e);
                 return default;
             }
+        }
+
+        public static bool ApplyPatches(string assemblyName, List<(Type, string)> bridgeMappings, bool required = false)
+        {
+            var weAsset = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assemblyName)));
+            if (required && weAsset?.assembly is null)
+            {
+                LogUtils.DoErrorLog($"The module {typeof(BridgeUtils).Assembly.GetName().Name} requires {assemblyName}.dll mod to work!");
+                return false;
+            }
+            try
+            {
+
+                var exportedTypes = weAsset.assembly.ExportedTypes;
+                foreach (var (type, sourceClassName) in bridgeMappings)
+                {
+                    var targetType = exportedTypes.First(x => x.Name == sourceClassName);
+                    if (targetType is null)
+                    {
+                        LogUtils.DoWarnLog($"Type not found while patching {assemblyName}.dll: {sourceClassName}");
+                        return false;
+                    }
+                    foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                    {
+                        if (BasicIMod.DebugMode) LogUtils.DoLog("Patching method {0} {1}", type, method);
+                        var srcMethod = targetType.GetMethod(method.Name, RedirectorUtils.allFlags, null, [.. method.GetParameters().Select(x => x.ParameterType)], null);
+                        if (srcMethod != null)
+                        {
+                            Harmony.ReversePatch(srcMethod, new HarmonyMethod(method));
+                        }
+                        else
+                        {
+                            LogUtils.DoWarnLog($"Method not found while patching {assemblyName}.dll: {targetType.FullName} {srcMethod.Name}({string.Join(", ", method.GetParameters().Select(x => $"{x.ParameterType}"))})");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogUtils.DoWarnLog($"Error applying patches for {assemblyName}: {e}");
+                return false;
+            }
+            return true;
+
         }
     }
 }
