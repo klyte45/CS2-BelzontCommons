@@ -5,7 +5,7 @@ namespace Belzont.Utils
 {
     public static class FloatNExtensions
     {
-        public static float GetAngleXZ(this float3 dir) => Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
+        public static float GetAngleXZ(this float3 dir) => math.atan2(dir.z, dir.x) * math.TODEGREES;
         public static float SqrDistance(this float3 a, float3 b)
         {
             float3 vector = a - b;
@@ -19,7 +19,5 @@ namespace Belzont.Utils
         }
 
         public static float[] ToArray(this float3 f) => new[] { f.x, f.y, f.z };
-
-        //public static segment3 ToRayY(this float3 vector) => new Segment3(new float3(vector.x, -999999f, vector.z), new float3(vector.x, 999999f, vector.z));
     }
 }

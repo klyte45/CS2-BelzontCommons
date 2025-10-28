@@ -264,6 +264,17 @@ namespace Belzont.Interfaces
         private static string ProcessKey(string key, BasicModData modData)
         {
             if (!key.StartsWith("::")) return key;
+            if (key.StartsWith("::N"))
+            {
+                if (key.StartsWith("::NT"))
+                {
+                    return $"Menu.NOTIFICATION_TITLE[{key[4..]}]";
+                }
+                else if (key.StartsWith("::ND"))
+                {
+                    return $"Menu.NOTIFICATION_DESCRIPTION[{key[4..]}]";
+                }
+            }
             if (key == "::M") return modData.GetBindingMapLocaleID();
             var prefix = key[..3];
             var suffix = key[3..];
@@ -384,7 +395,8 @@ namespace Belzont.Interfaces
             {
                 if (EuisIsMandatory)
                 {
-                    throw new Exception($"The mod {Name} requires Extra UI Screens mod to work!");
+                    LogUtils.DoErrorLog($"The mod {Name} requires Extra UI Screens mod to work!");
+                    return;
                 }
                 else return;
             }
