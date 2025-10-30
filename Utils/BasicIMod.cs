@@ -395,7 +395,8 @@ namespace Belzont.Interfaces
             {
                 if (EuisIsMandatory)
                 {
-                    throw new Exception($"The mod {Name} requires Extra UI Screens mod to work!");
+                    LogUtils.DoErrorLog($"The mod {Name} requires Extra UI Screens mod to work!");
+                    return;
                 }
                 else return;
             }
