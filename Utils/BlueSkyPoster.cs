@@ -218,7 +218,7 @@ namespace Belzont.Utils
                 var thumbnailNode = xmlDoc.SelectSingleNode("//Thumbnail");
 
                 var version = versionNode?.Attributes?["Value"]?.Value ?? "Unknown";
-                var changelog = string.Join("\n", changelogNode?.InnerText?.Split("\n").Skip(1)).TrimToNull() ?? "Changes not available";
+                var changelog = changelogNode?.InnerText[(changelogNode?.InnerText.IndexOf('\n') ?? 0)..].Trim() ?? "Changes not available";
                 var name = nameNode?.Attributes?["Value"]?.Value ?? throw new Exception("DisplayName node not found");
                 var modId = modIdNode?.Attributes?["Value"]?.Value ??
                             throw new Exception("New mods can't be handled yet");
