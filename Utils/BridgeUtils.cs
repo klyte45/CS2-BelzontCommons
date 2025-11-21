@@ -13,7 +13,7 @@ namespace Belzont.Utils
     {
         public static ExecutableAsset FindExecutableAsset(string assetName)
         {
-            return AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assetName)));
+            return AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isLoaded && asset.name.Equals(assetName)));
         }
         public static object[] GetAllLoadableClassesInAssemblyList(Type t, IEnumerable<Assembly> assemblies = null)
         {
@@ -139,7 +139,7 @@ namespace Belzont.Utils
 
         public static bool ApplyPatches(string assemblyName, List<(Type, string)> bridgeMappings, bool required = false)
         {
-            var weAsset = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset => asset.isEnabled && asset.isLoaded && asset.name.Equals(assemblyName)));
+            var weAsset = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(asset =>  asset.isLoaded && asset.name.Equals(assemblyName)));
             if (required && weAsset?.assembly is null)
             {
                 LogUtils.DoErrorLog($"The module {typeof(BridgeUtils).Assembly.GetName().Name} requires {assemblyName}.dll mod to work!");

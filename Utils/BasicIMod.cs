@@ -2,6 +2,7 @@
 using Belzont.Utils;
 using BelzontCommons.Assets;
 using Colossal;
+using Colossal.Core;
 using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
@@ -35,15 +36,16 @@ namespace Belzont.Interfaces
             {
                 LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
                 GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
-                GameManager.instance.RegisterUpdater(RegisterAtEuis);
+                MainThreadDispatcher.RegisterUpdater(RegisterAtEuis);
                 GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
                 SelfRegiterUIEvents();
+                return true;
             });
             GameManager.instance.RegisterUpdater(LoadLocales);
             GameManager.instance.RegisterUpdater(RegisterAssets);
         }
 
-        private void RegisterAssets()
+        private bool RegisterAssets()
         {
             var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
             foreach (var databaseType in databaseStructs)
@@ -69,6 +71,7 @@ namespace Belzont.Interfaces
                 }
             }
             AfterRegisterAssets();
+            return true;
         }
 
         protected virtual void AfterRegisterAssets()
@@ -195,7 +198,7 @@ namespace Belzont.Interfaces
         private Queue<(string, IDictionarySource)> previouslyLoadedDictionaries;
         internal string AdditionalI18nFilesFolder => Path.Combine(ModInstallFolder, $"i18n/");
 
-        internal void LoadLocales()
+        internal bool LoadLocales()
         {
             var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
             previouslyLoadedDictionaries ??= new();
@@ -241,6 +244,8 @@ namespace Belzont.Interfaces
                     GameManager.instance.localizationManager.AddSource(lang, baseModData);
                 }
             }
+
+            return true;
         }
 
         private void UnloadLocales()
