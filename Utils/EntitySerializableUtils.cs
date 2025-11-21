@@ -3,6 +3,7 @@ using BepInEx.Logging;
 #endif
 using Colossal.Serialization.Entities;
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 
 namespace Belzont.Utils
@@ -94,6 +95,112 @@ namespace Belzont.Utils
             reader.Read(texBytes);
             bytes = texBytes.ToArray();
             texBytes.Dispose();
+        }
+
+        public static void Write<S>(this IWriter writer, List<S> data) where S : ISerializable
+        {
+            if (data == null)
+            {
+                writer.Write(-1);
+                return;
+            }
+
+            writer.Write(data.Count);
+            foreach (var item in data)
+            {
+                writer.Write(item);
+            }
+        }
+
+        public static void Read<S>(this IReader reader, out List<S> data) where S : ISerializable, new()
+        {
+            reader.Read(out int length);
+            if (length < 0)
+            {
+                data = null;
+                return;
+            }
+            data = [];
+            if (length == 0)
+            {
+                return;
+            }
+            for (int i = 0; i < length; i++)
+            {
+                var item = new S();
+                item.Deserialize(reader);
+                data.Add(item);
+            }
+        }
+
+        public static void Write(this IWriter writer, List<int> data)
+        {
+            if (data == null)
+            {
+                writer.Write(-1);
+                return;
+            }
+
+            writer.Write(data.Count);
+            foreach (var item in data)
+            {
+                writer.Write(item);
+            }
+        }
+
+        public static void Read(this IReader reader, out List<int> data)
+        {
+            reader.Read(out int length);
+            if (length < 0)
+            {
+                data = null;
+                return;
+            }
+            data = [];
+            if (length == 0)
+            {
+                return;
+            }
+            for (int i = 0; i < length; i++)
+            {
+                reader.Read(out int item);
+                data.Add(item);
+            }
+        }
+
+        public static void WriteEnumList<S>(this IWriter writer, List<S> data) where S : struct, Enum
+        {
+            if (data == null)
+            {
+                writer.Write(-1);
+                return;
+            }
+
+            writer.Write(data.Count);
+            foreach (var item in data)
+            {
+                writer.Write(item);
+            }
+        }
+
+        public static void ReadEnumList<S>(this IReader reader, out List<S> data) where S : struct, Enum
+        {
+            reader.Read(out int length);
+            if (length < 0)
+            {
+                data = null;
+                return;
+            }
+            data = [];
+            if (length == 0)
+            {
+                return;
+            }
+            for (int i = 0; i < length; i++)
+            {
+                reader.Read(out S item);
+                data.Add(item);
+            }
         }
     }
 }
