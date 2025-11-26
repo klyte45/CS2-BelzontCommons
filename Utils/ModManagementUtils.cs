@@ -1,12 +1,11 @@
-﻿using Game.SceneFlow;
+﻿using Colossal.IO.AssetDatabase;
 using System.Linq;
 using System.Reflection;
-using static Game.Modding.ModManager;
 
 namespace Belzont.Utils
 {
     public static class ModManagementUtils
     {
-        public static ModInfo GetModDataFromMainAssembly(Assembly mainAssembly) => GameManager.instance.modManager.First(x => x.asset.assembly == mainAssembly);
+        public static AssetData GetModDataFromMainAssembly(Assembly mainAssembly) => AssetDatabase.global.GetAssets<ExecutableAsset>().First(x => x.assembly == mainAssembly);
     }
 }
