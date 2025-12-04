@@ -32,7 +32,7 @@ namespace Belzont.Interfaces
             UpdateSystem = updateSystem;
             Redirector.OnWorldCreated(UpdateSystem.World);
             DoOnCreateWorld(updateSystem);
-            GameManager.instance.RegisterUpdater(() =>
+            MainThreadDispatcher.RegisterUpdater(() =>
             {
                 LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
                 GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
@@ -41,8 +41,8 @@ namespace Belzont.Interfaces
                 SelfRegiterUIEvents();
                 return true;
             });
-            GameManager.instance.RegisterUpdater(LoadLocales);
-            GameManager.instance.RegisterUpdater(RegisterAssets);
+            MainThreadDispatcher.RegisterUpdater(LoadLocales);
+            MainThreadDispatcher.RegisterUpdater(RegisterAssets);
         }
 
         private bool RegisterAssets()
