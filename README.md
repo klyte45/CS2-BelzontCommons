@@ -59,8 +59,9 @@ MyMod.frontend.someLabel	Some Label	Algum Rótulo
 
 ### Matching `{groupName}` / `{tabName}` / `{propName}` to C# declarations
 
-- **`{groupName}`** must match the string constant passed to `[SettingsUISection]` or `[SettingsUIGroup]` attribute on a property in your `BasicModData` subclass.
-- **`{tabName}`** must match the string constant passed to `[SettingsUITabGroup]` attribute.
+- **`{tabName}`** must match the **first** string argument of `[SettingsUISection(tab, group)]` on each property. A `::T{tab}` key **must** exist in i18n.csv or the tab label will be blank in the game UI.
+- **`{groupName}`** must match the **second** string argument of `[SettingsUISection(tab, group)]`. Corresponds to `[SettingsUIShowGroupName]` on the class. A `::G{group}` key **must** exist in i18n.csv.
+- Every settings property on a `BasicModData` subclass **must** carry `[SettingsUISection(tab, group)]`; omitting it causes the property to appear in a blank, untitled group.
 - **`{propName}`** must match the **C# property name** (not a custom string) on the `BasicModData` subclass.
 - **`{actionName}`** must match the action name string used when registering the keybinding (e.g., `"MyMod.MyAction"`).
 - **`{TypeName}.{valueName}`** must match the **C# type name** (not the fully-qualified namespace) and the **enum field name**.
