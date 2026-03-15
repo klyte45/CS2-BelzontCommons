@@ -47,6 +47,7 @@ namespace Belzont.Interfaces
 
         private bool RegisterAssets()
         {
+            if (modAssemblyDescription.ModId == "0") return false;
             var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
             foreach (var databaseType in databaseStructs)
             {
@@ -200,6 +201,7 @@ namespace Belzont.Interfaces
 
         internal bool LoadLocales()
         {
+            if (modAssemblyDescription.ModId == "0") return false;
             var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
             previouslyLoadedDictionaries ??= new();
             UnloadLocales();
