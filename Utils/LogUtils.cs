@@ -23,6 +23,7 @@ namespace Belzont.Utils
             {
                 if (logOutput is null)
                 {
+                    if (BasicIMod.Instance.Acronym == "") return LogManager.GetLogger($"Mods_K45_INITIALIZING");
                     logOutput = LogManager.GetLogger($"Mods_K45_{BasicIMod.Instance.Acronym}");
                     logOutput.SetEffectiveness(Level.Info);
                 }
