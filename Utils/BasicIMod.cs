@@ -32,6 +32,7 @@ namespace Belzont.Interfaces
             UpdateSystem = updateSystem;
             Redirector.OnWorldCreated(UpdateSystem.World);
             DoOnCreateWorld(updateSystem);
+            RegisterBelzontSystems();
             MainThreadDispatcher.RegisterUpdater(() =>
             {
                 LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
@@ -43,6 +44,18 @@ namespace Belzont.Interfaces
             });
             MainThreadDispatcher.RegisterUpdater(LoadLocales);
             MainThreadDispatcher.RegisterUpdater(RegisterAssets);
+        }
+
+        private void RegisterBelzontSystems()
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBasicSystem), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                if (type.IsCastableTo(typeof(SystemBase)))
+                {
+                    GetManagedSystem(type);
+                }
+            }
         }
 
         private bool RegisterAssets()
