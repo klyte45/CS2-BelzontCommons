@@ -26,12 +26,30 @@ namespace Belzont.Interfaces
         protected UpdateSystem UpdateSystem { get; set; }
         internal static KlyteModDescriptionAttribute modAssemblyDescription => (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
 
+        internal static bool IsReadyToLoad = modAssemblyDescription.ModId != "0";
+
         public void OnLoad(UpdateSystem updateSystem)
         {
-            OnLoad();
             UpdateSystem = updateSystem;
+            if (!IsReadyToLoad)
+            {
+                MainThreadDispatcher.RegisterUpdater(() =>
+                {
+                    if (!IsReadyToLoad) return false;
+                    DelayedLoad();
+                    return true;
+                });
+
+                return;
+            }
+            DelayedLoad();
+        }
+
+        private void DelayedLoad()
+        {
+            OnLoad();
             Redirector.OnWorldCreated(UpdateSystem.World);
-            DoOnCreateWorld(updateSystem);
+            DoOnCreateWorld(UpdateSystem);
             RegisterBelzontSystems();
             MainThreadDispatcher.RegisterUpdater(() =>
             {
