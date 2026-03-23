@@ -30,12 +30,17 @@ namespace Belzont.Interfaces
 
         public void OnLoad(UpdateSystem updateSystem)
         {
+            Instance = this;
             UpdateSystem = updateSystem;
             if (!IsReadyToLoad)
             {
                 MainThreadDispatcher.RegisterUpdater(() =>
                 {
-                    if (!IsReadyToLoad) return false;
+                    if (!IsReadyToLoad)
+                    {
+                        LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
+                        return false;
+                    }
                     DelayedLoad();
                     return true;
                 });
@@ -117,7 +122,6 @@ namespace Belzont.Interfaces
         public abstract BasicModData CreateSettingsFile();
         public void OnLoad()
         {
-            Instance = this;
             ModData = CreateSettingsFile();
             ModData.RegisterInOptionsUI();
             ModData.RegisterKeyBindings();
