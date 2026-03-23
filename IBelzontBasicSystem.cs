@@ -4,6 +4,7 @@ using Game.Common;
 using Game.Serialization;
 using Game.Tools;
 using System;
+using System.Linq;
 
 namespace Belzont.Interfaces
 {
@@ -45,7 +46,7 @@ namespace Belzont.Interfaces
             if (UpdatePhase == AllowedPhase.EndFrame)
             {
 
-                var UpdateAfter = typeof(UpdateSystem).GetMethod("UpdateAfter").MakeGenericMethod(GetType());
+                var UpdateAfter = typeof(UpdateSystem).GetMethods().First(x => x.Name == "UpdateAfter" && x.GetGenericArguments().Length == 1).MakeGenericMethod(GetType());
                 UpdateAfter.Invoke(updateSystem, [SystemUpdatePhase.MainLoop]);
                 Barrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
                 LogUtils.DoInfoLog($"Registered system {GetType()} at after MainLoop");
