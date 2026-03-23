@@ -7,6 +7,7 @@ using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
 using Game;
+using Game.Modding;
 using Game.Prefabs;
 using Game.SceneFlow;
 using System;
@@ -24,9 +25,10 @@ namespace Belzont.Interfaces
     public abstract class BasicIMod
     {
         protected UpdateSystem UpdateSystem { get; set; }
-        internal static KlyteModDescriptionAttribute modAssemblyDescription => (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
+        internal static KlyteModDescriptionAttribute ModAssemblyDescription => modAssemblyDescription ??= (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
+        internal static KlyteModDescriptionAttribute modAssemblyDescription;
 
-        internal static bool IsReadyToLoad = modAssemblyDescription.ModId != "0";
+        internal static bool IsReadyToLoad = ModAssemblyDescription.ModId != "0";
 
         public void OnLoad(UpdateSystem updateSystem)
         {
@@ -38,8 +40,18 @@ namespace Belzont.Interfaces
                 {
                     if (!IsReadyToLoad)
                     {
-                        LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
-                        return false;
+                        if (GameManager.instance.modManager.TryGetExecutableAsset(Instance as IMod, out var asset))
+                        {
+                            Assembly assembly = Assembly.LoadFrom(asset.path);
+                            modAssemblyDescription = assembly.GetCustomAttributes<KlyteModDescriptionAttribute>().FirstOrDefault();
+                            if (modAssemblyDescription is null) modAssemblyDescription = new();                           
+                        }
+                        else
+                        {
+                            modAssemblyDescription = null;
+                            LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
+                            return false;
+                        }
                     }
                     DelayedLoad();
                     return true;
@@ -83,7 +95,7 @@ namespace Belzont.Interfaces
 
         private bool RegisterAssets()
         {
-            if (modAssemblyDescription.ModId == "0") return false;
+            if (ModAssemblyDescription.ModId == "0") return false;
             var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
             foreach (var databaseType in databaseStructs)
             {
@@ -142,13 +154,13 @@ namespace Belzont.Interfaces
         #endregion
 
         #region Old CommonProperties Overridable
-        private static string DisplayName => (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
+        private static string DisplayName => (ModAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : ModAssemblyDescription.DisplayName;
         public string SimpleName => DisplayName;
         public string SafeName => DisplayName.Replace(" ", "");
         public virtual string Acronym => Regex.Replace(DisplayName, "[^A-Z]", "");
         public virtual string GitHubRepoPath { get; } = "";
         public virtual string ModRootFolder => Path.Combine(KFileUtils.BASE_FOLDER_PATH, SafeName);
-        public string Description => modAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
+        public string Description => ModAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
 
         #endregion
 
@@ -236,7 +248,7 @@ namespace Belzont.Interfaces
 
         internal bool LoadLocales()
         {
-            if (modAssemblyDescription.ModId == "0") return false;
+            if (ModAssemblyDescription.ModId == "0") return false;
             var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
             previouslyLoadedDictionaries ??= new();
             UnloadLocales();

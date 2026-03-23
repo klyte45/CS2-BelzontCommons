@@ -127,13 +127,13 @@ namespace Belzont.Interfaces
         [SettingsUIButtonGroup("2")]
         [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckForumsLinkUnset))]
         [SettingsUIButton]
-        public bool GoToForum { set => Application.OpenURL(BasicIMod.modAssemblyDescription.ForumsURL); }
+        public bool GoToForum { set => Application.OpenURL(BasicIMod.ModAssemblyDescription.ForumsURL); }
 
         [SettingsUISection(kAboutTab, null)]
         [SettingsUIButtonGroup("2")]
         [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckGitHubLinkUnset))]
         [SettingsUIButton]
-        public bool GoToGitHub { set => Application.OpenURL(BasicIMod.modAssemblyDescription.GitHubURL); }
+        public bool GoToGitHub { set => Application.OpenURL(BasicIMod.ModAssemblyDescription.GitHubURL); }
 
         [SettingsUISection(kAboutTab, null)]
         [SettingsUIButtonGroup("3")]
@@ -146,8 +146,8 @@ namespace Belzont.Interfaces
             OnSetDefaults();
         }
 
-        public bool CheckForumsLinkUnset() => BasicIMod.modAssemblyDescription.ForumsURL.IsNullOrWhitespace();
-        public bool CheckGitHubLinkUnset() => BasicIMod.modAssemblyDescription.GitHubURL.IsNullOrWhitespace();
+        public bool CheckForumsLinkUnset() => BasicIMod.ModAssemblyDescription.ForumsURL.IsNullOrWhitespace();
+        public bool CheckGitHubLinkUnset() => BasicIMod.ModAssemblyDescription.GitHubURL.IsNullOrWhitespace();
 
         [SettingsUIMultilineText]
         [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckChangelogUnavailable))]
