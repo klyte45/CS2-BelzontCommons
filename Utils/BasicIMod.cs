@@ -30,33 +30,34 @@ namespace Belzont.Interfaces
 
         internal static bool IsReadyToLoad = ModAssemblyDescription.ModId != "0";
 
+        private bool ForceLoadingAttributes()
+        {
+            if (!IsReadyToLoad)
+            {
+                if (GameManager.instance.modManager.TryGetExecutableAsset(Instance as IMod, out var asset))
+                {
+                    Assembly assembly = Assembly.LoadFrom(asset.path);
+                    modAssemblyDescription = assembly.GetCustomAttributes<KlyteModDescriptionAttribute>().FirstOrDefault();
+                    if (modAssemblyDescription is null) modAssemblyDescription = new();
+                }
+                else
+                {
+                    modAssemblyDescription = null;
+                    LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
+                    return false;
+                }
+            }
+            DelayedLoad();
+            return true;
+        }
+
         public void OnLoad(UpdateSystem updateSystem)
         {
             Instance = this;
             UpdateSystem = updateSystem;
-            if (!IsReadyToLoad)
+            if (!IsReadyToLoad && !ForceLoadingAttributes())
             {
-                MainThreadDispatcher.RegisterUpdater(() =>
-                {
-                    if (!IsReadyToLoad)
-                    {
-                        if (GameManager.instance.modManager.TryGetExecutableAsset(Instance as IMod, out var asset))
-                        {
-                            Assembly assembly = Assembly.LoadFrom(asset.path);
-                            modAssemblyDescription = assembly.GetCustomAttributes<KlyteModDescriptionAttribute>().FirstOrDefault();
-                            if (modAssemblyDescription is null) modAssemblyDescription = new();                           
-                        }
-                        else
-                        {
-                            modAssemblyDescription = null;
-                            LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
-                            return false;
-                        }
-                    }
-                    DelayedLoad();
-                    return true;
-                });
-
+                MainThreadDispatcher.RegisterUpdater(ForceLoadingAttributes);
                 return;
             }
             DelayedLoad();
