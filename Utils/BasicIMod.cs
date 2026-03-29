@@ -60,7 +60,6 @@ namespace Belzont.Interfaces
                 MainThreadDispatcher.RegisterUpdater(ForceLoadingAttributes);
                 return;
             }
-            DelayedLoad();
         }
 
         private void DelayedLoad()
@@ -367,25 +366,28 @@ namespace Belzont.Interfaces
 
         public void SetupCaller(Action<string, object[]> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up event caller for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupCaller(eventCaller);
             }
         }
         public void SetupEventBinder(Action<string, Delegate> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up event binder for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupEventBinder(eventCaller);
             }
         }
         public void SetupCallBinder(Action<string, Delegate> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up call binder for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupCallBinder(eventCaller);
             }
         }
