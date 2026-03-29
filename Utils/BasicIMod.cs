@@ -55,7 +55,8 @@ namespace Belzont.Interfaces
         {
             Instance = this;
             UpdateSystem = updateSystem;
-            if (!IsReadyToLoad && !ForceLoadingAttributes())
+            LogUtils.DoInfoLog($"Starting {GetType().Assembly}");
+            if (!ForceLoadingAttributes())
             {
                 MainThreadDispatcher.RegisterUpdater(ForceLoadingAttributes);
                 return;
