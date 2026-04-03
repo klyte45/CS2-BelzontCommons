@@ -38,7 +38,11 @@ namespace Belzont.Interfaces
                 {
                     Assembly assembly = Assembly.LoadFrom(asset.path);
                     modAssemblyDescription = assembly.GetCustomAttributes<KlyteModDescriptionAttribute>().FirstOrDefault();
-                    if (modAssemblyDescription is null) modAssemblyDescription = new();
+                    if (modAssemblyDescription is null)
+                    {
+                        LogUtils.DoErrorLog($"The mod '{assembly.FullName}' is corrupted; it's missing the mod description DLL attribute. Recompile it!");
+                        modAssemblyDescription = new();
+                    }
                 }
                 else
                 {
