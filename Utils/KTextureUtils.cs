@@ -89,9 +89,11 @@ namespace Belzont.Utils
         {
             return (imageData[offset] << 8) | imageData[offset + 1];
         }
-        public static Texture2D MakeReadable(this Texture texture)
+        public static Texture2D MakeReadable(this Texture texture, out bool isCopy)
         {
+            isCopy = false;
             if (texture is Texture2D t2d && t2d.isReadable) return t2d;
+            isCopy = true;
             RenderTexture temporary = RenderTexture.GetTemporary(texture.width, texture.height, 0);
             Graphics.Blit(texture, temporary);
             Texture2D result = temporary.ToTexture2D();

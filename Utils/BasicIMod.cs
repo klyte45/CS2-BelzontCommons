@@ -7,6 +7,7 @@ using Colossal.IO.AssetDatabase;
 using Colossal.Localization;
 using Colossal.OdinSerializer.Utilities;
 using Game;
+using Game.Modding;
 using Game.Prefabs;
 using Game.SceneFlow;
 using System;
@@ -24,14 +25,54 @@ namespace Belzont.Interfaces
     public abstract class BasicIMod
     {
         protected UpdateSystem UpdateSystem { get; set; }
-        internal static KlyteModDescriptionAttribute modAssemblyDescription => (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
+        internal static KlyteModDescriptionAttribute ModAssemblyDescription => modAssemblyDescription ??= (BasicIMod.Instance?.GetType() ?? typeof(BasicIMod)).Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>() ?? new();
+        internal static KlyteModDescriptionAttribute modAssemblyDescription;
+
+        internal static bool IsReadyToLoad = ModAssemblyDescription.ModId != "0";
+
+        private bool ForceLoadingAttributes()
+        {
+            if (!IsReadyToLoad)
+            {
+                if (GameManager.instance.modManager.TryGetExecutableAsset(Instance as IMod, out var asset))
+                {
+                    Assembly assembly = Assembly.LoadFrom(asset.path);
+                    modAssemblyDescription = assembly.GetCustomAttributes<KlyteModDescriptionAttribute>().FirstOrDefault();
+                    if (modAssemblyDescription is null)
+                    {
+                        LogUtils.DoErrorLog($"The mod '{assembly.FullName}' is corrupted; it's missing the mod description DLL attribute. Recompile it!");
+                        modAssemblyDescription = new();
+                    }
+                }
+                else
+                {
+                    modAssemblyDescription = null;
+                    LogUtils.DoInfoLog($"Initialization not complete yet. Waiting for {GetType().Assembly} {GetType().Assembly.GetCustomAttribute<KlyteModDescriptionAttribute>()}");
+                    return false;
+                }
+            }
+            DelayedLoad();
+            return true;
+        }
 
         public void OnLoad(UpdateSystem updateSystem)
         {
-            OnLoad();
+            Instance = this;
             UpdateSystem = updateSystem;
+            LogUtils.DoInfoLog($"Starting {GetType().Assembly}");
+            if (!ForceLoadingAttributes())
+            {
+                MainThreadDispatcher.RegisterUpdater(ForceLoadingAttributes);
+                return;
+            }
+        }
+
+        private void DelayedLoad()
+        {
+            OnLoad();
             Redirector.OnWorldCreated(UpdateSystem.World);
-            DoOnCreateWorld(updateSystem);
+            DoOnCreateWorld(UpdateSystem);
+            RegisterBelzontSystems();
             MainThreadDispatcher.RegisterUpdater(() =>
             {
                 LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
@@ -45,8 +86,21 @@ namespace Belzont.Interfaces
             MainThreadDispatcher.RegisterUpdater(RegisterAssets);
         }
 
+        private void RegisterBelzontSystems()
+        {
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBasicSystem), new[] { GetType().Assembly });
+            foreach (var type in targetTypes)
+            {
+                if (type.IsCastableTo(typeof(SystemBase)))
+                {
+                    GetManagedSystem(type);
+                }
+            }
+        }
+
         private bool RegisterAssets()
         {
+            if (ModAssemblyDescription.ModId == "0") return false;
             var databaseStructs = GetType().Assembly.DefinedTypes.Where(x => x.InheritsFrom(typeof(AssetDatabaseSelfCreate)));
             foreach (var databaseType in databaseStructs)
             {
@@ -85,7 +139,6 @@ namespace Belzont.Interfaces
         public abstract BasicModData CreateSettingsFile();
         public void OnLoad()
         {
-            Instance = this;
             ModData = CreateSettingsFile();
             ModData.RegisterInOptionsUI();
             ModData.RegisterKeyBindings();
@@ -106,13 +159,13 @@ namespace Belzont.Interfaces
         #endregion
 
         #region Old CommonProperties Overridable
-        private static string DisplayName => (modAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : modAssemblyDescription.DisplayName;
+        private static string DisplayName => (ModAssemblyDescription.DisplayName?.Length ?? -1) < 1 ? throw new Exception("DisplayName not set!") : ModAssemblyDescription.DisplayName;
         public string SimpleName => DisplayName;
         public string SafeName => DisplayName.Replace(" ", "");
         public virtual string Acronym => Regex.Replace(DisplayName, "[^A-Z]", "");
         public virtual string GitHubRepoPath { get; } = "";
         public virtual string ModRootFolder => Path.Combine(KFileUtils.BASE_FOLDER_PATH, SafeName);
-        public string Description => modAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
+        public string Description => ModAssemblyDescription.ShortDescription ?? throw new Exception("ShortDescription not set!");
 
         #endregion
 
@@ -200,6 +253,7 @@ namespace Belzont.Interfaces
 
         internal bool LoadLocales()
         {
+            if (ModAssemblyDescription.ModId == "0") return false;
             var file = Path.Combine(ModInstallFolder, $"i18n/i18n.csv");
             previouslyLoadedDictionaries ??= new();
             UnloadLocales();
@@ -317,25 +371,28 @@ namespace Belzont.Interfaces
 
         public void SetupCaller(Action<string, object[]> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up event caller for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupCaller(eventCaller);
             }
         }
         public void SetupEventBinder(Action<string, Delegate> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up event binder for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupEventBinder(eventCaller);
             }
         }
         public void SetupCallBinder(Action<string, Delegate> eventCaller)
         {
-            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), new[] { GetType().Assembly });
+            var targetTypes = ReflectionUtils.GetInterfaceImplementations(typeof(IBelzontBindable), [GetType().Assembly]);
             foreach (var type in targetTypes)
             {
+                LogUtils.DoInfoLog($"Setting up call binder for {type.FullName}");
                 (GetManagedSystem(type) as IBelzontBindable).SetupCallBinder(eventCaller);
             }
         }
