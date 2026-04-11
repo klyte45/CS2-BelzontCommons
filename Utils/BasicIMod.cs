@@ -75,11 +75,18 @@ namespace Belzont.Interfaces
             RegisterBelzontSystems();
             MainThreadDispatcher.RegisterUpdater(() =>
             {
-                LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
-                GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
-                MainThreadDispatcher.RegisterUpdater(RegisterAtEuis);
-                GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
-                SelfRegiterUIEvents();
+                try
+                {
+                    LogUtils.DoInfoLog($"CouiHost => {CouiHost}");
+                    GameManager.instance.userInterface.view.uiSystem.AddHostLocation(CouiHost, new HashSet<(string, int)> { (ModInstallFolder, 0) });
+                    MainThreadDispatcher.RegisterUpdater(RegisterAtEuis);
+                    GameManager.instance.userInterface.view.uiSystem.defaultUIView.Listener.ReadyForBindings += SelfRegiterUIEvents;
+                    SelfRegiterUIEvents();
+                }
+                catch (Exception ex)
+                {
+                    LogUtils.DoErrorLog("Error during delayed load of UI events registration!", ex);
+                }
                 return true;
             });
             MainThreadDispatcher.RegisterUpdater(LoadLocales);
