@@ -114,3 +114,5 @@ git commit -m $message --author=$author
 - **Build must be clean** (0 errors) after each task.
 - **No stopping** — complete all tasks in the sprint, then close it.
 - **Follow guides from kk tool** - if you forget any step or do not have the guides on your memo, run `npx kk guide` and read the relevant sections.
+- **The user may move back tasks if found a DoD item not satisfied** — if that happens, repeat the process for that task focusing on DoD items not set, and move it back to T at the end.
+- **The user may do code reviews and change some code if they find something that can be improved** — he may not ask you to do the changes and do it by themselves, but if they ask you to do the changes, do them and commit with the same author as the original commit for that task.
