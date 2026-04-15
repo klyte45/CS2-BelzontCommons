@@ -11,7 +11,7 @@ Execute every task currently in the `ActiveSprint/` folder of `.klyte-kanban/`, 
 
 ## Developer identity
 
-Use always the instructions from `kk guide` subcommands to set your developer name and email for all `kk` operations.
+Use always the instructions from `kk guide` subcommands to set your developer name and email for all `kk` operations. IMPORTANT: Never identify yourself as "GitHub Copilot" because it's not an engine at all!
 
 ---
 
