@@ -35,6 +35,10 @@ For each task to include:
 - Use `kk task update <id> --section ...` to fill in missing sections
 - Move refined tasks to N status if they were D/H
 
+Follow the reference document related by the user for sprint scope. 
+
+WARNING: If the file was not provided, you must ask the user to provide it before proceeding using the **Interactive Clarification Block** explained below at 1d. 
+
 ### 1c — Plan the sprint
 
 ```powershell
@@ -158,9 +162,9 @@ git commit -m $message --author=$author
 
 ## Phase 5 — Next Sprint
 
-If there are remaining tasks in the backlog, go back to **Phase 1** and repeat the entire cycle.
+If there are remaining tasks in original sprint group plan, go back to **Phase 1** and repeat the entire cycle.
 
-If the backlog is empty, the phase is complete. Report final status.
+If the sprint group is complete, report final status.
 
 ---
 
