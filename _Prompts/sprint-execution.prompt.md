@@ -60,7 +60,7 @@ Key rules:
 ### 1d — Verify
 
 ```powershell
-dotnet test "BelzontWE.sln" 2>&1 | Select-Object -Last 8
+MSBuild.exe BelzontWE.sln /p:Configuration=Debug | Select-Object -Last 8
 ```
 
 Confirm: `Falha: 0`. Pre-existing failures (like `STRING_RENDERING_BATCH_Is256`) are acceptable if they were there before your changes.
