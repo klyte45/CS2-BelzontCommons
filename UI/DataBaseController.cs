@@ -6,7 +6,7 @@ namespace Belzont.Utils
 {
     public abstract class DataBaseController : ComponentSystemBase, IBelzontBindable
     {
-        private Action<string, object[]> EventCaller { get; set; }
+        protected Action<string, object[]> EventCaller { get; set; }
         private Action<string, Delegate> CallBinder { get; set; }
 
         public void SetupCallBinder(Action<string, Delegate> callBinder)
