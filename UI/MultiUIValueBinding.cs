@@ -21,23 +21,26 @@ namespace Belzont.Utils
         private readonly string m_propertyPrefix;
         private readonly Func<F, MultiUIValueBinding<B, F>, B> m_dataNormalizeFn;
         private readonly Func<B, MultiUIValueBinding<B, F>, F> m_frontendTransformFn;
+        private readonly bool m_isReadOnlyForUI;
         public event Action<B> OnScreenValueChanged;
 
-        public MultiUIValueBinding(B initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<B, MultiUIValueBinding<B, F>, F> frontendTransformFn, Func<F, MultiUIValueBinding<B, F>, B> dataNormalizeFn)
+        public MultiUIValueBinding(B initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<B, MultiUIValueBinding<B, F>, F> frontendTransformFn, Func<F, MultiUIValueBinding<B, F>, B> dataNormalizeFn, bool isReadOnlyForUI = false)
         {
             m_value = initialValue;
             m_propertyPrefix = propertyPrefix;
-            callBinder($"{propertyPrefix}!", OnUiValueChanged);
+            if (!isReadOnlyForUI) callBinder($"{propertyPrefix}!", OnUiValueChanged);
             callBinder($"{propertyPrefix}?", GetValueUI);
             eventCaller = euisEventCaller;
             m_dataNormalizeFn = dataNormalizeFn;
             m_frontendTransformFn = frontendTransformFn;
+            m_isReadOnlyForUI = isReadOnlyForUI;
         }
 
         private object GetValueUI() => m_frontendTransformFn(Value, this);
 
         private void OnUiValueChanged(F newValue)
         {
+            if (m_isReadOnlyForUI) return;
             m_value = m_dataNormalizeFn(newValue, this);
             OnScreenValueChanged?.Invoke(m_value);
             UpdateUIs();
@@ -60,12 +63,9 @@ namespace Belzont.Utils
     }
 
 
-    public class MultiUIValueBinding<T> : MultiUIValueBinding<T, T>
+    public class MultiUIValueBinding<T>(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, MultiUIValueBinding<T, T>, T> dataNormalizeFn = null, bool isReadOnlyForUI = false)
+        : MultiUIValueBinding<T, T>(initialValue, propertyPrefix, euisEventCaller, callBinder, (x, _) => x, dataNormalizeFn ?? ((x, _) => x), isReadOnlyForUI)
     {
-        public MultiUIValueBinding(T initialValue, string propertyPrefix, Action<string, object[]> euisEventCaller, Action<string, Delegate> callBinder, Func<T, MultiUIValueBinding<T, T>, T> dataNormalizeFn = null)
-            : base(initialValue, propertyPrefix, euisEventCaller, callBinder, (x, _) => x, dataNormalizeFn ?? ((x, _) => x))
-        {
-        }
     }
 
 }
