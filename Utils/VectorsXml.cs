@@ -35,6 +35,10 @@ namespace Belzont.Utils
         public static explicit operator Vector3Xml(Vector3 v) => new Vector3Xml { x = v.x, y = v.y, z = v.z };
         public static implicit operator float3(Vector3Xml v) => new float3(v?.x ?? 0, v?.y ?? 0, v?.z ?? 0);
         public static explicit operator Vector3Xml(float3 v) => new Vector3Xml { x = v.x, y = v.y, z = v.z };
+        public static implicit operator Vector3Int(Vector3Xml v) => new Vector3Int((int?)v?.x ?? 0, (int?)v?.y ?? 0, (int?)v?.z ?? 0);
+        public static explicit operator Vector3Xml(Vector3Int v) => new Vector3Xml { x = v.x, y = v.y, z = v.z };
+        public static implicit operator int3(Vector3Xml v) => (int3)new float3(v?.x ?? 0, v?.y ?? 0, v?.z ?? 0);
+        public static explicit operator Vector3Xml(int3 v) => new Vector3Xml { x = v.x, y = v.y, z = v.z };
         public override string ToString() => $"Vector3Xml({x},{y},{z})";
     }
 
