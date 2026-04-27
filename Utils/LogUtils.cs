@@ -57,7 +57,9 @@ namespace Belzont.Utils
                 LogCaughtLogException(format, args, e);
             }
         }
-        public static void DoLog(string format, params object[] args)
+        [Obsolete]
+        public static void DoLog(string format, params object[] args) => DoLog(format, args);
+        public static void DoDebugLog(string format, params object[] args)
         {
             try
             {
