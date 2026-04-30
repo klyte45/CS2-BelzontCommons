@@ -58,7 +58,7 @@ namespace Belzont.Utils
             }
         }
         [Obsolete]
-        public static void DoLog(string format, params object[] args) => DoLog(format, args);
+        public static void DoLog(string format, params object[] args) => DoDebugLog(format, args);
         public static void DoDebugLog(string format, params object[] args)
         {
             try
