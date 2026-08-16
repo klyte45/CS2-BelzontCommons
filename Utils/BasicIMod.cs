@@ -266,6 +266,10 @@ namespace Belzont.Interfaces
             UnloadLocales();
 
             var baseModData = new ModGenI18n(ModData);
+            // en-US md is the base for every language; missing keys/files fall through to it (same pattern as CSV en column).
+            var enMdEntries = LoadMarkdownLocaleEntries(MarkdownBaseLocale);
+            MemorySource enMdSource = enMdEntries.Count > 0 ? new MemorySource(enMdEntries) : null;
+
             if (File.Exists(file))
             {
                 var fileLines = File.ReadAllLines(file).Select(x => x.Split('\t'));
@@ -295,6 +299,8 @@ namespace Belzont.Interfaces
                     }
                     previouslyLoadedDictionaries.Enqueue((lang, baseModData));
                     GameManager.instance.localizationManager.AddSource(lang, baseModData);
+                    // Md after CSV/ModGen so same-key entries in i18n/{lang}/*.md win over CSV.
+                    AddMarkdownLocaleSources(lang, enMdSource);
                 }
             }
             else
@@ -303,6 +309,7 @@ namespace Belzont.Interfaces
                 {
                     previouslyLoadedDictionaries.Enqueue((lang, baseModData));
                     GameManager.instance.localizationManager.AddSource(lang, baseModData);
+                    AddMarkdownLocaleSources(lang, enMdSource);
                 }
             }
 
@@ -315,6 +322,99 @@ namespace Belzont.Interfaces
             {
                 GameManager.instance.localizationManager.RemoveSource(src.Item1, src.Item2);
             }
+        }
+
+        private const string MarkdownBaseLocale = "en-US";
+
+        /// <summary>
+        /// Registers <c>i18n/en-US/*.md</c> as the base for <paramref name="lang"/>, then overlays
+        /// <c>i18n/{lang}/*.md</c> when present. Keys missing from the language folder keep en-US content.
+        /// </summary>
+        private void AddMarkdownLocaleSources(string lang, MemorySource enMdSource)
+        {
+            if (enMdSource != null)
+            {
+                previouslyLoadedDictionaries.Enqueue((lang, enMdSource));
+                GameManager.instance.localizationManager.AddSource(lang, enMdSource);
+            }
+
+            if (lang == MarkdownBaseLocale) return;
+
+            var langEntries = LoadMarkdownLocaleEntries(lang);
+            if (langEntries.Count == 0) return;
+
+            var langMdSource = new MemorySource(langEntries);
+            previouslyLoadedDictionaries.Enqueue((lang, langMdSource));
+            GameManager.instance.localizationManager.AddSource(lang, langMdSource);
+        }
+
+        /// <summary>
+        /// Loads <c>i18n/{lang}/*.md</c> (YAML-like frontmatter <c>key</c>/<c>entry</c> + body).
+        /// Deterministic path order; later files overwrite earlier keys within the same folder.
+        /// </summary>
+        private Dictionary<string, string> LoadMarkdownLocaleEntries(string lang)
+        {
+            var entries = new Dictionary<string, string>();
+            var langDir = Path.Combine(AdditionalI18nFilesFolder, lang);
+            if (!Directory.Exists(langDir)) return entries;
+
+            foreach (var mdPath in Directory.EnumerateFiles(langDir, "*.md", SearchOption.TopDirectoryOnly).OrderBy(p => p, StringComparer.OrdinalIgnoreCase))
+            {
+                if (!TryParseMarkdownLocaleFile(mdPath, out var key, out var value))
+                {
+                    if (TraceMode) LogUtils.DoTraceLog($"Skipping markdown locale (missing key frontmatter): {mdPath}");
+                    continue;
+                }
+                var processed = ProcessKey(key, ModData);
+                // Last loaded file wins for duplicate keys within this folder.
+                entries[processed] = value;
+            }
+
+            return entries;
+        }
+
+        private static bool TryParseMarkdownLocaleFile(string path, out string key, out string value)
+        {
+            key = null;
+            value = null;
+            var text = File.ReadAllText(path);
+            if (text.Length == 0) return false;
+
+            // Strip UTF-8 BOM if present.
+            if (text[0] == '\uFEFF') text = text[1..];
+
+            if (!text.StartsWith("---", StringComparison.Ordinal)) return false;
+
+            var afterOpen = text.IndexOf('\n');
+            if (afterOpen < 0) return false;
+            var closeIdx = text.IndexOf("\n---", afterOpen, StringComparison.Ordinal);
+            if (closeIdx < 0) return false;
+
+            var frontmatter = text.Substring(afterOpen + 1, closeIdx - afterOpen - 1);
+            var bodyStart = closeIdx + 4; // past "\n---"
+            if (bodyStart < text.Length && text[bodyStart] == '\r') bodyStart++;
+            if (bodyStart < text.Length && text[bodyStart] == '\n') bodyStart++;
+
+            foreach (var rawLine in frontmatter.Split('\n'))
+            {
+                var line = rawLine.TrimEnd('\r').Trim();
+                if (line.Length == 0 || line.StartsWith("#")) continue;
+                var colon = line.IndexOf(':');
+                if (colon <= 0) continue;
+                var field = line[..colon].Trim();
+                var fieldValue = line[(colon + 1)..].Trim().Trim('"').Trim('\'');
+                if (field.Equals("key", StringComparison.OrdinalIgnoreCase)
+                    || field.Equals("entry", StringComparison.OrdinalIgnoreCase))
+                {
+                    key = fieldValue;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(key)) return false;
+
+            value = bodyStart < text.Length ? text[bodyStart..].TrimEnd('\r', '\n') : "";
+            return true;
         }
 
         private static Dictionary<string, string> LocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn)
