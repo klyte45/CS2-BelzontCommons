@@ -321,6 +321,33 @@ namespace Belzont.Interfaces
             while (previouslyLoadedDictionaries.TryDequeue(out var src))
             {
                 GameManager.instance.localizationManager.RemoveSource(src.Item1, src.Item2);
+                ForgetUserSource(src.Item1, src.Item2);
+            }
+        }
+
+        private static FieldInfo userSourcesField;
+        private static bool userSourcesFieldResolved;
+
+        /// <summary>
+        /// <see cref="LocalizationManager.RemoveSource"/> drops the source from the locale but keeps the
+        /// pair in its private user-source list, which is replayed by every <c>LoadAvailableLocales</c>
+        /// (bulk asset changes). Without this, each reload leaves another generation behind and keys
+        /// deleted from the files come back from the older ones.
+        /// </summary>
+        private static void ForgetUserSource(string localeId, IDictionarySource source)
+        {
+            if (!userSourcesFieldResolved)
+            {
+                userSourcesFieldResolved = true;
+                userSourcesField = typeof(LocalizationManager).GetField("m_UserSources", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (userSourcesField is null)
+                {
+                    LogUtils.DoWarnLog("LocalizationManager.m_UserSources not found; stale locale sources will pile up on each translation reload.");
+                }
+            }
+            if (userSourcesField?.GetValue(GameManager.instance.localizationManager) is List<(string, IDictionarySource)> userSources)
+            {
+                userSources.Remove((localeId, source));
             }
         }
 
