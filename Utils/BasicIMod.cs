@@ -499,7 +499,7 @@ namespace Belzont.Interfaces
 
         private static Dictionary<string, string> CommonsLocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn, BasicModData modData)
         {
-            var acronym = Instance?.Acronym ?? string.Empty;
+            var acronym = (Instance?.Acronym ?? string.Empty).ToUpper();
             var logFileName = Path.GetFileName(LogUtils.GetLogLocation());
             return fileLines.Skip(1)
                 .Where(x => x.Length > 0 && !x[0].IsNullOrWhitespace())
