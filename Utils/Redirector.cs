@@ -127,10 +127,10 @@ namespace Belzont.Utils
 #endif
 
             List<Type> instances = ReflectionUtils.GetInterfaceImplementations(typeTarg, refAssemblies);
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"Found Redirectors: {instances.Count}");
+            if (BasicIMod.DebugMode) LogUtils.DoDebugLog($"Found Redirectors: {instances.Count}");
             Type typeTargWorldless = typeof(IRedirectableWorldless);
             List<Type> instancesWorldless = ReflectionUtils.GetInterfaceImplementations(typeTargWorldless, refAssemblies);
-            if (BasicIMod.DebugMode) LogUtils.DoLog($"Found Worldless Redirectors: {instances.Count}");
+            if (BasicIMod.DebugMode) LogUtils.DoDebugLog($"Found Worldless Redirectors: {instances.Count}");
             Application.logMessageReceived += ErrorPatchingHandler;
             try
             {

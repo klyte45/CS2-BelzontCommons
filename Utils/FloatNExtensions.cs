@@ -23,7 +23,7 @@ namespace Belzont.Utils
         {
             float ca = to.x - from.x;
             float co = -to.y + from.y;
-            //LogUtils.DoLog($"ca = {ca},co = {co};");
+            //LogUtils.DoDebugLog($"ca = {ca},co = {co};");
             if (co == 0)
             {
                 if (ca < 0)

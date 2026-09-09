@@ -679,7 +679,7 @@ namespace Belzont.Interfaces
             SetupCallBinder((callAddress, action) =>
             {
                 var callName = $"{EuisModderIdentifier}::{EuisModAcronym}.{callAddress}";
-                if (BasicIMod.DebugMode) LogUtils.DoLog($"Register call: {callName}");
+                if (BasicIMod.DebugMode) LogUtils.DoDebugLog($"Register call: {callName}");
                 GameManager.instance.userInterface.view.View.BindCall(callName, action);
             });
             SetupCaller((callAddress, args) =>

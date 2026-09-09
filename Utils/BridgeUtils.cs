@@ -69,7 +69,7 @@ namespace Belzont.Utils
         {
             var classNameBase = typeof(T).FullName;
             var allTypes = GetAllInterfacesWithTypeName(classNameBase);
-            if (BasicIMod.DebugMode) LogUtils.DoLog("Classes with same name of '{0}' found: {1}", classNameBase, allTypes.Length);
+            if (BasicIMod.DebugMode) LogUtils.DoDebugLog("Classes with same name of '{0}' found: {1}", classNameBase, allTypes.Length);
             return allTypes
                    .SelectMany(x =>
                    {
@@ -159,7 +159,7 @@ namespace Belzont.Utils
                     }
                     foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                     {
-                        if (BasicIMod.DebugMode) LogUtils.DoLog("Patching method {0} {1}", type, method);
+                        if (BasicIMod.DebugMode) LogUtils.DoDebugLog("Patching method {0} {1}", type, method);
                         var srcMethod = targetType.GetMethod(method.Name, RedirectorUtils.allFlags, null, [.. method.GetParameters().Select(x => x.ParameterType)], null);
                         if (srcMethod != null)
                         {

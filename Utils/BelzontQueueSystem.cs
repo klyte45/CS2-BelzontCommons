@@ -26,7 +26,7 @@ namespace Belzont.Utils
 
         public void Enqueue(Entity e, Action<T> onEnd, bool force = false)
         {
-            if (BasicIMod.TraceMode) LogUtils.DoLog("{0}: E = {1}, Force = {2}", GetType(), e, force);
+            if (BasicIMod.TraceMode) LogUtils.DoDebugLog("{0}: E = {1}, Force = {2}", GetType(), e, force);
             itemsToProcess.Enqueue(new(e, (force, onEnd)));
         }
 
@@ -62,7 +62,7 @@ namespace Belzont.Utils
             {
                 foreach (var entry in awaitingQueue.Where(x => ComponentsToCheck.Any(t => EntityManager.HasComponent(x.Key, t))).ToArray())
                 {
-                    if (BasicIMod.DebugMode) LogUtils.DoLog("{0}: COMPONENT FOUND! {1}", GetType(), entry.Key, ComponentsToCheck.First(x => EntityManager.HasComponent(entry.Key, x)));
+                    if (BasicIMod.DebugMode) LogUtils.DoDebugLog("{0}: COMPONENT FOUND! {1}", GetType(), entry.Key, ComponentsToCheck.First(x => EntityManager.HasComponent(entry.Key, x)));
                     itemsToProcess.Enqueue(new(entry.Key, (true, entry.Value)));
                     awaitingQueue.Remove(entry.Key);
                 }
