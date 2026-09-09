@@ -1,0 +1,34 @@
+key	es-ES
+::TAbout	Acerca de
+::GLogging	Registro
+::GAlertModals	Modales de alerta
+::LLoggingLevel	Nivel de registro
+::DLoggingLevel	Cambia el nivel de registro de este mod. Verbose genera MUCHO registro; úselo con cuidado.
+::LLogStacktraces	Registrar stacktraces
+::DLogStacktraces	Añade información de stacktrace indicando cuándo se generó el log en el código
+::LShowErrorsPopups	Mostrar errores de este mod en la UI
+::DShowErrorsPopups	¡Desactívelo solo en emergencias!
+::LVersion	Versión del mod
+::DVersion	La versión actual del mod.
+::LGoToLocalesFolder	Ir a la carpeta de traducciones
+::DGoToLocalesFolder	Abre la carpeta de traducciones adicionales:\n- Nombre <[langID].csv>, contenido <[KEY][_TAB_][VALUE]>.\n- Saltos de línea en el valor como <\\n>.\n- Conserve los marcadores <{}>.\n- Compártalo en el foro para Paradox Mods.\n- langIDs disponibles en Localization.log.
+::LReloadLocales	Recargar traducciones
+::DReloadLocales	Al traducir, pulse aquí para probar el archivo modificado.
+::LGoToForum	Ir a los foros
+::DGoToForum	Accede al foro de este mod en Paradox Mods.
+::LGoToGitHub	Ir al repositorio
+::DGoToGitHub	Accede al repositorio con el código fuente del mod.
+::LGoToLogFolder	Ir a la carpeta de logs
+::DGoToLogFolder	Abre las carpetas de mods del juego. Log: <{logFileName}>
+::LShowWhatsNewOnNewVersion	Mostrar el modal de novedades en el primer inicio de una nueva versión
+::DShowWhatsNewOnNewVersion	"Si está activado, el diálogo de novedades se abre una vez al entrar en una ciudad o en el editor después de instalar o actualizar este mod. Si está desactivado, no aparecerá automáticamente en versiones futuras."
+::LShowWhatsNewPanel	Mostrar panel de novedades
+::DShowWhatsNewPanel	Abre el diálogo de novedades con el changelog de este mod.
+K45::{Acronym}.commons[whatsNew.title]	Bienvenido a {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Leer más tarde
+K45::{Acronym}.commons[whatsNew.showOnFuture]	Mostrar el modal de novedades en el primer inicio de una nueva versión
+::ELogLevel.Normal	Normal
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace (Cuidado...) 
+::ELogLevel.Verbose	Verbose (¡No lo deje mucho tiempo!)

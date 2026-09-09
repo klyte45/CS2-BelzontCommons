@@ -1,4 +1,5 @@
 ﻿using Belzont.AssemblyUtility;
+using Belzont.Systems;
 using Belzont.Utils;
 using BelzontCommons.Assets;
 using Colossal;
@@ -71,6 +72,7 @@ namespace Belzont.Interfaces
         {
             OnLoad();
             Redirector.OnWorldCreated(UpdateSystem.World);
+            UpdateSystem.UpdateAt<WhatsNewUISystem>(SystemUpdatePhase.UIUpdate);
             DoOnCreateWorld(UpdateSystem);
             RegisterBelzontSystems();
             MainThreadDispatcher.RegisterUpdater(() =>
@@ -265,10 +267,12 @@ namespace Belzont.Interfaces
             previouslyLoadedDictionaries ??= new();
             UnloadLocales();
 
-            var baseModData = new ModGenI18n(ModData);
             // en-US md is the base for every language; missing keys/files fall through to it (same pattern as CSV en column).
             var enMdEntries = LoadMarkdownLocaleEntries(MarkdownBaseLocale);
             MemorySource enMdSource = enMdEntries.Count > 0 ? new MemorySource(enMdEntries) : null;
+            var commonsCsvLines = LoadBelzontCommonsI18nCsvLines();
+            var commonsEnEntries = LoadBelzontCommonsLocaleEntriesFromColumn(commonsCsvLines, "en-US", ModData);
+            MemorySource commonsEnSource = commonsEnEntries.Count > 0 ? new MemorySource(commonsEnEntries) : null;
 
             if (File.Exists(file))
             {
@@ -277,6 +281,8 @@ namespace Belzont.Interfaces
                 var enMemoryFile = new MemorySource(LocaleFileForColumn(fileLines, enColumn));
                 foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
+                    AddBelzontCommonsLocaleSources(lang, commonsCsvLines, commonsEnSource, commonsEnEntries, out var commonsEntriesForLang);
+
                     previouslyLoadedDictionaries.Enqueue((lang, enMemoryFile));
                     GameManager.instance.localizationManager.AddSource(lang, enMemoryFile);
                     if (lang != "en-US")
@@ -297,8 +303,9 @@ namespace Belzont.Interfaces
                             GameManager.instance.localizationManager.AddSource(lang, i18nFile);
                         }
                     }
-                    previouslyLoadedDictionaries.Enqueue((lang, baseModData));
-                    GameManager.instance.localizationManager.AddSource(lang, baseModData);
+                    var modGen = new ModGenI18n(ModData, commonsEntriesForLang);
+                    previouslyLoadedDictionaries.Enqueue((lang, modGen));
+                    GameManager.instance.localizationManager.AddSource(lang, modGen);
                     // Md after CSV/ModGen so same-key entries in i18n/{lang}/*.md win over CSV.
                     AddMarkdownLocaleSources(lang, enMdSource);
                 }
@@ -307,13 +314,48 @@ namespace Belzont.Interfaces
             {
                 foreach (var lang in GameManager.instance.localizationManager.GetSupportedLocales())
                 {
-                    previouslyLoadedDictionaries.Enqueue((lang, baseModData));
-                    GameManager.instance.localizationManager.AddSource(lang, baseModData);
+                    AddBelzontCommonsLocaleSources(lang, commonsCsvLines, commonsEnSource, commonsEnEntries, out var commonsEntriesForLang);
+                    var modGen = new ModGenI18n(ModData, commonsEntriesForLang);
+                    previouslyLoadedDictionaries.Enqueue((lang, modGen));
+                    GameManager.instance.localizationManager.AddSource(lang, modGen);
                     AddMarkdownLocaleSources(lang, enMdSource);
                 }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Same overlay rules as mod disk i18n: register en-US commons as base for every language;
+        /// for other langs, prefer a column in <c>i18n.csv</c>, else a standalone embedded <c>{lang}.csv</c>.
+        /// </summary>
+        private void AddBelzontCommonsLocaleSources(
+            string lang,
+            string[][] commonsCsvLines,
+            MemorySource commonsEnSource,
+            Dictionary<string, string> commonsEnEntries,
+            out Dictionary<string, string> commonsEntriesForLang)
+        {
+            commonsEntriesForLang = commonsEnEntries;
+
+            if (commonsEnSource != null)
+            {
+                previouslyLoadedDictionaries.Enqueue((lang, commonsEnSource));
+                GameManager.instance.localizationManager.AddSource(lang, commonsEnSource);
+            }
+
+            if (lang == "en-US")
+            {
+                return;
+            }
+
+            if (TryLoadBelzontCommonsLangOverlay(commonsCsvLines, lang, ModData, out var overlay) && overlay.Count > 0)
+            {
+                commonsEntriesForLang = overlay;
+                var commonsLangSource = new MemorySource(overlay);
+                previouslyLoadedDictionaries.Enqueue((lang, commonsLangSource));
+                GameManager.instance.localizationManager.AddSource(lang, commonsLangSource);
+            }
         }
 
         private void UnloadLocales()
@@ -453,6 +495,101 @@ namespace Belzont.Interfaces
                 .Select(x => (Key: ProcessKey(x[0], ModData), Value: ReplaceSpecialChars(RemoveQuotes(x.ElementAtOrDefault(valueColumn) is string s && !s.IsNullOrWhitespace() ? s : x.ElementAtOrDefault(1)))))
                 .Where(x => !x.Key.IsNullOrWhitespace())
                 .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        private static Dictionary<string, string> CommonsLocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn, BasicModData modData)
+        {
+            var acronym = Instance?.Acronym ?? string.Empty;
+            var logFileName = Path.GetFileName(LogUtils.GetLogLocation());
+            return fileLines.Skip(1)
+                .Where(x => x.Length > 0 && !x[0].IsNullOrWhitespace())
+                .GroupBy(x => x[0])
+                .Select(x => x.First())
+                .Select(x =>
+                {
+                    var key = ProcessKey(x[0], modData).Replace("{Acronym}", acronym);
+                    key = modData.FixLocaleId(key);
+                    var raw = x.ElementAtOrDefault(valueColumn) is string s && !s.IsNullOrWhitespace()
+                        ? s
+                        : x.ElementAtOrDefault(1);
+                    var value = ReplaceSpecialChars(RemoveQuotes(raw)).Replace("{logFileName}", logFileName);
+                    return (Key: key, Value: value);
+                })
+                .Where(x => !x.Key.IsNullOrWhitespace())
+                .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        private static string[][] LoadBelzontCommonsI18nCsvLines()
+        {
+            if (!KResourceLoader.ResourceExistsBelzont("i18n.i18n.csv"))
+            {
+                return null;
+            }
+
+            return KResourceLoader.LoadResourceStringLinesBelzont("i18n.i18n.csv")
+                .Select(x => x.Split('\t'))
+                .ToArray();
+        }
+
+        private static string[][] LoadBelzontCommonsStandaloneCsvLines(string lang)
+        {
+            var resourceName = $"i18n.{lang}.csv";
+            if (!KResourceLoader.ResourceExistsBelzont(resourceName))
+            {
+                return null;
+            }
+
+            return KResourceLoader.LoadResourceStringLinesBelzont(resourceName)
+                .Select(x => x.Split('\t'))
+                .ToArray();
+        }
+
+        private static Dictionary<string, string> LoadBelzontCommonsLocaleEntriesFromColumn(string[][] fileLines, string lang, BasicModData modData)
+        {
+            if (fileLines is null || fileLines.Length == 0)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            var enColumn = Array.IndexOf(fileLines[0], "en-US");
+            if (enColumn < 0) enColumn = 1;
+            var valueColumn = lang == "en-US" ? enColumn : Array.IndexOf(fileLines[0], lang);
+            if (valueColumn < 0) valueColumn = enColumn;
+            return CommonsLocaleFileForColumn(fileLines, valueColumn, modData);
+        }
+
+        /// <summary>
+        /// Prefer a language column in the main commons <c>i18n.csv</c>; otherwise a standalone embedded <c>{lang}.csv</c>
+        /// (same order as mod disk locales).
+        /// </summary>
+        private static bool TryLoadBelzontCommonsLangOverlay(
+            string[][] mainCsvLines,
+            string lang,
+            BasicModData modData,
+            out Dictionary<string, string> overlay)
+        {
+            overlay = null;
+            if (mainCsvLines != null && mainCsvLines.Length > 0)
+            {
+                var valueColumn = Array.IndexOf(mainCsvLines[0], lang);
+                if (TraceMode) LogUtils.DoTraceLog($"Commons i18n: trying language {lang}, main csv column={valueColumn}");
+                if (valueColumn > 0)
+                {
+                    overlay = CommonsLocaleFileForColumn(mainCsvLines, valueColumn, modData);
+                    return overlay.Count > 0;
+                }
+            }
+
+            var standalone = LoadBelzontCommonsStandaloneCsvLines(lang);
+            if (standalone != null && standalone.Length > 0)
+            {
+                if (TraceMode) LogUtils.DoTraceLog($"Commons i18n: loading standalone embedded i18n.{lang}.csv");
+                // Standalone files are key + value (column 1), matching mod i18n/{lang}.csv.
+                overlay = CommonsLocaleFileForColumn(standalone, 1, modData);
+                return overlay.Count > 0;
+            }
+
+            return false;
         }
 
         private static string ReplaceSpecialChars(string v)
@@ -623,16 +760,17 @@ namespace Belzont.Interfaces
 
         private class ModGenI18n : IDictionarySource
         {
-            private BasicModData modData;
-            public ModGenI18n(BasicModData data)
+            private readonly BasicModData modData;
+            private readonly Dictionary<string, string> commonsEntries;
+
+            public ModGenI18n(BasicModData data, Dictionary<string, string> commonsEntries = null)
             {
                 modData = data;
+                this.commonsEntries = commonsEntries ?? new Dictionary<string, string>();
             }
 
             public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
             {
-
-
                 var settingsMenuName = Instance.GeneralName.Split(" (");
                 var baseName = Regex.Replace(settingsMenuName[0], "\\[[^\\]]+\\]", "").Trim();
                 var versionLenghtRef = settingsMenuName[1].Replace(".", "").Length;
@@ -653,42 +791,30 @@ namespace Belzont.Interfaces
                     baseName = string.Join(" ", splittedName);
                 }
 
-
-                return new Dictionary<string, string>
+                var result = new Dictionary<string, string>
                 {
                     [modData.GetSettingsLocaleID()] = baseName + " (" + settingsMenuName[1],
-                    [modData.GetOptionTabLocaleID(BasicModData.kAboutTab)] = "About",
-                    [modData.GetOptionGroupLocaleID(BasicModData.kLogSection)] = "Logging",
-                    [modData.GetOptionGroupLocaleID(BasicModData.kChangelogSection)] = "Changelog",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.Changelog)))] = $"Changelog\n{Utils.StringUtils.SiteMdToGameMd(KResourceLoader.LoadResourceStringMod("changelog.md"))}",
-
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.LoggingLevel)))] = "Logging Level",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.LoggingLevel)))] = "Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.",
-
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.LogStacktraces)))] = "Log Stacktraces",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.LogStacktraces)))] = "Add stacktrace information telling when the log was generated in the code",
-
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Show this mod errors on UI",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.ShowErrorsPopups)))] = "Only disable it on emergencies!",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.Version)))] = "Mod Version",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.Version)))] = "The current mod version.",
-
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Go To Translations folder",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLocalesFolder)))] = "Open the folder where the additional translations files shall be placed:\r\n- They should be named as <[langID].csv> and it contents must be in the format <[KEY][_TAB_character_][VALUE]>.\r\n- New lines in value content must be replaced by <\\\\n> char sequence.\r\n- Don't forget to keep the values inside curly braces <{}> in the new translation.\r\n- Share it later at forums to get it added with the mod package at Paradox Mods.\r\n- Check Localization.log at game logs folder to get the available langIDs.",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.ReloadLocales)))] = "Reload translations",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.ReloadLocales)))] = "When doing translations, click here to load your modfied file for testing purposes.",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToForum)))] = "Go to forums",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToForum)))] = "Access the mod forum discussion at Paradox Mods.",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToGitHub)))] = "Go to repository",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToGitHub)))] = "Access the mod repository to get access to the mod sources.",
-                    [modData.FixLocaleId(modData.GetOptionLabelLocaleID(nameof(BasicModData.GoToLogFolder)))] = "Go to log folder",
-                    [modData.FixLocaleId(modData.GetOptionDescLocaleID(nameof(BasicModData.GoToLogFolder)))] = $"Access game mod folders. The log name of this mod is <{Path.GetFileName(LogUtils.GetLogLocation())}>",
-
-                    [modData.GetEnumValueLocaleID(LogLevel.Normal)] = "Normal",
-                    [modData.GetEnumValueLocaleID(LogLevel.Debug)] = "Debug",
-                    [modData.GetEnumValueLocaleID(LogLevel.Trace)] = "Trace (Beware...) ",
-                    [modData.GetEnumValueLocaleID(LogLevel.Verbose)] = "Verbose (Don't let it for much time!)",
                 };
+
+                // Enum dropdown locale IDs from ModSetting may differ from ::E ProcessKey; mirror commons values.
+                MapEnumLocale(result, LogLevel.Normal, "LogLevel", "Normal");
+                MapEnumLocale(result, LogLevel.Debug, "LogLevel", "Debug");
+                MapEnumLocale(result, LogLevel.Trace, "LogLevel", "Trace");
+                MapEnumLocale(result, LogLevel.Verbose, "LogLevel", "Verbose");
+
+                return result;
+            }
+
+            private void MapEnumLocale(Dictionary<string, string> result, LogLevel value, string enumName, string enumValue)
+            {
+                var csvKey = modData.FixLocaleId(modData.GetEnumValueLocaleID(enumName, enumValue));
+                if (!commonsEntries.TryGetValue(csvKey, out var translated) || translated.IsNullOrWhitespace())
+                {
+                    return;
+                }
+
+                result[modData.GetEnumValueLocaleID(value)] = translated;
+                result[csvKey] = translated;
             }
 
             public void Unload()

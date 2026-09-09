@@ -1,0 +1,34 @@
+key	de-DE
+::TAbout	Info
+::GLogging	Protokollierung
+::GAlertModals	Warnungsdialoge
+::LLoggingLevel	Protokollstufe
+::DLoggingLevel	Ändert die Protokollstufe dieses Mods. Verbose erzeugt SEHR viele Einträge — vorsichtig verwenden.
+::LLogStacktraces	Stacktraces protokollieren
+::DLogStacktraces	Fügt Stacktrace-Informationen hinzu, wann der Log im Code erzeugt wurde
+::LShowErrorsPopups	Fehler dieses Mods in der UI anzeigen
+::DShowErrorsPopups	Nur im Notfall deaktivieren!
+::LVersion	Mod-Version
+::DVersion	Die aktuelle Mod-Version.
+::LGoToLocalesFolder	Zum Übersetzungsordner
+::DGoToLocalesFolder	Öffnet den Ordner für zusätzliche Übersetzungen:\n- Dateiname <[langID].csv>, Inhalt <[KEY][_TAB_][VALUE]>.\n- Zeilenumbrüche im Wert als <\\n>.\n- Platzhalter in <{}> beibehalten.\n- Später im Forum teilen für Paradox Mods.\n- Verfügbare langIDs in Localization.log.
+::LReloadLocales	Übersetzungen neu laden
+::DReloadLocales	Beim Übersetzen hier klicken, um die geänderte Datei zu testen.
+::LGoToForum	Zum Forum
+::DGoToForum	Zur Forum-Diskussion dieses Mods auf Paradox Mods.
+::LGoToGitHub	Zum Repository
+::DGoToGitHub	Zum Quellcode-Repository dieses Mods.
+::LGoToLogFolder	Zum Log-Ordner
+::DGoToLogFolder	Öffnet die Mod-Ordner des Spiels. Log-Datei: <{logFileName}>
+::LShowWhatsNewOnNewVersion	„Was ist neu“-Dialog beim ersten Start einer neuen Version anzeigen
+::DShowWhatsNewOnNewVersion	"Wenn aktiviert, öffnet sich der „Was ist neu“-Dialog einmal, wenn Sie nach der Installation oder Aktualisierung dieses Mods eine Stadt oder den Editor betreten. Wenn deaktiviert, erscheint er bei zukünftigen Versionen nicht automatisch."
+::LShowWhatsNewPanel	Was-ist-neu-Panel anzeigen
+::DShowWhatsNewPanel	Öffnet den Was-ist-neu-Dialog mit dem Changelog dieses Mods.
+K45::{Acronym}.commons[whatsNew.title]	Willkommen bei {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Später lesen
+K45::{Acronym}.commons[whatsNew.showOnFuture]	„Was ist neu“-Dialog beim ersten Start einer neuen Version anzeigen
+::ELogLevel.Normal	Normal
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace (Vorsicht...) 
+::ELogLevel.Verbose	Verbose (Nicht lange aktiv lassen!)

@@ -1,0 +1,34 @@
+key	ja-JP
+::TAbout	情報
+::GLogging	ログ
+::GAlertModals	アラートモーダル
+::LLoggingLevel	ログレベル
+::DLoggingLevel	このMODのログレベルを変更します。Verboseは大量のログを出力します。注意してください。
+::LLogStacktraces	スタックトレースを記録
+::DLogStacktraces	ログがコード内で生成されたタイミングのスタックトレース情報を追加します
+::LShowErrorsPopups	このMODのエラーをUIに表示
+::DShowErrorsPopups	緊急時以外は無効にしないでください！
+::LVersion	MODバージョン
+::DVersion	現在のMODバージョンです。
+::LGoToLocalesFolder	翻訳フォルダを開く
+::DGoToLocalesFolder	追加翻訳ファイル用フォルダを開きます:\n- ファイル名 <[langID].csv>、内容 <[KEY][_TAB_][VALUE]>。\n- 値内の改行は <\\n>。\n- <{}> のプレースホルダを残してください。\n- 後でフォーラムで共有し Paradox Mods に追加できます。\n- 利用可能な langID は Localization.log を確認。
+::LReloadLocales	翻訳を再読み込み
+::DReloadLocales	翻訳作業中、変更したファイルをテストするにはここをクリック。
+::LGoToForum	フォーラムへ
+::DGoToForum	Paradox Mods のこのMODのフォーラム討論へ。
+::LGoToGitHub	リポジトリへ
+::DGoToGitHub	MODのソースコードリポジトリへ。
+::LGoToLogFolder	ログフォルダへ
+::DGoToLogFolder	ゲームのMODフォルダを開きます。ログ名: <{logFileName}>
+::LShowWhatsNewOnNewVersion	新バージョンの初回起動時に新機能ダイアログを表示する
+::DShowWhatsNewOnNewVersion	有効にすると、このMODをインストールまたは更新した後、都市またはエディターに入ったときに新機能ダイアログが一度表示されます。無効にすると、今後のバージョンでは自動的に表示されません。
+::LShowWhatsNewPanel	新機能パネルを表示
+::DShowWhatsNewPanel	このMODのchangelogを含む新機能ダイアログを開きます。
+K45::{Acronym}.commons[whatsNew.title]	{modName} {version} へようこそ
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	後で読む
+K45::{Acronym}.commons[whatsNew.showOnFuture]	新バージョンの初回起動時に新機能ダイアログを表示する
+::ELogLevel.Normal	通常
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace（注意） 
+::ELogLevel.Verbose	Verbose（長時間オンにしないでください！）

@@ -1,0 +1,34 @@
+key	en-US	pt-BR
+::TAbout	About	Sobre
+::GLogging	Logging	Registro
+::GAlertModals	Alert modals	Modais de alerta
+::LLoggingLevel	Logging Level	Nível de registro
+::DLoggingLevel	Changes the log level of this mod. Verbose mode generates A LOT of logging, be careful.	Altera o nível de registro deste mod. O modo Verbose gera MUITO registro, tenha cuidado.
+::LLogStacktraces	Log Stacktraces	Registrar stacktraces
+::DLogStacktraces	Add stacktrace information telling when the log was generated in the code	Adiciona informação de stacktrace indicando quando o log foi gerado no código
+::LShowErrorsPopups	Show this mod errors on UI	Mostrar erros deste mod na UI
+::DShowErrorsPopups	Only disable it on emergencies!	Desative apenas em emergências!
+::LVersion	Mod Version	Versão do mod
+::DVersion	The current mod version.	A versão atual do mod.
+::LGoToLocalesFolder	Go To Translations folder	Ir para a pasta de traduções
+::DGoToLocalesFolder	Open the folder where the additional translations files shall be placed:\n- They should be named as <[langID].csv> and it contents must be in the format <[KEY][_TAB_character_][VALUE]>.\n- New lines in value content must be replaced by <\\n> char sequence.\n- Don't forget to keep the values inside curly braces <{}> in the new translation.\n- Share it later at forums to get it added with the mod package at Paradox Mods.\n- Check Localization.log at game logs folder to get the available langIDs.	Abre a pasta onde os arquivos de tradução adicionais devem ser colocados:\n- Devem se chamar <[langID].csv> e o conteúdo no formato <[CHAVE][_caractere_TAB_][VALOR]>.\n- Novas linhas no valor devem ser substituídas pela sequência <\\n>.\n- Não esqueça de manter os valores entre chaves <{}> na nova tradução.\n- Compartilhe depois nos fóruns para inclusão no pacote do mod no Paradox Mods.\n- Veja Localization.log na pasta de logs do jogo para os langIDs disponíveis.
+::LReloadLocales	Reload translations	Recarregar traduções
+::DReloadLocales	When doing translations, click here to load your modfied file for testing purposes.	Ao traduzir, clique aqui para carregar o arquivo modificado para testes.
+::LGoToForum	Go to forums	Ir aos fóruns
+::DGoToForum	Access the mod forum discussion at Paradox Mods.	Acessa a discussão do mod nos fóruns do Paradox Mods.
+::LGoToGitHub	Go to repository	Ir ao repositório
+::DGoToGitHub	Access the mod repository to get access to the mod sources.	Acessa o repositório do mod para obter o código-fonte.
+::LGoToLogFolder	Go to log folder	Ir à pasta de logs
+::DGoToLogFolder	Access game mod folders. The log name of this mod is <{logFileName}>	Acessa as pastas de mods do jogo. O nome do log deste mod é <{logFileName}>
+::LShowWhatsNewOnNewVersion	Show what's new modal on new version first startup	Mostrar modal de novidades na primeira inicialização de nova versão
+::DShowWhatsNewOnNewVersion	"When enabled, the what's new dialog opens once when you enter a city or the editor after installing or updating this mod. When disabled, it will not appear automatically on future versions."	"Quando ativado, o diálogo de novidades abre uma vez ao entrar em uma cidade ou no editor após instalar ou atualizar este mod. Quando desativado, ele não aparecerá automaticamente em versões futuras."
+::LShowWhatsNewPanel	Show what's new panel	Mostrar painel de novidades
+::DShowWhatsNewPanel	Opens the what's new dialog with this mod's changelog.	Abre o diálogo de novidades com o changelog deste mod.
+K45::{Acronym}.commons[whatsNew.title]	Welcome to {modName} {version}	Bem-vindo ao {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Read later	Ler depois
+K45::{Acronym}.commons[whatsNew.showOnFuture]	Show what's new modal on new version first startup	Mostrar modal de novidades na primeira inicialização de nova versão
+::ELogLevel.Normal	Normal	Normal
+::ELogLevel.Debug	Debug	Debug
+::ELogLevel.Trace	Trace (Beware...) 	Trace (Cuidado...) 
+::ELogLevel.Verbose	Verbose (Don't let it for much time!)	Verbose (Não deixe ligado por muito tempo!)

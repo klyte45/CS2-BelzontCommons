@@ -1,0 +1,34 @@
+key	it-IT
+::TAbout	Informazioni
+::GLogging	Registrazione
+::GAlertModals	Finestre modali di avviso
+::LLoggingLevel	Livello di registrazione
+::DLoggingLevel	Modifica il livello di log di questo mod. Verbose genera MOLTI log; usare con cautela.
+::LLogStacktraces	Registra stacktrace
+::DLogStacktraces	Aggiunge informazioni di stacktrace su quando il log è stato generato nel codice
+::LShowErrorsPopups	Mostra gli errori di questo mod nell'UI
+::DShowErrorsPopups	Disattivare solo in emergenza!
+::LVersion	Versione del mod
+::DVersion	La versione attuale del mod.
+::LGoToLocalesFolder	Vai alla cartella delle traduzioni
+::DGoToLocalesFolder	Apre la cartella delle traduzioni aggiuntive:\n- Nome <[langID].csv>, contenuto <[KEY][_TAB_][VALUE]>.\n- Nuove righe nel valore come <\\n>.\n- Mantieni i segnaposto <{}>.\n- Condividi poi sul forum per Paradox Mods.\n- langID disponibili in Localization.log.
+::LReloadLocales	Ricarica traduzioni
+::DReloadLocales	Durante le traduzioni, fai clic qui per testare il file modificato.
+::LGoToForum	Vai ai forum
+::DGoToForum	Accede alla discussione del mod sui forum Paradox Mods.
+::LGoToGitHub	Vai al repository
+::DGoToGitHub	Accede al repository con il codice sorgente del mod.
+::LGoToLogFolder	Vai alla cartella dei log
+::DGoToLogFolder	Apre le cartelle mod del gioco. Log: <{logFileName}>
+::LShowWhatsNewOnNewVersion	Mostra la finestra delle novità al primo avvio di una nuova versione
+::DShowWhatsNewOnNewVersion	"Se abilitato, la finestra delle novità si apre una volta quando entri in una città o nell'editor dopo aver installato o aggiornato questo mod. Se disabilitato, non apparirà automaticamente nelle versioni future."
+::LShowWhatsNewPanel	Mostra il pannello novità
+::DShowWhatsNewPanel	Apre la finestra delle novità con il changelog di questo mod.
+K45::{Acronym}.commons[whatsNew.title]	Benvenuto in {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Leggi più tardi
+K45::{Acronym}.commons[whatsNew.showOnFuture]	Mostra la finestra delle novità al primo avvio di una nuova versione
+::ELogLevel.Normal	Normale
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace (Attenzione...) 
+::ELogLevel.Verbose	Verbose (Non lasciarlo attivo a lungo!)

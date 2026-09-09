@@ -1,0 +1,34 @@
+key	zh-HANT
+::TAbout	關於
+::GLogging	日誌
+::GAlertModals	提醒視窗
+::LLoggingLevel	日誌層級
+::DLoggingLevel	變更此模組的日誌層級。Verbose 會產生大量日誌，請謹慎使用。
+::LLogStacktraces	記錄堆疊追蹤
+::DLogStacktraces	加入程式碼中產生日誌時的堆疊追蹤資訊
+::LShowErrorsPopups	在 UI 顯示此模組錯誤
+::DShowErrorsPopups	僅在緊急情況時停用！
+::LVersion	模組版本
+::DVersion	目前模組版本。
+::LGoToLocalesFolder	開啟翻譯資料夾
+::DGoToLocalesFolder	開啟附加翻譯檔案資料夾：\n- 檔名 <[langID].csv>，內容 <[KEY][_TAB_][VALUE]>。\n- 值中的換行寫為 <\\n>。\n- 保留 <{}> 預留位置。\n- 之後可在論壇分享以加入 Paradox Mods。\n- 可用 langID 見 Localization.log。
+::LReloadLocales	重新載入翻譯
+::DReloadLocales	翻譯時點此以測試已修改的檔案。
+::LGoToForum	前往論壇
+::DGoToForum	開啟 Paradox Mods 上此模組的論壇討論。
+::LGoToGitHub	前往程式庫
+::DGoToGitHub	開啟此模組的原始碼存放庫。
+::LGoToLogFolder	前往日誌資料夾
+::DGoToLogFolder	開啟遊戲模組資料夾。日誌名：<{logFileName}>
+::LShowWhatsNewOnNewVersion	在新版本首次啟動時顯示新功能對話框
+::DShowWhatsNewOnNewVersion	啟用後，在安裝或更新此模組後進入城市或編輯器時，新功能對話框將開啟一次。停用後，在未來的版本中不會自動出現。
+::LShowWhatsNewPanel	顯示新功能面板
+::DShowWhatsNewPanel	開啟包含此模組更新說明的新功能對話框。
+K45::{Acronym}.commons[whatsNew.title]	歡迎使用 {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	確定
+K45::{Acronym}.commons[whatsNew.readLater]	稍後閱讀
+K45::{Acronym}.commons[whatsNew.showOnFuture]	在新版本首次啟動時顯示新功能對話框
+::ELogLevel.Normal	一般
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace（注意...） 
+::ELogLevel.Verbose	Verbose（請勿長時間開啟！）

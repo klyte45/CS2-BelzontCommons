@@ -1,0 +1,34 @@
+key	ru-RU
+::TAbout	О моде
+::GLogging	Журнал
+::GAlertModals	Модальные окна оповещений
+::LLoggingLevel	Уровень журнала
+::DLoggingLevel	Изменяет уровень журнала этого мода. Verbose создаёт ОЧЕНЬ много записей — будьте осторожны.
+::LLogStacktraces	Записывать stacktrace
+::DLogStacktraces	Добавляет информацию stacktrace о том, когда лог был создан в коде
+::LShowErrorsPopups	Показывать ошибки этого мода в UI
+::DShowErrorsPopups	Отключайте только в экстренных случаях!
+::LVersion	Версия мода
+::DVersion	Текущая версия мода.
+::LGoToLocalesFolder	Открыть папку переводов
+::DGoToLocalesFolder	Открывает папку дополнительных переводов:\n- Имя <[langID].csv>, содержимое <[KEY][_TAB_][VALUE]>.\n- Переносы строк в значении как <\\n>.\n- Сохраняйте плейсхолдеры <{}>.\n- Позже поделитесь на форуме для Paradox Mods.\n- Доступные langID — в Localization.log.
+::LReloadLocales	Перезагрузить переводы
+::DReloadLocales	При переводе нажмите здесь, чтобы протестировать изменённый файл.
+::LGoToForum	Перейти на форум
+::DGoToForum	Открывает обсуждение мода на форумах Paradox Mods.
+::LGoToGitHub	Перейти в репозиторий
+::DGoToGitHub	Открывает репозиторий с исходным кодом мода.
+::LGoToLogFolder	Перейти в папку логов
+::DGoToLogFolder	Открывает папки модов игры. Лог: <{logFileName}>
+::LShowWhatsNewOnNewVersion	Показывать окно новинок при первом запуске новой версии
+::DShowWhatsNewOnNewVersion	"Если включено, диалог новинок откроется один раз при входе в город или редактор после установки или обновления этого мода. Если отключено, он не будет появляться автоматически в будущих версиях."
+::LShowWhatsNewPanel	Показать панель новинок
+::DShowWhatsNewPanel	Открывает диалог новинок с changelog этого мода.
+K45::{Acronym}.commons[whatsNew.title]	Добро пожаловать в {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Прочитать позже
+K45::{Acronym}.commons[whatsNew.showOnFuture]	Показывать окно новинок при первом запуске новой версии
+::ELogLevel.Normal	Обычный
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace (Осторожно...) 
+::ELogLevel.Verbose	Verbose (Не оставляйте надолго!)

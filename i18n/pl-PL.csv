@@ -1,0 +1,34 @@
+key	pl-PL
+::TAbout	Informacje
+::GLogging	Logowanie
+::GAlertModals	Okna modalne alertów
+::LLoggingLevel	Poziom logowania
+::DLoggingLevel	Zmienia poziom logów tego moda. Verbose generuje BARDZO dużo wpisów — używaj ostrożnie.
+::LLogStacktraces	Loguj stacktrace
+::DLogStacktraces	Dodaje informacje stacktrace o momencie wygenerowania logu w kodzie
+::LShowErrorsPopups	Pokazuj błędy tego moda w UI
+::DShowErrorsPopups	Wyłączaj tylko w nagłych przypadkach!
+::LVersion	Wersja moda
+::DVersion	Aktualna wersja moda.
+::LGoToLocalesFolder	Przejdź do folderu tłumaczeń
+::DGoToLocalesFolder	Otwiera folder dodatkowych tłumaczeń:\n- Nazwa <[langID].csv>, treść <[KEY][_TAB_][VALUE]>.\n- Nowe linie w wartości jako <\\n>.\n- Zachowaj placeholdery <{}>.\n- Udostępnij później na forum (Paradox Mods).\n- Dostępne langID w Localization.log.
+::LReloadLocales	Przeładuj tłumaczenia
+::DReloadLocales	Podczas tłumaczenia kliknij tutaj, aby przetestować zmodyfikowany plik.
+::LGoToForum	Przejdź do forum
+::DGoToForum	Otwiera dyskusję moda na forach Paradox Mods.
+::LGoToGitHub	Przejdź do repozytorium
+::DGoToGitHub	Otwiera repozytorium ze źródłami moda.
+::LGoToLogFolder	Przejdź do folderu logów
+::DGoToLogFolder	Otwiera foldery modów gry. Log: <{logFileName}>
+::LShowWhatsNewOnNewVersion	Pokaż okno nowości przy pierwszym uruchomieniu nowej wersji
+::DShowWhatsNewOnNewVersion	"Po włączeniu okno nowości otworzy się raz po wejściu do miasta lub edytora po zainstalowaniu lub zaktualizowaniu tego moda. Po wyłączeniu nie będzie się pojawiać automatycznie w przyszłych wersjach."
+::LShowWhatsNewPanel	Pokaż panel nowości
+::DShowWhatsNewPanel	Otwiera okno nowości z changelogiem tego moda.
+K45::{Acronym}.commons[whatsNew.title]	Witamy w {modName} {version}
+K45::{Acronym}.commons[whatsNew.ok]	OK
+K45::{Acronym}.commons[whatsNew.readLater]	Przeczytaj później
+K45::{Acronym}.commons[whatsNew.showOnFuture]	Pokaż okno nowości przy pierwszym uruchomieniu nowej wersji
+::ELogLevel.Normal	Normalny
+::ELogLevel.Debug	Debug
+::ELogLevel.Trace	Trace (Uwaga...) 
+::ELogLevel.Verbose	Verbose (Nie trzymaj włączone długo!)

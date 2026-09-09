@@ -1,4 +1,4 @@
-﻿using Belzont.Utils;
+using Belzont.Utils;
 using Colossal;
 using Colossal.Logging;
 using Colossal.OdinSerializer.Utilities;
@@ -13,16 +13,18 @@ using UnityEngine;
 namespace Belzont.Interfaces
 {
 
-    [SettingsUIShowGroupName(kLogSection)]
+    [SettingsUIShowGroupName(kLogSection, kAlertModalsSection)]
     public abstract partial class BasicModData : ModSetting
 
     {
         public const string kAboutTab = "About";
         public const string kLogSection = "Logging";
-        public const string kChangelogSection = "Changelog";
+        public const string kAlertModalsSection = "AlertModals";
         private LogLevel loggingLevel = LogLevel.Normal;
         private bool logStacktraces = false;
         private bool showErrorsPopups = false;
+        private bool showWhatsNewOnNewVersion = true;
+        private string lastWhatsNewVersionShown = string.Empty;
 
         public event Action<LogLevel> OnLoggingEnabledChanged;
 
@@ -140,19 +142,42 @@ namespace Belzont.Interfaces
         [SettingsUIButton]
         public bool GoToLogFolder { set => RemoteProcess.OpenFolder(Path.GetDirectoryName(LogUtils.GetLogLocation())); }
 
+        [SettingsUISection(kAboutTab, kAlertModalsSection)]
+        public bool ShowWhatsNewOnNewVersion
+        {
+            get => showWhatsNewOnNewVersion;
+            set => showWhatsNewOnNewVersion = value;
+        }
+
+        [SettingsUISection(kAboutTab, kAlertModalsSection)]
+        [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckChangelogUnavailable))]
+        [SettingsUIButton]
+        public bool ShowWhatsNewPanel
+        {
+            set
+            {
+                if (BasicIMod.Instance is null) return;
+                BasicIMod.Instance.GetManagedSystem<Belzont.Systems.WhatsNewUISystem>()?.RequestShowFromSettings();
+            }
+        }
+
+        [SettingsUIHidden]
+        public string LastWhatsNewVersionShown
+        {
+            get => lastWhatsNewVersionShown;
+            set => lastWhatsNewVersionShown = value ?? string.Empty;
+        }
+
         public sealed override void SetDefaults()
         {
             LoggingLevel = LogLevel.Normal;
+            ShowWhatsNewOnNewVersion = true;
+            LastWhatsNewVersionShown = string.Empty;
             OnSetDefaults();
         }
 
         public bool CheckForumsLinkUnset() => BasicIMod.ModAssemblyDescription.ForumsURL.IsNullOrWhitespace();
         public bool CheckGitHubLinkUnset() => BasicIMod.ModAssemblyDescription.GitHubURL.IsNullOrWhitespace();
-
-        [SettingsUIMultilineText]
-        [SettingsUIHideByCondition(typeof(BasicModData), nameof(CheckChangelogUnavailable))]
-        [SettingsUISection(kAboutTab, kChangelogSection)]
-        public string Changelog => string.Empty;
         public bool CheckChangelogUnavailable() => !KResourceLoader.ResourceExistsMod("changelog.md");
 
         public abstract void OnSetDefaults();
