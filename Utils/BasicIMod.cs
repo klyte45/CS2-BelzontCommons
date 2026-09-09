@@ -446,7 +446,13 @@ namespace Belzont.Interfaces
 
         private static Dictionary<string, string> LocaleFileForColumn(IEnumerable<string[]> fileLines, int valueColumn)
         {
-            return fileLines.Skip(1).GroupBy(x => x[0]).Select(x => x.First()).ToDictionary(x => ProcessKey(x[0], ModData), x => ReplaceSpecialChars(RemoveQuotes(x.ElementAtOrDefault(valueColumn) is string s && !s.IsNullOrWhitespace() ? s : x.ElementAtOrDefault(1))));
+            return fileLines.Skip(1)
+                .Where(x => x.Length > 0 && !x[0].IsNullOrWhitespace())
+                .GroupBy(x => x[0])
+                .Select(x => x.First())
+                .Select(x => (Key: ProcessKey(x[0], ModData), Value: ReplaceSpecialChars(RemoveQuotes(x.ElementAtOrDefault(valueColumn) is string s && !s.IsNullOrWhitespace() ? s : x.ElementAtOrDefault(1)))))
+                .Where(x => !x.Key.IsNullOrWhitespace())
+                .ToDictionary(x => x.Key, x => x.Value);
         }
 
         private static string ReplaceSpecialChars(string v)
