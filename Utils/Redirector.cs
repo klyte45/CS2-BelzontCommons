@@ -73,10 +73,31 @@ namespace Belzont.Utils
         public static bool PreventDefault() => false;
 
         public void AddRedirect(MethodInfo oldMethod, MethodInfo newMethodPre, MethodInfo newMethodPost = null, MethodInfo transpiler = null)
-        {
+            => AddRedirect(oldMethod, newMethodPre, newMethodPost, transpiler, Priority.Normal, Priority.Normal);
 
+        /// <summary>
+        /// Same as <see cref="AddRedirect(MethodInfo, MethodInfo, MethodInfo, MethodInfo)"/> with explicit Harmony priorities.
+        /// Comparison-based prefixes (snapshot before original) should use <see cref="Priority.First"/>.
+        /// Update-group postfixes that observe final state (and use <c>bool __runOriginal</c>) should use
+        /// <see cref="Priority.Last"/> so they run after other mods' After patches.
+        /// </summary>
+        public void AddRedirect(
+            MethodInfo oldMethod,
+            MethodInfo newMethodPre,
+            MethodInfo newMethodPost,
+            MethodInfo transpiler,
+            int prefixPriority,
+            int postfixPriority)
+        {
             if (BasicIMod.TraceMode) LogUtils.DoTraceLog($"Adding patch! {oldMethod.DeclaringType} {oldMethod}");
-            m_detourList.Add(Harmony.Patch(oldMethod, newMethodPre != null ? new HarmonyMethod(newMethodPre) : null, newMethodPost != null ? new HarmonyMethod(newMethodPost) : null, transpiler != null ? new HarmonyMethod(transpiler) : null));
+            var pre = newMethodPre != null
+                ? new HarmonyMethod(newMethodPre) { priority = prefixPriority }
+                : null;
+            var post = newMethodPost != null
+                ? new HarmonyMethod(newMethodPost) { priority = postfixPriority }
+                : null;
+            var transp = transpiler != null ? new HarmonyMethod(transpiler) : null;
+            m_detourList.Add(Harmony.Patch(oldMethod, pre, post, transp));
             m_patches.Add(oldMethod);
         }
 
