@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	Показывать окно но
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace (Осторожно...) 
 ::ELogLevel.Verbose	Verbose (Не оставляйте надолго!)
+K45::{Acronym}.commons[picker.multiSelectHint]	**ПОДСКАЗКА:** Удерживайте Shift, чтобы выбрать несколько файлов
+K45::{Acronym}.commons[picker.parentFolder]	Родительская папка
+K45::{Acronym}.commons[picker.initialFolder]	Начальная папка

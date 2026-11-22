@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	Pokaż okno nowości przy pierwszy
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace (Uwaga...) 
 ::ELogLevel.Verbose	Verbose (Nie trzymaj włączone długo!)
+K45::{Acronym}.commons[picker.multiSelectHint]	**WSKAZÓWKA:** Przytrzymaj Shift, aby wybrać wiele plików
+K45::{Acronym}.commons[picker.parentFolder]	Folder nadrzędny
+K45::{Acronym}.commons[picker.initialFolder]	Folder początkowy

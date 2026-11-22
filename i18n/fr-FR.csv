@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	Afficher la fenêtre des nouveaut�
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace (Attention...) 
 ::ELogLevel.Verbose	Verbose (Ne le laissez pas longtemps !)
+K45::{Acronym}.commons[picker.multiSelectHint]	**ASTUCE :** Maintenez Maj pour sélectionner plusieurs fichiers
+K45::{Acronym}.commons[picker.parentFolder]	Dossier parent
+K45::{Acronym}.commons[picker.initialFolder]	Dossier initial

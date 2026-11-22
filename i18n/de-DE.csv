@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	„Was ist neu“-Dialog beim erst
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace (Vorsicht...) 
 ::ELogLevel.Verbose	Verbose (Nicht lange aktiv lassen!)
+K45::{Acronym}.commons[picker.multiSelectHint]	**HINWEIS:** Umschalttaste halten, um mehrere Dateien auszuwählen
+K45::{Acronym}.commons[picker.parentFolder]	Übergeordneter Ordner
+K45::{Acronym}.commons[picker.initialFolder]	Ausgangsordner

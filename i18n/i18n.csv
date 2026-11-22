@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	Show what's new modal on new versi
 ::ELogLevel.Debug	Debug	Debug
 ::ELogLevel.Trace	Trace (Beware...) 	Trace (Cuidado...) 
 ::ELogLevel.Verbose	Verbose (Don't let it for much time!)	Verbose (Não deixe ligado por muito tempo!)
+K45::{Acronym}.commons[picker.multiSelectHint]	**HINT:** Hold shift to select multiple files	**DICA:** Segure Shift para selecionar vários arquivos
+K45::{Acronym}.commons[picker.parentFolder]	Parent folder	Pasta superior
+K45::{Acronym}.commons[picker.initialFolder]	Initial folder	Pasta inicial

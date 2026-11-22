@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	在新版本首次啟動時顯示�
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace（注意...） 
 ::ELogLevel.Verbose	Verbose（請勿長時間開啟！）
+K45::{Acronym}.commons[picker.multiSelectHint]	**提示：** 按住 Shift 可選取多個檔案
+K45::{Acronym}.commons[picker.parentFolder]	上層資料夾
+K45::{Acronym}.commons[picker.initialFolder]	初始資料夾

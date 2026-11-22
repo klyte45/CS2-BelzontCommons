@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	새 버전 첫 실행 시 새 소�
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace (주의...) 
 ::ELogLevel.Verbose	Verbose (오래 켜 두지 마세요!)
+K45::{Acronym}.commons[picker.multiSelectHint]	**힌트:** Shift를 누른 채 여러 파일을 선택하세요
+K45::{Acronym}.commons[picker.parentFolder]	상위 폴더
+K45::{Acronym}.commons[picker.initialFolder]	초기 폴더

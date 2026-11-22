@@ -32,3 +32,6 @@ K45::{Acronym}.commons[whatsNew.showOnFuture]	新バージョンの初回起動�
 ::ELogLevel.Debug	Debug
 ::ELogLevel.Trace	Trace（注意） 
 ::ELogLevel.Verbose	Verbose（長時間オンにしないでください！）
+K45::{Acronym}.commons[picker.multiSelectHint]	**ヒント:** Shiftキーを押しながら複数のファイルを選択できます
+K45::{Acronym}.commons[picker.parentFolder]	親フォルダー
+K45::{Acronym}.commons[picker.initialFolder]	初期フォルダー
