@@ -11,7 +11,7 @@ key	it-IT
 ::LVersion	Versione del mod
 ::DVersion	La versione attuale del mod.
 ::LGoToLocalesFolder	Vai alla cartella delle traduzioni
-::DGoToLocalesFolder	Apre la cartella delle traduzioni aggiuntive:\n- Nome <[langID].csv>, contenuto <[KEY][_TAB_][VALUE]>.\n- Nuove righe nel valore come <\\n>.\n- Mantieni i segnaposto <{}>.\n- Condividi poi sul forum per Paradox Mods.\n- langID disponibili in Localization.log.
+::DGoToLocalesFolder	Apre la cartella delle traduzioni aggiuntive:\n- Nome <[langID].csv>, contenuto <[KEY][_TAB_][VALUE]>.\n- Nuove righe nel valore come <\\\\n>.\n- Mantieni i segnaposto <{}>.\n- Condividi poi sul forum per Paradox Mods.\n- langID disponibili in Localization.log.
 ::LReloadLocales	Ricarica traduzioni
 ::DReloadLocales	Durante le traduzioni, fai clic qui per testare il file modificato.
 ::LGoToForum	Vai ai forum

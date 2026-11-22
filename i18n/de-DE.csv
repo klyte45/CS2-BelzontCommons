@@ -11,7 +11,7 @@ key	de-DE
 ::LVersion	Mod-Version
 ::DVersion	Die aktuelle Mod-Version.
 ::LGoToLocalesFolder	Zum Übersetzungsordner
-::DGoToLocalesFolder	Öffnet den Ordner für zusätzliche Übersetzungen:\n- Dateiname <[langID].csv>, Inhalt <[KEY][_TAB_][VALUE]>.\n- Zeilenumbrüche im Wert als <\\n>.\n- Platzhalter in <{}> beibehalten.\n- Später im Forum teilen für Paradox Mods.\n- Verfügbare langIDs in Localization.log.
+::DGoToLocalesFolder	Öffnet den Ordner für zusätzliche Übersetzungen:\n- Dateiname <[langID].csv>, Inhalt <[KEY][_TAB_][VALUE]>.\n- Zeilenumbrüche im Wert als <\\\\n>.\n- Platzhalter in <{}> beibehalten.\n- Später im Forum teilen für Paradox Mods.\n- Verfügbare langIDs in Localization.log.
 ::LReloadLocales	Übersetzungen neu laden
 ::DReloadLocales	Beim Übersetzen hier klicken, um die geänderte Datei zu testen.
 ::LGoToForum	Zum Forum

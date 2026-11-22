@@ -11,7 +11,7 @@ key	ja-JP
 ::LVersion	MODバージョン
 ::DVersion	現在のMODバージョンです。
 ::LGoToLocalesFolder	翻訳フォルダを開く
-::DGoToLocalesFolder	追加翻訳ファイル用フォルダを開きます:\n- ファイル名 <[langID].csv>、内容 <[KEY][_TAB_][VALUE]>。\n- 値内の改行は <\\n>。\n- <{}> のプレースホルダを残してください。\n- 後でフォーラムで共有し Paradox Mods に追加できます。\n- 利用可能な langID は Localization.log を確認。
+::DGoToLocalesFolder	追加翻訳ファイル用フォルダを開きます:\n- ファイル名 <[langID].csv>、内容 <[KEY][_TAB_][VALUE]>。\n- 値内の改行は <\\\\n>。\n- <{}> のプレースホルダを残してください。\n- 後でフォーラムで共有し Paradox Mods に追加できます。\n- 利用可能な langID は Localization.log を確認。
 ::LReloadLocales	翻訳を再読み込み
 ::DReloadLocales	翻訳作業中、変更したファイルをテストするにはここをクリック。
 ::LGoToForum	フォーラムへ

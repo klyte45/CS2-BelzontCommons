@@ -594,7 +594,13 @@ namespace Belzont.Interfaces
 
         private static string ReplaceSpecialChars(string v)
         {
-            return v.Replace("\\n", "\n").Replace("\\t", "\t");
+            // Protect \\ first so CSV "\\n" stays the literal "\n" string (not a newline).
+            const string escapedBackslash = "\u0001";
+            return v
+                .Replace("\\\\", escapedBackslash)
+                .Replace("\\n", "\n")
+                .Replace("\\t", "\t")
+                .Replace(escapedBackslash, "\\");
         }
 
         private static string ProcessKey(string key, BasicModData modData)

@@ -11,7 +11,7 @@ key	zh-HANT
 ::LVersion	模組版本
 ::DVersion	目前模組版本。
 ::LGoToLocalesFolder	開啟翻譯資料夾
-::DGoToLocalesFolder	開啟附加翻譯檔案資料夾：\n- 檔名 <[langID].csv>，內容 <[KEY][_TAB_][VALUE]>。\n- 值中的換行寫為 <\\n>。\n- 保留 <{}> 預留位置。\n- 之後可在論壇分享以加入 Paradox Mods。\n- 可用 langID 見 Localization.log。
+::DGoToLocalesFolder	開啟附加翻譯檔案資料夾：\n- 檔名 <[langID].csv>，內容 <[KEY][_TAB_][VALUE]>。\n- 值中的換行寫為 <\\\\n>。\n- 保留 <{}> 預留位置。\n- 之後可在論壇分享以加入 Paradox Mods。\n- 可用 langID 見 Localization.log。
 ::LReloadLocales	重新載入翻譯
 ::DReloadLocales	翻譯時點此以測試已修改的檔案。
 ::LGoToForum	前往論壇

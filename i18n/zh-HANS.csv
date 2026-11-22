@@ -11,7 +11,7 @@ key	zh-HANS
 ::LVersion	模组版本
 ::DVersion	当前模组版本。
 ::LGoToLocalesFolder	打开翻译文件夹
-::DGoToLocalesFolder	打开附加翻译文件所在文件夹：\n- 文件名 <[langID].csv>，内容 <[KEY][_TAB_][VALUE]>。\n- 值中的换行写为 <\\n>。\n- 保留 <{}> 占位符。\n- 之后可在论坛分享以加入 Paradox Mods。\n- 可用 langID 见 Localization.log。
+::DGoToLocalesFolder	打开附加翻译文件所在文件夹：\n- 文件名 <[langID].csv>，内容 <[KEY][_TAB_][VALUE]>。\n- 值中的换行写为 <\\\\n>。\n- 保留 <{}> 占位符。\n- 之后可在论坛分享以加入 Paradox Mods。\n- 可用 langID 见 Localization.log。
 ::LReloadLocales	重新加载翻译
 ::DReloadLocales	翻译时点击此处以测试已修改的文件。
 ::LGoToForum	前往论坛

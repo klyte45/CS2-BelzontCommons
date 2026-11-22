@@ -11,7 +11,7 @@ key	fr-FR
 ::LVersion	Version du mod
 ::DVersion	La version actuelle du mod.
 ::LGoToLocalesFolder	Aller au dossier des traductions
-::DGoToLocalesFolder	Ouvre le dossier des traductions supplémentaires :\n- Nom <[langID].csv>, contenu <[KEY][_TAB_][VALUE]>.\n- Sauts de ligne dans la valeur en <\\n>.\n- Conservez les espaces réservés <{}>.\n- Partagez ensuite sur le forum pour Paradox Mods.\n- langIDs disponibles dans Localization.log.
+::DGoToLocalesFolder	Ouvre le dossier des traductions supplémentaires :\n- Nom <[langID].csv>, contenu <[KEY][_TAB_][VALUE]>.\n- Sauts de ligne dans la valeur en <\\\\n>.\n- Conservez les espaces réservés <{}>.\n- Partagez ensuite sur le forum pour Paradox Mods.\n- langIDs disponibles dans Localization.log.
 ::LReloadLocales	Recharger les traductions
 ::DReloadLocales	Lors des traductions, cliquez ici pour tester le fichier modifié.
 ::LGoToForum	Aller aux forums

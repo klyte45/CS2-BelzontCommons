@@ -11,7 +11,7 @@ key	ru-RU
 ::LVersion	Версия мода
 ::DVersion	Текущая версия мода.
 ::LGoToLocalesFolder	Открыть папку переводов
-::DGoToLocalesFolder	Открывает папку дополнительных переводов:\n- Имя <[langID].csv>, содержимое <[KEY][_TAB_][VALUE]>.\n- Переносы строк в значении как <\\n>.\n- Сохраняйте плейсхолдеры <{}>.\n- Позже поделитесь на форуме для Paradox Mods.\n- Доступные langID — в Localization.log.
+::DGoToLocalesFolder	Открывает папку дополнительных переводов:\n- Имя <[langID].csv>, содержимое <[KEY][_TAB_][VALUE]>.\n- Переносы строк в значении как <\\\\n>.\n- Сохраняйте плейсхолдеры <{}>.\n- Позже поделитесь на форуме для Paradox Mods.\n- Доступные langID — в Localization.log.
 ::LReloadLocales	Перезагрузить переводы
 ::DReloadLocales	При переводе нажмите здесь, чтобы протестировать изменённый файл.
 ::LGoToForum	Перейти на форум

@@ -11,7 +11,7 @@ key	pl-PL
 ::LVersion	Wersja moda
 ::DVersion	Aktualna wersja moda.
 ::LGoToLocalesFolder	Przejdź do folderu tłumaczeń
-::DGoToLocalesFolder	Otwiera folder dodatkowych tłumaczeń:\n- Nazwa <[langID].csv>, treść <[KEY][_TAB_][VALUE]>.\n- Nowe linie w wartości jako <\\n>.\n- Zachowaj placeholdery <{}>.\n- Udostępnij później na forum (Paradox Mods).\n- Dostępne langID w Localization.log.
+::DGoToLocalesFolder	Otwiera folder dodatkowych tłumaczeń:\n- Nazwa <[langID].csv>, treść <[KEY][_TAB_][VALUE]>.\n- Nowe linie w wartości jako <\\\\n>.\n- Zachowaj placeholdery <{}>.\n- Udostępnij później na forum (Paradox Mods).\n- Dostępne langID w Localization.log.
 ::LReloadLocales	Przeładuj tłumaczenia
 ::DReloadLocales	Podczas tłumaczenia kliknij tutaj, aby przetestować zmodyfikowany plik.
 ::LGoToForum	Przejdź do forum
