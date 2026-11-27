@@ -19,6 +19,7 @@ namespace Belzont.Utils
         }
 
         public static float[] ToArray(this float3 f) => new[] { f.x, f.y, f.z };
+        /// <summary>Map-world azimuth in degrees [0,360) from <paramref name="from"/> toward <paramref name="to"/> (doc 26 Case 2 node → bezier control).</summary>
         public static float GetAngleToPoint(this float2 from, float2 to)
         {
             float ca = to.x - from.x;
